@@ -53,6 +53,8 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        abort_unless($request->user()->role === 'admin', 403, 'Akun staf dikelola oleh admin toko.');
+
         $request->validateWithBag('userDeletion', [
             'password' => ['required', 'current_password'],
         ]);

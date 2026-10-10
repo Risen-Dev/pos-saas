@@ -19,7 +19,9 @@
             </svg>
         </button>
 
-        <a href="{{ route('getting-started') }}" class="hidden md:flex text-sm font-semibold text-primary-600">Mulai berjualan →</a>
+        @if(auth()->user()->role === 'admin')
+            <a href="{{ route('getting-started') }}" class="hidden md:flex text-sm font-semibold text-primary-600">Mulai berjualan →</a>
+        @endif
     </div>
 
     <!-- Right Section: Quick Actions & Profile Menu -->
@@ -38,6 +40,7 @@
                 : null;
         @endphp
 
+        @if(auth()->user()->role === 'admin')
         <a href="{{ route('billing.index') }}"
             class="items-center hidden px-2.5 py-1 text-[11px] font-bold transition-all rounded-full sm:inline-flex gap-1.5 border shadow-2xs hover:opacity-90"
             title="Kelola Paket Berlangganan Toko">
@@ -49,6 +52,7 @@
                 <span class="text-rose-700 font-heading">Belum Berlangganan</span>
             @endif
         </a>
+        @endif
 
         <!-- Quick POS Terminal Button (Emerald Accent Button) -->
         <a href="{{ route('pos.index') }}"
@@ -58,12 +62,14 @@
         </a>
 
         <!-- Quick AI Assistant Button -->
-        <a href="{{ route('reports.ai') }}"
-            class="relative flex items-center justify-center w-10 h-10 transition-all rounded-md text-accent-700 bg-accent-100 hover:bg-accent-500 hover:text-white"
-            title="Tanya GrowPOS AI">
-            <x-icon class="text-sm fa-solid fa-wand-magic-sparkles" />
-            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-accent-500 rounded-full ring-2 ring-surface-0"></span>
-        </a>
+        @can('feature-ai-analytics')
+            <a href="{{ route('reports.ai') }}"
+                class="relative flex items-center justify-center w-10 h-10 transition-all rounded-md text-accent-700 bg-accent-100 hover:bg-accent-500 hover:text-white"
+                title="Tanya GrowPOS AI">
+                <x-icon class="text-sm fa-solid fa-wand-magic-sparkles" />
+                <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-accent-500 rounded-full ring-2 ring-surface-0"></span>
+            </a>
+        @endcan
 
         <div class="h-6 w-[1px] bg-border-200 mx-1"></div>
 
@@ -107,17 +113,10 @@
                     <span>Profil Saya</span>
                 </a>
 
-                <a href="{{ route('billing.index') }}"
-                    class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-ink-700 rounded-md hover:bg-primary-50 hover:text-primary-600 transition">
-                    <x-icon class="w-4 text-sm fa-solid fa-credit-card" />
-                    <span>Langganan & Penagihan</span>
-                </a>
-
-                <a href="{{ route('settings.index') }}"
-                    class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-ink-700 rounded-md hover:bg-primary-50 hover:text-primary-600 transition">
-                    <x-icon class="w-4 text-sm fa-solid fa-sliders" />
-                    <span>Pengaturan Toko</span>
-                </a>
+                @if(auth()->user()->role === 'admin')
+                    <a href="{{ route('billing.index') }}" class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-ink-700 rounded-md hover:bg-primary-50 hover:text-primary-600 transition"><x-icon class="w-4 text-sm fa-solid fa-credit-card" /><span>Langganan & Penagihan</span></a>
+                    <a href="{{ route('settings.index') }}" class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-ink-700 rounded-md hover:bg-primary-50 hover:text-primary-600 transition"><x-icon class="w-4 text-sm fa-solid fa-sliders" /><span>Pengaturan Toko</span></a>
+                @endif
 
                 <div class="my-1 border-t border-border-200"></div>
 

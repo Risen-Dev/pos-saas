@@ -29,6 +29,8 @@ use App\Http\Controllers\PosApiController;
 use App\Http\Controllers\PosController;
 // Finance, Reports, Settings & AI Controllers
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PurchaseOrderController;
+use App\Http\Controllers\StocktakeController;
 use App\Http\Controllers\ProductVariantController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
@@ -89,20 +91,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // A. SETUP TENANT & PROFILE MANAGEMENT
     // (Bisa diakses walau belum punya tenant_id aktif)
     // ==========================================
-    Route::get('/setup-business', [TenantController::class, 'create'])->name('tenants.create');
-    Route::post('/setup-business', [TenantController::class, 'store'])->name('tenants.store');
+    Route::get('/setup-business', [TenantController::class, 'create'])->middleware('admin')->name('tenants.create');
+    Route::post('/setup-business', [TenantController::class, 'store'])->middleware('admin')->name('tenants.store');
 
-    Route::get('/tenants', [TenantController::class, 'index'])->name('tenants.index');
-    Route::get('/tenants/{tenant}/edit', [TenantController::class, 'edit'])->name('tenants.edit');
-    Route::put('/tenants/{tenant}', [TenantController::class, 'update'])->name('tenants.update');
-    Route::delete('/tenants/{tenant}', [TenantController::class, 'destroy'])->name('tenants.destroy');
+    Route::get('/tenants', [TenantController::class, 'index'])->name('tenants.index')->middleware('admin');
+    Route::get('/tenants/{tenant}/edit', [TenantController::class, 'edit'])->name('tenants.edit')->middleware('admin');
+    Route::put('/tenants/{tenant}', [TenantController::class, 'update'])->name('tenants.update')->middleware('admin');
+    Route::delete('/tenants/{tenant}', [TenantController::class, 'destroy'])->name('tenants.destroy')->middleware('admin');
 
     Route::middleware(['check.tenant', 'admin'])->group(function () {
         Route::get('/business', [BusinessProfileController::class, 'edit'])->name('business.edit');
         Route::put('/business', [BusinessProfileController::class, 'update'])->name('business.update');
     });
 
-    Route::get('/getting-started', [GettingStartedController::class, 'index'])->middleware('check.tenant')->name('getting-started');
+    Route::get('/getting-started', [GettingStartedController::class, 'index'])->middleware(['check.tenant', 'admin'])->name('getting-started');
 
     // Switch Tenant Action
     Route::post('/tenants/switch/{tenant}', function ($tenantId) {
@@ -110,7 +112,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         auth()->user()->update(['tenant_id' => $tenant->id]);
 
         return back()->with('status', 'Berhasil pindah ke bisnis: '.$tenant->name);
-    })->name('tenants.switch');
+    })->middleware('admin')->name('tenants.switch');
 
     // User Profile Settings
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
@@ -131,7 +133,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // B. BILLING & SAAS SUBSCRIPTION MODULE
     // (Bisa diakses walau paket langganan mati/habis)
     // ==========================================
-    Route::prefix('billing')->name('billing.')->group(function () {
+    Route::prefix('billing')->name('billing.')->middleware('admin')->group(function () {
         Route::get('/', [SubscriptionController::class, 'index'])->name('index');
         Route::post('/subscribe', [SubscriptionController::class, 'subscribe'])->name('subscribe');
         Route::get('/invoices/{invoice}', [SubscriptionController::class, 'showInvoice'])->name('invoice');
@@ -159,6 +161,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/getting-started/import', [GettingStartedController::class, 'import'])->name('getting-started.import');
             Route::get('/menu/template', [GettingStartedController::class, 'template'])->name('menu.template');
             Route::get('/menu/export', [GettingStartedController::class, 'export'])->name('menu.export');
+        });
+        Route::middleware('manager')->group(function () {
             Route::get('/menu/configure', [MenuConfigurationController::class, 'index'])->name('menu.configure');
             Route::post('/menu/{product}/configure', [MenuConfigurationController::class, 'store'])->name('menu.configure.store');
             Route::delete('/menu/{product}/configure', [MenuConfigurationController::class, 'destroy'])->name('menu.configure.destroy');
@@ -176,26 +180,37 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
 
         // --- MASTER DATA: PRODUK, KATEGORI & VARIAN ---
-        Route::resource('categories', CategoryController::class)->only(['index', 'store', 'destroy'])->middleware('admin');
-        Route::get('/products/{product}/label', [ProductController::class, 'label'])->middleware('admin')->name('products.label');
-        Route::resource('products', ProductController::class)->except(['show'])->middleware('admin');
-        Route::resource('products.variants', ProductVariantController::class)->only(['store', 'update', 'destroy'])->middleware('admin');
+        Route::resource('categories', CategoryController::class)->only(['index', 'store', 'destroy'])->middleware('manager');
+        Route::get('/products/{product}/label', [ProductController::class, 'label'])->middleware('manager')->name('products.label');
+        Route::resource('products', ProductController::class)->except(['show'])->middleware('manager');
+        Route::resource('products.variants', ProductVariantController::class)->only(['store', 'update', 'destroy'])->middleware('manager');
 
         // --- MASTER DATA: BAHAN BAKU & INVENTORI ---
-        Route::resource('materials', MaterialController::class)->only(['index', 'store'])->middleware('admin');
-        Route::post('/materials/update-stock', [MaterialController::class, 'updateStock'])->middleware('admin')->name('materials.update-stock');
-        Route::get('/materials/{id}/history', [MaterialController::class, 'getHistory'])->middleware('admin')->name('materials.history-json');
+        Route::resource('materials', MaterialController::class)->only(['index', 'store'])->middleware('manager');
+        Route::post('/materials/update-stock', [MaterialController::class, 'updateStock'])->middleware('manager')->name('materials.update-stock');
+        Route::get('/materials/{id}/history', [MaterialController::class, 'getHistory'])->middleware('manager')->name('materials.history-json');
 
         // --- MASTER DATA: SUPPLIER & PEMASOK ---
-        Route::get('/suppliers', [SupplierController::class, 'index'])->middleware('admin')->name('suppliers.index');
-        Route::post('/suppliers', [SupplierController::class, 'store'])->middleware('admin')->name('suppliers.store');
-        Route::delete('/suppliers/{supplier}', [SupplierController::class, 'destroy'])->middleware('admin')->name('suppliers.destroy');
+        Route::get('/suppliers', [SupplierController::class, 'index'])->middleware('manager')->name('suppliers.index');
+        Route::post('/suppliers', [SupplierController::class, 'store'])->middleware('manager')->name('suppliers.store');
+        Route::delete('/suppliers/{supplier}', [SupplierController::class, 'destroy'])->middleware('manager')->name('suppliers.destroy');
 
         // --- INVENTORY ADJUSTMENT & MUTASI STOK ---
-        Route::get('/inventory', [InventoryController::class, 'index'])->middleware('admin')->name('inventory.index');
-        Route::post('/inventory/adjust', [InventoryController::class, 'adjust'])->middleware('admin')->name('inventory.adjust');
-        Route::get('/inventory/history', [InventoryController::class, 'history'])->middleware('admin')->name('inventory.history');
-        Route::resource('stock-movements', StockMovementController::class)->only(['index'])->middleware('admin');
+        Route::get('/inventory', [InventoryController::class, 'index'])->middleware('manager')->name('inventory.index');
+        Route::post('/inventory/adjust', [InventoryController::class, 'adjust'])->middleware('manager')->name('inventory.adjust');
+        Route::get('/inventory/history', [InventoryController::class, 'history'])->middleware('manager')->name('inventory.history');
+        Route::resource('stock-movements', StockMovementController::class)->only(['index'])->middleware('manager');
+        Route::middleware('manager')->group(function () {
+            Route::get('/purchases', [PurchaseOrderController::class, 'index'])->name('purchases.index');
+            Route::get('/purchases/create', [PurchaseOrderController::class, 'create'])->name('purchases.create');
+            Route::post('/purchases', [PurchaseOrderController::class, 'store'])->name('purchases.store');
+            Route::get('/purchases/{purchase}', [PurchaseOrderController::class, 'show'])->name('purchases.show');
+            Route::post('/purchases/{purchase}/receive', [PurchaseOrderController::class, 'receive'])->name('purchases.receive');
+            Route::get('/stocktakes', [StocktakeController::class, 'index'])->name('stocktakes.index');
+            Route::post('/stocktakes', [StocktakeController::class, 'store'])->name('stocktakes.store');
+            Route::get('/stocktakes/{stocktake}', [StocktakeController::class, 'show'])->name('stocktakes.show');
+            Route::post('/stocktakes/{stocktake}/complete', [StocktakeController::class, 'complete'])->name('stocktakes.complete');
+        });
 
         // --- CRM & CUSTOMERS (TERPROTEKSI: Khusus Growth & Scale) ---
         Route::middleware('can:feature-crm')->group(function () {
@@ -204,12 +219,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
 
         // --- DISCOUNTS & PROMOS ---
-        Route::resource('discounts', DiscountController::class)->middleware('admin');
+        Route::resource('discounts', DiscountController::class)->middleware('manager');
 
         // --- KASIR & POS TERMINAL ---
         Route::resource('pos', PosController::class)->only(['index', 'store']);
         Route::resource('orders', OrderController::class)->only(['index', 'show']);
-        Route::resource('service-orders', ServiceOrderController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
+        Route::resource('service-orders', ServiceOrderController::class)->only(['index', 'store', 'show', 'update', 'destroy'])->middleware('admin');
         Route::get('/orders/{id}/print', [OrderController::class, 'print'])->name('orders.print');
         Route::get('/orders/{id}/check-status', [PosController::class, 'checkStatus'])->name('orders.checkStatus');
         Route::get('/pos/check-payment-status/{order}', [PosController::class, 'checkStatus'])->name('pos.check-payment');
@@ -235,14 +250,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/finance/settings', [FinanceController::class, 'updateSettings'])->middleware('can:manage-finance')->name('finance.settings');
 
         // --- LAPORAN OPERASIONAL & EXPORT ---
-        Route::get('/reports', [ReportController::class, 'index'])->middleware('admin')->name('reports.index');
-        Route::get('/reports/export-excel', [ReportController::class, 'exportExcel'])->middleware('admin')->name('reports.export-excel');
-        Route::get('/reports/exports', [ReportController::class, 'exportList'])->middleware('admin')->name('reports.exports-list');
-        Route::get('/reports/exports/download/{id}', [ReportController::class, 'downloadFile'])->middleware('admin')->name('reports.download-file');
-        Route::get('/reports/exports/status-json', [ReportController::class, 'getExportsStatusJson'])->middleware('admin')->name('reports.exports-status-json');
+        Route::get('/reports', [ReportController::class, 'index'])->middleware('manager')->name('reports.index');
+        Route::get('/reports/export-excel', [ReportController::class, 'exportExcel'])->middleware('manager')->name('reports.export-excel');
+        Route::get('/reports/exports', [ReportController::class, 'exportList'])->middleware('manager')->name('reports.exports-list');
+        Route::get('/reports/exports/download/{id}', [ReportController::class, 'downloadFile'])->middleware('manager')->name('reports.download-file');
+        Route::get('/reports/exports/status-json', [ReportController::class, 'getExportsStatusJson'])->middleware('manager')->name('reports.exports-status-json');
 
         // --- AI ADVISOR ENGINE & CHAT REAL-TIME (TERPROTEKSI: Khusus Scale) ---
-        Route::middleware('can:feature-ai-analytics')->group(function () {
+        Route::middleware(['can:feature-ai-analytics', 'can:access-backoffice'])->group(function () {
             Route::get('/reports/ai-analysis', [AiReportController::class, 'index'])->name('reports.ai');
             Route::post('/reports/ai-chat', [AiReportController::class, 'chat'])->name('reports.ai-chat');
             Route::get('/api/pos/recommendation', [PosApiController::class, 'getRecommendation'])->name('api.pos.recommendation');

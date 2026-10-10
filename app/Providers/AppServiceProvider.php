@@ -22,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::define('platform-admin', fn (User $user) => $user->is_platform_admin === true);
+        Gate::define('access-backoffice', fn (User $user) => in_array($user->role, ['admin', 'manager'], true) && $user->tenant_id !== null);
         Gate::define('manage-finance', fn (User $user) => $user->role === 'admin' && $user->tenant_id !== null);
 
         // 1. Gate Fitur QRIS (Khusus Growth & Scale)

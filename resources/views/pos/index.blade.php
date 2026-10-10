@@ -73,7 +73,10 @@
 
 <body
     class="min-h-screen [background:#f5f7f3] [font-family:Inter,_system-ui,_sans-serif] [&_button:focus-visible]:[outline:3px_solid_#90b9a5] [&_button:focus-visible]:[outline-offset:3px]"
-    x-data="growPos">
+    x-data="growPos"
+    @keydown.f2.window.prevent="if (cart.length && !busy) pay()"
+    @keydown.f6.window.prevent="if (!busy) modal='drafts'"
+    @keydown.f8.window.prevent="if (!busy) modal='history'">
     <script type="application/json" id="grow-pos-data">@json($posConfig)</script>
     @if (request('panel') === 'history')
         <div x-init="$nextTick(() => modal = 'history')"></div>
@@ -91,7 +94,7 @@
     ========================================================== --}}
         <div class="flex items-center min-w-0 gap-3">
 
-            <a href="{{ route('dashboard') }}"
+            <a href="{{ auth()->user()->role === 'kasir' ? route('pos.index') : route('dashboard') }}"
                 class="w-10 h-10 shrink-0
                    grid place-items-center
                    rounded-full
@@ -100,7 +103,7 @@
                    font-bold
                    hover:bg-[#dfeee3]
                    transition-colors"
-                aria-label="Kembali ke dashboard" title="Kembali ke dashboard">
+                aria-label="Beranda" title="Beranda">
 
                 <x-icon class="text-sm fa-solid fa-store" />
             </a>

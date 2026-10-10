@@ -119,7 +119,7 @@
                         <span x-show="!sidebarCollapsed" class="truncate">Pelanggan / CRM</span>
                     </a>
                 @else
-                    <a href="{{ route('billing.index') }}"
+                    <a href="{{ auth()->user()->role === 'admin' ? route('billing.index') : '#' }}"
                         class="flex items-center justify-between px-3 text-xs font-semibold transition-colors rounded-md h-11 text-ink-400 hover:bg-surface-100 opacity-60"
                         :title="sidebarCollapsed ? 'Pelanggan / CRM (Upgrade Growth)' : ''">
                         <div class="flex items-center gap-3 truncate">
@@ -161,12 +161,14 @@
                     </a>
                 @endif
 
+                @if(auth()->user()->role === 'admin')
                 <a href="{{ route('employees.index') }}"
                     class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('employees.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                     :title="sidebarCollapsed ? 'Karyawan' : ''">
                     <x-icon class="w-5 text-base text-center fa-solid fa-id-card" />
                     <span x-show="!sidebarCollapsed" class="truncate">Karyawan</span>
                 </a>
+                @endif
             </div>
         </div>
 
@@ -207,6 +209,17 @@
                     <x-icon class="w-5 text-base text-center fa-solid fa-truck-field" />
                     <span x-show="!sidebarCollapsed" class="truncate">Supplier</span>
                 </a>
+
+                <a href="{{ route('purchases.index') }}"
+                    class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('purchases.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}">
+                    <x-icon class="w-5 text-base text-center fa-solid fa-cart-flatbed" />
+                    <span x-show="!sidebarCollapsed" class="truncate">Pembelian & Penerimaan</span>
+                </a>
+                <a href="{{ route('stocktakes.index') }}"
+                    class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('stocktakes.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}">
+                    <x-icon class="w-5 text-base text-center fa-solid fa-clipboard-check" />
+                    <span x-show="!sidebarCollapsed" class="truncate">Stock Opname</span>
+                </a>
             </div>
         </div>
 
@@ -232,7 +245,7 @@
                         <span x-show="!sidebarCollapsed" class="truncate">Tanya GrowPOS AI</span>
                     </a>
                 @else
-                    <a href="{{ route('billing.index') }}"
+                    <a href="{{ auth()->user()->role === 'admin' ? route('billing.index') : '#' }}"
                         class="flex items-center justify-between px-3 text-xs font-semibold transition-colors rounded-md h-11 text-ink-400 hover:bg-surface-100 opacity-60"
                         :title="sidebarCollapsed ? 'Tanya GrowPOS AI (Upgrade Scale)' : ''">
                         <div class="flex items-center gap-3 truncate">
@@ -261,12 +274,14 @@
                 Pengaturan & Bantuan
             </p>
             <div class="space-y-1">
+                @if(auth()->user()->role === 'admin')
                 <a href="{{ route('getting-started') }}"
                     class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('getting-started') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                     :title="sidebarCollapsed ? 'Mulai Berjualan' : ''">
                     <x-icon class="w-5 text-base text-center fa-solid fa-rocket" />
                     <span x-show="!sidebarCollapsed" class="truncate">Mulai berjualan</span>
                 </a>
+                @endif
 
                 <a href="{{ route('help') }}"
                     class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('help') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
@@ -293,7 +308,7 @@
                     </a>
                 @endif
 
-                @if (auth()->user()->role === 'admin')
+                @if (in_array(auth()->user()->role, ['admin', 'manager'], true))
                     <a href="{{ route('menu.configure') }}"
                         class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('menu.configure') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                         :title="sidebarCollapsed ? (
@@ -305,6 +320,9 @@
                         </span>
                     </a>
 
+                @endif
+
+                @if(auth()->user()->role === 'admin')
                     <a href="{{ route('business.edit') }}"
                         class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('business.edit') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                         :title="sidebarCollapsed ? 'Pengaturan Usaha' : ''">

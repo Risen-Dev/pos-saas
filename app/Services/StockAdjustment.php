@@ -26,7 +26,7 @@ class StockAdjustment
 
     private function adjust(User $actor, string $model, string $key, array $data): StockMovement
     {
-        abort_unless($actor->role === 'admin', 403);
+        abort_unless(in_array($actor->role, ['admin', 'manager'], true), 403);
 
         return DB::transaction(function () use ($actor, $model, $key, $data) {
             // Match checkout's lock order: tenant, then inventory row.

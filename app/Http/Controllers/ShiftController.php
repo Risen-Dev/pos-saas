@@ -13,6 +13,10 @@ class ShiftController extends Controller
 {
     public function index(Request $request)
     {
+        if ($request->user()->role === 'kasir') {
+            return redirect()->route('pos.index');
+        }
+
         $query = Shift::where('tenant_id', auth()->user()->tenant_id)->with('user');
 
         // Filter Nama Staf / Kasir
