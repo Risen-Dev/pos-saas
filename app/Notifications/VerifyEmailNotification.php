@@ -13,6 +13,7 @@ class VerifyEmailNotification extends VerifyEmail
         $request = request();
 
         $message = (new MailMessage)
+            ->view(['html' => 'mail.notification-inline', 'text' => 'mail.notification-text'])
             ->subject('Konfirmasi Registrasi Akun GrowPOS Anda')
             ->greeting('Halo '.$notifiable->name.',')
             ->line('Terima kasih telah memilih GrowPOS sebagai mitra pertumbuhan bisnis Anda.')

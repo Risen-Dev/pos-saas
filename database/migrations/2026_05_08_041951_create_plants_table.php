@@ -8,6 +8,12 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // An existing production DB already ran this historical migration.
+        // Keep the table and let the upgrade migration add missing columns.
+        if (Schema::hasTable('plans')) {
+            return;
+        }
+
         Schema::create('plans', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -27,6 +33,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('plans');
+        // Intentionally non-destructive: old production data must not be dropped.
     }
 };

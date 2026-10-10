@@ -40,9 +40,10 @@ class TailwindAssetsTest extends TestCase
         $button = $xpath->query('//a[contains(text(), "Reset Password")]')->item(0);
         $this->assertNotNull($button);
         $this->assertStringContainsString('test-token', $button->getAttribute('href'));
-        $this->assertStringContainsString('padding: 14px 32px', $button->getAttribute('style'));
-        $this->assertStringContainsString('color: #fff', $button->getAttribute('style'));
-        $this->assertStringContainsString('background-color: #f3f4f6', $document->getElementsByTagName('body')->item(0)->getAttribute('style'));
+        $normalizedButtonStyle = preg_replace('/\s+/', '', $button->getAttribute('style'));
+        $this->assertStringContainsString('padding:14px32px', $normalizedButtonStyle);
+        $this->assertMatchesRegularExpression('/color:\s*(?:#fff(?:fff)?|white)\s*(?:;|$)/i', $button->getAttribute('style'));
+        $this->assertStringContainsString('background-color:#f3f4f6', preg_replace('/\s+/', '', $document->getElementsByTagName('body')->item(0)->getAttribute('style')));
     }
 
     public function test_local_icons_preserve_dynamic_color_and_spin_without_font_css(): void

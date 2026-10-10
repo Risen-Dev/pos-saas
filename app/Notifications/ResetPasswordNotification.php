@@ -23,6 +23,7 @@ class ResetPasswordNotification extends ResetPassword
         $request = request();
 
         $message = (new MailMessage)
+            ->view(['html' => 'mail.notification-inline', 'text' => 'mail.notification-text'])
             ->subject('Permintaan Reset Password Akun GrowPOS Anda')
             ->greeting('Halo '.$notifiable->name.',')
             ->line('Kami menerima permintaan untuk mereset password akun GrowPOS Anda.')
