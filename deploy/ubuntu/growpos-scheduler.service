@@ -1,9 +1,0 @@
-[Unit]
-Description=GrowPOS scheduler tick
-
-[Service]
-Type=oneshot
-User=www-data
-WorkingDirectory=/srv/growpos/current
-ExecStart=/usr/bin/php artisan schedule:run
-UMask=0077
