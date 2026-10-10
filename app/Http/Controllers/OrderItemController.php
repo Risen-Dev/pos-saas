@@ -14,7 +14,7 @@ class OrderItemController extends Controller
         return OrderItem::with([
             'order',
             'product',
-            'variant'
+            'variant',
         ])->latest()->get();
     }
 
@@ -28,7 +28,7 @@ class OrderItemController extends Controller
         return $orderItem->load([
             'order',
             'product',
-            'variant'
+            'variant',
         ]);
     }
 

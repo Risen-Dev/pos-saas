@@ -21,9 +21,9 @@ class InvoiceController extends Controller
     {
         $validated = $request->validate([
             'subscription_id' => 'required|exists:subscriptions,id',
-            'amount'          => 'required|numeric|min:0',
-            'due_date'        => 'required|date',
-            'status'          => 'nullable|string|in:unpaid,paid,overdue',
+            'amount' => 'required|numeric|min:0',
+            'due_date' => 'required|date',
+            'status' => 'nullable|string|in:unpaid,paid,overdue',
         ]);
 
         $validated['tenant_id'] = auth()->user()->tenant_id;
@@ -53,9 +53,9 @@ class InvoiceController extends Controller
         );
 
         $validated = $request->validate([
-            'amount'   => 'sometimes|numeric|min:0',
+            'amount' => 'sometimes|numeric|min:0',
             'due_date' => 'sometimes|date',
-            'status'   => 'sometimes|string|in:unpaid,paid,overdue',
+            'status' => 'sometimes|string|in:unpaid,paid,overdue',
         ]);
 
         $invoice->update($validated);

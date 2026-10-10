@@ -4,21 +4,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Concerns\BelongsToTenant;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class StockMovement extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use BelongsToTenant, HasFactory;
 
     protected $fillable = [
         'tenant_id',
         'product_id',
         'material_id',
         'user_id',
-        'supplier_id', //new
-        'purchase_price', //new
+        'supplier_id', // new
+        'purchase_price', // new
         'type',
         'quantity',
         'before_stock',
@@ -68,6 +68,7 @@ class StockMovement extends Model
     {
         return $this->belongsTo(User::class);
     }
+
     public function material()
     {
         return $this->belongsTo(Material::class);

@@ -29,18 +29,18 @@ use App\Http\Controllers\PosApiController;
 use App\Http\Controllers\PosController;
 // Finance, Reports, Settings & AI Controllers
 use App\Http\Controllers\ProductController;
-use App\Http\Controllers\PurchaseOrderController;
-use App\Http\Controllers\StocktakeController;
 use App\Http\Controllers\ProductVariantController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceJobController;
-// Admin Controllers
 use App\Http\Controllers\ServiceOrderController;
-// Middlewares
+// Admin Controllers
 use App\Http\Controllers\SettingController;
+// Middlewares
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\StockMovementController;
+use App\Http\Controllers\StocktakeController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TenantController;
@@ -219,7 +219,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
 
         // --- DISCOUNTS & PROMOS ---
-        Route::resource('discounts', DiscountController::class)->middleware('manager');
+        Route::resource('discounts', DiscountController::class)->except('show')->middleware('manager');
 
         // --- KASIR & POS TERMINAL ---
         Route::resource('pos', PosController::class)->only(['index', 'store']);

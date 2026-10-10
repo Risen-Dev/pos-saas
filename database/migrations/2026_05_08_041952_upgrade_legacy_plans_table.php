@@ -46,7 +46,7 @@ return new class extends Migration
                     continue;
                 }
 
-                $slug = 'legacy-plan-' . $plan->id;
+                $slug = 'legacy-plan-'.$plan->id;
                 if (DB::table('plans')->where('slug', $slug)->where('id', '!=', $plan->id)->exists()) {
                     throw new RuntimeException("Slug {$slug} already in use; review plan slugs manually.");
                 }

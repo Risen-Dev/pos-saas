@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Services\RetailQuantity;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -54,10 +55,12 @@ class ProductRequest extends FormRequest
     public function after(): array
     {
         return [function ($validator) {
-            if ($validator->errors()->isNotEmpty() || $this->boolean('allow_fraction')) return;
+            if ($validator->errors()->isNotEmpty() || $this->boolean('allow_fraction')) {
+                return;
+            }
             $values = array_merge([$this->input('stock', 0), $this->input('min_stock', 0)], array_column($this->input('units', []), 'factor'), array_column($this->input('price_tiers', []), 'min_quantity'));
             foreach ($values as $value) {
-                if (\App\Services\RetailQuantity::ticks($value ?? 0) % 1000 !== 0) {
+                if (RetailQuantity::ticks($value ?? 0) % 1000 !== 0) {
                     $validator->errors()->add('allow_fraction', 'Aktifkan jumlah pecahan untuk stok, kemasan, atau batas grosir yang tidak bulat.');
                     break;
                 }

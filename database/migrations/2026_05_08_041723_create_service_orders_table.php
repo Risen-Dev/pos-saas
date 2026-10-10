@@ -20,7 +20,7 @@ return new class extends Migration
                 'washing',
                 'drying',
                 'finished',
-                'picked_up'
+                'picked_up',
             ])->default('received');
 
             $table->dateTime('estimated_finish')->nullable();

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Order; // Opsional jika ingin ditarik ke laporan detail kelak
+use Illuminate\Support\Facades\DB;
+
+ // Opsional jika ingin ditarik ke laporan detail kelak
 
 class FinanceController extends Controller
 {
@@ -22,7 +24,7 @@ class FinanceController extends Controller
             ->first();
 
         // 2. Jika tenant baru pertama kali buka menu ini dan dompet belum terdaftar di DB, buatkan otomatis
-        if (!$wallet) {
+        if (! $wallet) {
             DB::table('tenant_wallets')->insert([
                 'tenant_id' => $tenantId,
                 'balance' => 0,
@@ -62,7 +64,7 @@ class FinanceController extends Controller
                     ->lockForUpdate()
                     ->first();
 
-                if (!$wallet) {
+                if (! $wallet) {
                     return response()->json(['success' => false, 'message' => 'Dompet toko tidak ditemukan.'], 404);
                 }
 
@@ -74,7 +76,7 @@ class FinanceController extends Controller
                     return response()->json(['success' => false, 'message' => 'Saldo Anda tidak mencukupi untuk melakukan penarikan ini.'], 422);
                 }
 
-                $referenceNumber = 'WDR-' . now()->format('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
+                $referenceNumber = 'WDR-'.now()->format('Ymd').'-'.strtoupper(bin2hex(random_bytes(3)));
 
                 DB::table('tenant_wallets')
                     ->where('tenant_id', $tenantId)
@@ -85,41 +87,42 @@ class FinanceController extends Controller
                 // supaya kalau gagal, seluruh transaction di-rollback termasuk
                 // decrement saldo di atas, bukan saldo kepotong tanpa record).
                 DB::table('withdrawal_requests')->insert([
-                    'tenant_id'        => $tenantId,
+                    'tenant_id' => $tenantId,
                     'reference_number' => $referenceNumber,
-                    'bank_name'        => $wallet->bank_name,
-                    'account_number'   => $wallet->account_number,
-                    'account_name'     => $wallet->account_name,
-                    'amount'           => $amountToWithdraw,
-                    'platform_fee'     => 0,
-                    'status'           => 'pending',
-                    'created_at'       => now(),
-                    'updated_at'       => now(),
+                    'bank_name' => $wallet->bank_name,
+                    'account_number' => $wallet->account_number,
+                    'account_name' => $wallet->account_name,
+                    'amount' => $amountToWithdraw,
+                    'platform_fee' => 0,
+                    'status' => 'pending',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Pengajuan penarikan berhasil didaftarkan.'
+                    'message' => 'Pengajuan penarikan berhasil didaftarkan.',
                 ]);
             });
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (QueryException $e) {
             // Transaction otomatis rollback oleh Laravel saat exception dilempar
             // di dalam DB::transaction(), jadi saldo TIDAK jadi terpotong.
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kendala sistem saat memproses pengajuan. Silakan coba lagi.'
+                'message' => 'Terjadi kendala sistem saat memproses pengajuan. Silakan coba lagi.',
             ], 500);
         }
     }
+
     /**
      * Menyimpan atau Memperbarui Pengaturan Rekening Bank Tenant
      */
     public function updateSettings(Request $request)
     {
         $request->validate([
-            'bank_name'      => 'required|string|max:50',
+            'bank_name' => 'required|string|max:50',
             'account_number' => 'required|string|max:30',
-            'account_name'   => 'required|string|max:100',
+            'account_name' => 'required|string|max:100',
         ]);
 
         $tenantId = Auth::user()->tenant_id;
@@ -128,21 +131,21 @@ class FinanceController extends Controller
             DB::table('tenant_wallets')->updateOrInsert(
                 ['tenant_id' => $tenantId],
                 [
-                    'bank_name'      => $request->bank_name,
+                    'bank_name' => $request->bank_name,
                     'account_number' => $request->account_number,
-                    'account_name'   => $request->account_name,
-                    'updated_at'     => now()
+                    'account_name' => $request->account_name,
+                    'updated_at' => now(),
                 ]
             );
 
             return response()->json([
                 'success' => true,
-                'message' => 'Pengaturan rekening bank berhasil diperbarui.'
+                'message' => 'Pengaturan rekening bank berhasil diperbarui.',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menyimpan data: ' . $e->getMessage()
+                'message' => 'Gagal menyimpan data: '.$e->getMessage(),
             ], 500);
         }
     }

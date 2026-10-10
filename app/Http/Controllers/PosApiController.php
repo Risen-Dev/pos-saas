@@ -12,7 +12,7 @@ class PosApiController extends Controller
         $productId = $request->product_id;
         $tenantId = auth()->user()->tenant_id;
 
-        if (!$productId) {
+        if (! $productId) {
             return response()->json([]);
         }
 

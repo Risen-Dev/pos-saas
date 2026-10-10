@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Plan;
 use App\Models\Invoice;
+use App\Models\Plan;
 use App\Models\Subscription;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Midtrans\Config;
+use Midtrans\Snap;
+use Midtrans\Transaction;
 
 class SubscriptionController extends Controller
 {
@@ -46,11 +50,11 @@ class SubscriptionController extends Controller
         // Jika memilih paket gratis (Starter)
         if ($plan->price == 0) {
             Subscription::create([
-                'tenant_id'  => $tenant->id,
-                'plan_id'    => $plan->id,
-                'status'     => 'active',
+                'tenant_id' => $tenant->id,
+                'plan_id' => $plan->id,
+                'status' => 'active',
                 'start_date' => now(),
-                'end_date'   => now()->addDays($plan->duration_days ?? 30),
+                'end_date' => now()->addDays($plan->duration_days ?? 30),
             ]);
 
             $tenant->update(['status' => 'active']);
@@ -73,16 +77,16 @@ class SubscriptionController extends Controller
         // 🛠️ PERBAIKAN UTAMA:
         // Invoice TIDAK LAGI membutuhkan subscription_id di awal!
         // Record Subscription HANYA diciptakan saat pembayaran telah LUNAS di Midtrans.
-        $invoiceNumber = 'INV-SAAS-' . date('Ymd') . '-' . strtoupper(Str::random(5));
+        $invoiceNumber = 'INV-SAAS-'.date('Ymd').'-'.strtoupper(Str::random(5));
 
         $invoice = Invoice::create([
-            'tenant_id'       => $tenant->id,
+            'tenant_id' => $tenant->id,
             'subscription_id' => null, // Set null saat pending
-            'plan_id'         => $plan->id, // Simpan plan_id target pada invoice
-            'invoice_number'  => $invoiceNumber,
-            'amount'          => $plan->price,
-            'status'          => 'pending',
-            'due_date'        => now()->addDays(1),
+            'plan_id' => $plan->id, // Simpan plan_id target pada invoice
+            'invoice_number' => $invoiceNumber,
+            'amount' => $plan->price,
+            'status' => 'pending',
+            'due_date' => now()->addDays(1),
         ]);
 
         $this->createSnapTransaction($invoice, $user);
@@ -130,10 +134,10 @@ class SubscriptionController extends Controller
         $this->configureMidtrans();
 
         try {
-            $midtransStatus = \Midtrans\Transaction::status($invoice->invoice_number);
+            $midtransStatus = Transaction::status($invoice->invoice_number);
             $this->applyMidtransStatus($invoice, $midtransStatus);
         } catch (\Exception $e) {
-            Log::error("Billing Check Status Error [{$invoice->invoice_number}]: " . $e->getMessage());
+            Log::error("Billing Check Status Error [{$invoice->invoice_number}]: ".$e->getMessage());
         }
 
         return response()->json(['success' => true, 'status' => $invoice->fresh()->status]);
@@ -143,38 +147,42 @@ class SubscriptionController extends Controller
     {
         $payload = $request->all();
 
-        $orderId      = $payload['order_id'] ?? null;
-        $statusCode   = $payload['status_code'] ?? null;
-        $grossAmount  = $payload['gross_amount'] ?? null;
+        $orderId = $payload['order_id'] ?? null;
+        $statusCode = $payload['status_code'] ?? null;
+        $grossAmount = $payload['gross_amount'] ?? null;
         $signatureKey = $payload['signature_key'] ?? null;
 
-        if (!$orderId || !$statusCode || !$grossAmount || !$signatureKey) {
+        if (! $orderId || ! $statusCode || ! $grossAmount || ! $signatureKey) {
             Log::warning('Midtrans notification: payload tidak lengkap', $payload);
+
             return response()->json(['message' => 'invalid payload'], 400);
         }
 
         $serverKey = config('services.midtrans.server_key');
-        $expectedSignature = hash('sha512', $orderId . $statusCode . $grossAmount . $serverKey);
+        $expectedSignature = hash('sha512', $orderId.$statusCode.$grossAmount.$serverKey);
 
-        if (!hash_equals($expectedSignature, $signatureKey)) {
+        if (! hash_equals($expectedSignature, $signatureKey)) {
             Log::warning("Midtrans notification: signature tidak valid untuk order_id {$orderId}");
+
             return response()->json(['message' => 'invalid signature'], 403);
         }
 
         $invoice = Invoice::where('invoice_number', $orderId)->first();
 
-        if (!$invoice) {
+        if (! $invoice) {
             Log::warning("Midtrans notification: invoice tidak ditemukan untuk order_id {$orderId}");
+
             return response()->json(['message' => 'invoice not found'], 404);
         }
 
         $this->configureMidtrans();
 
         try {
-            $midtransStatus = \Midtrans\Transaction::status($orderId);
+            $midtransStatus = Transaction::status($orderId);
             $this->applyMidtransStatus($invoice, $midtransStatus);
         } catch (\Exception $e) {
-            Log::error("Midtrans notification: gagal fetch status [{$orderId}]: " . $e->getMessage());
+            Log::error("Midtrans notification: gagal fetch status [{$orderId}]: ".$e->getMessage());
+
             return response()->json(['message' => 'error checking status'], 500);
         }
 
@@ -187,25 +195,25 @@ class SubscriptionController extends Controller
 
         $params = [
             'transaction_details' => [
-                'order_id'     => $invoice->invoice_number,
+                'order_id' => $invoice->invoice_number,
                 'gross_amount' => (int) round($invoice->amount),
             ],
             'customer_details' => [
                 'first_name' => $user->name,
-                'email'      => $user->email,
+                'email' => $user->email,
             ],
             'enabled_payments' => ['qris', 'bank_transfer', 'gopay', 'shopeepay', 'other_qris'],
             'expiry' => [
-                'unit'     => 'hours',
+                'unit' => 'hours',
                 'duration' => 24,
             ],
         ];
 
         try {
-            $snapToken = \Midtrans\Snap::getSnapToken($params);
+            $snapToken = Snap::getSnapToken($params);
             $invoice->update(['snap_token' => $snapToken]);
         } catch (\Exception $e) {
-            Log::error("Midtrans Snap Error [{$invoice->invoice_number}]: " . $e->getMessage());
+            Log::error("Midtrans Snap Error [{$invoice->invoice_number}]: ".$e->getMessage());
         }
     }
 
@@ -218,7 +226,7 @@ class SubscriptionController extends Controller
 
             // Dapatkan Plan target dari Invoice (atau dari relasi subscription jika ada)
             $planId = $invoice->plan_id ?? $invoice->subscription?->plan_id;
-            $plan   = Plan::find($planId);
+            $plan = Plan::find($planId);
 
             if ($plan) {
                 $tenant = $invoice->tenant;
@@ -233,7 +241,7 @@ class SubscriptionController extends Controller
                 if ($activeSub && $activeSub->plan_id == $plan->id) {
                     // JIKA PERPANJANG PAKET SAMA: Tambahkan durasi dari end_date lama
                     $startDate = $activeSub->start_date;
-                    $endDate   = \Carbon\Carbon::parse($activeSub->end_date)->addDays($plan->duration_days ?? 30);
+                    $endDate = Carbon::parse($activeSub->end_date)->addDays($plan->duration_days ?? 30);
 
                     $activeSub->update([
                         'end_date' => $endDate,
@@ -247,11 +255,11 @@ class SubscriptionController extends Controller
                     }
 
                     $subscription = Subscription::create([
-                        'tenant_id'  => $tenant->id,
-                        'plan_id'    => $plan->id,
-                        'status'     => 'active',
+                        'tenant_id' => $tenant->id,
+                        'plan_id' => $plan->id,
+                        'status' => 'active',
                         'start_date' => now(),
-                        'end_date'   => now()->addDays($plan->duration_days ?? 30),
+                        'end_date' => now()->addDays($plan->duration_days ?? 30),
                     ]);
                 }
 
@@ -259,9 +267,9 @@ class SubscriptionController extends Controller
 
                 $invoice->update([
                     'subscription_id' => $subscription->id,
-                    'status'          => 'paid',
-                    'paid_at'         => now(),
-                    'payment_method'  => $paymentType,
+                    'status' => 'paid',
+                    'paid_at' => now(),
+                    'payment_method' => $paymentType,
                 ]);
             }
         } elseif (in_array($status, ['expire', 'cancel', 'deny']) && $invoice->status === 'pending') {
@@ -271,9 +279,9 @@ class SubscriptionController extends Controller
 
     private function configureMidtrans(): void
     {
-        \Midtrans\Config::$serverKey    = config('services.midtrans.server_key');
-        \Midtrans\Config::$isProduction = (bool) config('services.midtrans.is_production');
-        \Midtrans\Config::$isSanitized  = true;
-        \Midtrans\Config::$is3ds        = true;
+        Config::$serverKey = config('services.midtrans.server_key');
+        Config::$isProduction = (bool) config('services.midtrans.is_production');
+        Config::$isSanitized = true;
+        Config::$is3ds = true;
     }
 }

@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Order;
 use App\Models\Material;
+use App\Models\Order;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Facades\Gate;
 
 class AiReportController extends Controller
 {
@@ -33,8 +33,9 @@ class AiReportController extends Controller
 
         $tenantId = auth()->user()->tenant_id;
 
-        if (!$tenantId) {
+        if (! $tenantId) {
             $aiAnalysis = "<p class='italic text-center text-gray-400'>Silakan pilih atau daftarkan bisnis Anda terlebih dahulu untuk memulai analisis AI.</p>";
+
             return view('reports.ai-analysis', compact('aiAnalysis'));
         }
 
@@ -143,12 +144,12 @@ class AiReportController extends Controller
             'bottom_3_produk' => $bottomProducts->pluck('total_terjual', 'product_name'),
             'tren_7_hari_vs_7_hari_sebelumnya_persen' => $growthPercent,
             'kombinasi_produk_sering_dibeli_bersamaan' => $comboPairs->map(
-                fn($p) => "{$p->produk_a} + {$p->produk_b} ({$p->frekuensi}x transaksi)"
+                fn ($p) => "{$p->produk_a} + {$p->produk_b} ({$p->frekuensi}x transaksi)"
             ),
             'data_memadai_untuk_insight_kuat' => $dataCukup,
         ];
 
-        $prompt = "Anda adalah Chief Business Analyst SaaS POS bernama GrowPOS. Analisis data bisnis berikut: " . json_encode($dataBisnis) . "
+        $prompt = 'Anda adalah Chief Business Analyst SaaS POS bernama GrowPOS. Analisis data bisnis berikut: '.json_encode($dataBisnis).'
 
 Berikan laporan analisis profesional langsung dalam format HTML bersih tanpa Markdown (jangan gunakan ***, ###, atau ```html).
 Gunakan tag HTML: <h3> untuk judul bagian, <p> untuk narasi, <strong> untuk penekanan angka, <ul><li> untuk poin-poin, dan <table> statis untuk perbandingan metrik.
@@ -159,17 +160,17 @@ Struktur Laporan:
 3. <h3>Kombo Cerdas & Peluang Bundling</h3> (Jika ada data kombinasi_produk_sering_dibeli_bersamaan, jadikan itu dasar utama rekomendasi bundling karena berbasis perilaku beli riil pelanggan, BUKAN sekadar menyandingkan produk terlaris dengan produk sepi. Jika kombinasi_produk_sering_dibeli_bersamaan kosong, baru gunakan pendekatan produk terlaris + produk sepi, dan JANGAN merekomendasikan bundling sebuah produk dengan dirinya sendiri.)
 4. <h3>Rekomendasi Aksi</h3> (Minimal 2 strategi konkret)
 
-Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat jujur di awal laporan bahwa insight ini masih indikatif karena volume transaksi tercatat masih sedikit, dan akan semakin akurat seiring bertambahnya data.";
+Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat jujur di awal laporan bahwa insight ini masih indikatif karena volume transaksi tercatat masih sedikit, dan akan semakin akurat seiring bertambahnya data.';
 
         // ── CACHE FIX ──
         // Ambil dulu dari cache. Kalau kosong ATAU sebelumnya gagal (null),
         // baru panggil Gemini. Hasil hanya disimpan ke cache kalau BERHASIL,
         // supaya kegagalan sementara (429/timeout) tidak "mengunci" fallback
         // selama 6 jam penuh.
-        $cacheKey = "ai_report_{$tenantId}_" . now()->format('Y-m-d');
+        $cacheKey = "ai_report_{$tenantId}_".now()->format('Y-m-d');
         $aiAnalysis = Cache::get($cacheKey);
 
-        if (!$aiAnalysis) {
+        if (! $aiAnalysis) {
             $aiAnalysis = $this->callGeminiApi([
                 ['role' => 'user', 'parts' => [['text' => $prompt]]],
             ]);
@@ -180,7 +181,7 @@ Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat
         }
 
         // Jika API Gagal, Gunakan Fallback Lokal
-        if (!$aiAnalysis) {
+        if (! $aiAnalysis) {
             $kamusHari = ['Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu'];
             $hariIndoRamai = $kamusHari[$hariTeramai] ?? $hariTeramai;
             $hariIndoSepi = $kamusHari[$hariTersepi] ?? $hariTersepi;
@@ -189,27 +190,27 @@ Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat
             // FIX BUG: pastikan produk pasangan bundling BEDA dari produk juara.
             // Sebelumnya kode lama bisa menyarankan "gabungkan Es Teh dengan Es Teh"
             // kalau kebetulan cuma ada 1 produk yang terjual di periode itu.
-            $produkSepiObj = $bottomProducts->first(fn($p) => $p->product_name !== $produkJuaraStr);
+            $produkSepiObj = $bottomProducts->first(fn ($p) => $p->product_name !== $produkJuaraStr);
             $produkSepiStr = $produkSepiObj->product_name ?? null;
 
-            $disclaimerDataTipis = !$dataCukup
+            $disclaimerDataTipis = ! $dataCukup
                 ? "<div class='flex items-center gap-2 p-3 mb-4 text-xs text-blue-800 border border-blue-200 rounded-lg bg-blue-50'>
                         <span aria-hidden='true' class='text-blue-500'>ℹ</span>
-                        <span>Data transaksi Anda masih terbatas (" . $totalTransaksi . " transaksi dalam 30 hari). Insight di bawah ini bersifat indikatif dan akan semakin akurat seiring bertambahnya transaksi.</span>
-                   </div>"
-                : "";
+                        <span>Data transaksi Anda masih terbatas (".$totalTransaksi.' transaksi dalam 30 hari). Insight di bawah ini bersifat indikatif dan akan semakin akurat seiring bertambahnya transaksi.</span>
+                   </div>'
+                : '';
 
-            $trenHtml = "";
+            $trenHtml = '';
             if ($growthPercent !== null) {
                 $arahTren = $growthPercent >= 0 ? 'naik' : 'turun';
                 $warnaTren = $growthPercent >= 0 ? 'text-green-600' : 'text-red-600';
                 $trenHtml = "<tr>
                         <td>Tren Omset 7 Hari Terakhir</td>
-                        <td><strong class='{$warnaTren}'>" . ($growthPercent >= 0 ? '+' : '') . $growthPercent . "%</strong> ({$arahTren} dibanding 7 hari sebelumnya)</td>
+                        <td><strong class='{$warnaTren}'>".($growthPercent >= 0 ? '+' : '').$growthPercent."%</strong> ({$arahTren} dibanding 7 hari sebelumnya)</td>
                     </tr>";
             }
 
-            $komboHtml = "<p>Belum ada pola kombinasi produk yang cukup jelas terdeteksi dari transaksi 30 hari terakhir. Pola ini akan mulai terlihat seiring bertambahnya jumlah struk.</p>";
+            $komboHtml = '<p>Belum ada pola kombinasi produk yang cukup jelas terdeteksi dari transaksi 30 hari terakhir. Pola ini akan mulai terlihat seiring bertambahnya jumlah struk.</p>';
             if ($comboPairs->isNotEmpty()) {
                 $itemsKombo = $comboPairs->map(function ($p) {
                     return "<li><strong>{$p->produk_a}</strong> + <strong>{$p->produk_b}</strong> — dibeli bersamaan sebanyak <strong>{$p->frekuensi}x</strong>. Pertimbangkan paket bundling resmi untuk kombinasi ini.</li>";
@@ -227,7 +228,7 @@ Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat
                 </div>
 
                 <h3>Rangkuman Eksekutif Finansial</h3>
-                <p>Berdasarkan performa 30 hari terakhir, <strong>" . (auth()->user()->tenant->name ?? 'Toko Anda') . "</strong> berhasil membukukan total omset sebesar <strong>Rp " . number_format($totalOmset, 0, ',', '.') . "</strong> dari <strong>" . $totalTransaksi . " kali transaksi</strong>.</p>
+                <p>Berdasarkan performa 30 hari terakhir, <strong>".(auth()->user()->tenant->name ?? 'Toko Anda').'</strong> berhasil membukukan total omset sebesar <strong>Rp '.number_format($totalOmset, 0, ',', '.').'</strong> dari <strong>'.$totalTransaksi.' kali transaksi</strong>.</p>
 
                 <table>
                     <thead>
@@ -239,36 +240,36 @@ Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat
                     <tbody>
                         <tr>
                             <td>Rata-rata Omset Harian</td>
-                            <td><strong>Rp " . number_format($rataRataOmsetHarian, 0, ',', '.') . "</strong> /hari</td>
+                            <td><strong>Rp '.number_format($rataRataOmsetHarian, 0, ',', '.').'</strong> /hari</td>
                         </tr>
                         <tr>
                             <td>Rata-rata Basket Size (Per Struk)</td>
-                            <td><strong>Rp " . number_format($rataRataNilaiPerNota, 0, ',', '.') . "</strong> /transaksi</td>
+                            <td><strong>Rp '.number_format($rataRataNilaiPerNota, 0, ',', '.').'</strong> /transaksi</td>
                         </tr>
                         <tr>
                             <td>Hari Penjualan Tertinggi</td>
-                            <td>Hari " . $hariIndoRamai . "</td>
+                            <td>Hari '.$hariIndoRamai.'</td>
                         </tr>
                         <tr>
                             <td>Hari Penjualan Terendah</td>
-                            <td>Hari " . $hariIndoSepi . "</td>
+                            <td>Hari '.$hariIndoSepi."</td>
                         </tr>
                         {$trenHtml}
                     </tbody>
                 </table>
 
                 <h3>Analisis Produk & Inventaris</h3>
-                <p>Produk utama penggerak omset Anda adalah <strong>" . $produkJuaraStr . "</strong>" . ($produkSepiStr ? ", sedangkan produk dengan perputaran stok paling lambat adalah <strong>{$produkSepiStr}</strong>." : ".") . "</p>
+                <p>Produk utama penggerak omset Anda adalah <strong>".$produkJuaraStr.'</strong>'.($produkSepiStr ? ", sedangkan produk dengan perputaran stok paling lambat adalah <strong>{$produkSepiStr}</strong>." : '.')."</p>
 
                 <h3>Kombo Cerdas & Peluang Bundling</h3>
                 {$komboHtml}
 
                 <h3>Rekomendasi Aksi</h3>
                 <ul>
-                    " . ($produkSepiStr ? "<li><strong>Paket Bundling Cross-Selling:</strong> Gabungkan <em>{$produkJuaraStr}</em> dengan <em>{$produkSepiStr}</em> dalam satu harga paket hemat untuk mempercepat perputaran produk slow-moving.</li>" : "<li><strong>Diversifikasi Menu:</strong> Tambahkan varian menu baru agar tidak terlalu bergantung pada satu produk andalan.</li>") . "
-                    <li><strong>Promo Hari " . $hariIndoSepi . ":</strong> Berikan diskon khusus Happy Hour pada hari " . $hariIndoSepi . " untuk memicu kunjungan pelanggan di hari sepi.</li>
+                    ".($produkSepiStr ? "<li><strong>Paket Bundling Cross-Selling:</strong> Gabungkan <em>{$produkJuaraStr}</em> dengan <em>{$produkSepiStr}</em> dalam satu harga paket hemat untuk mempercepat perputaran produk slow-moving.</li>" : '<li><strong>Diversifikasi Menu:</strong> Tambahkan varian menu baru agar tidak terlalu bergantung pada satu produk andalan.</li>').'
+                    <li><strong>Promo Hari '.$hariIndoSepi.':</strong> Berikan diskon khusus Happy Hour pada hari '.$hariIndoSepi.' untuk memicu kunjungan pelanggan di hari sepi.</li>
                 </ul>
-            ";
+            ';
         }
 
         $kamusHari = ['Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu'];
@@ -305,7 +306,7 @@ Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat
         ]);
 
         // Rate limit per menit: maksimal 8 pesan per menit per user
-        $minuteKey = 'ai-chat:' . auth()->id();
+        $minuteKey = 'ai-chat:'.auth()->id();
 
         if (RateLimiter::tooManyAttempts($minuteKey, 8)) {
             return response()->json([
@@ -319,7 +320,7 @@ Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat
 
         // Kuota harian per TENANT (bukan per user) — supaya satu toko tidak
         // menghabiskan jatah request harian API hanya karena banyak staf chat sekaligus.
-        $dailyKey = "ai-chat-daily:{$tenantId}:" . now()->format('Y-m-d');
+        $dailyKey = "ai-chat-daily:{$tenantId}:".now()->format('Y-m-d');
         $dailyCount = Cache::get($dailyKey, 0);
 
         if ($dailyCount >= self::MAX_CHAT_PER_TENANT_PER_HARI) {
@@ -369,11 +370,11 @@ Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat
         $bahanKritis = Material::where('tenant_id', $tenantId)
             ->whereColumn('stock', '<=', 'min_stock')
             ->get(['name', 'stock', 'unit'])
-            ->map(fn($m) => "{$m->name} ({$m->stock} {$m->unit})")
+            ->map(fn ($m) => "{$m->name} ({$m->stock} {$m->unit})")
             ->toArray();
 
         $namaToko = auth()->user()->tenant->name ?? 'Toko';
-        $omsetFormatted = 'Rp ' . number_format($totalOmsetHariIni, 0, ',', '.');
+        $omsetFormatted = 'Rp '.number_format($totalOmsetHariIni, 0, ',', '.');
         $topProdukStr = empty($top5) ? 'Belum Ada Data' : implode(', ', $top5);
         $bottomProdukStr = empty($bottom3) ? 'Belum Ada Data' : implode(', ', $bottom3);
         $bahanKritisStr = empty($bahanKritis) ? 'Semua Stok Bahan Baku Aman' : implode(', ', $bahanKritis);
@@ -453,6 +454,7 @@ Petunjuk Jawab:
         if (str_contains($msgLower, 'omzet') || str_contains($msgLower, 'naik') || str_contains($msgLower, 'sepi')) {
             return ['Menu mana yang sebaiknya didiskon?', 'Apa penyebab hari sepi kami?'];
         }
+
         return ['Bagaimana cara meningkatkan omzet toko saya?', 'Menu mana yang sebaiknya didiskon?'];
     }
 
@@ -465,8 +467,9 @@ Petunjuk Jawab:
     {
         $apiKey = config('services.gemini.api_key') ?? env('GEMINI_API_KEY');
 
-        if (!$apiKey) {
+        if (! $apiKey) {
             Log::warning('GEMINI_API_KEY tidak ditemukan.');
+
             return null;
         }
 
@@ -477,7 +480,7 @@ Petunjuk Jawab:
                 $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
 
                 $response = Http::withHeaders([
-                    'Content-Type' => 'application/json'
+                    'Content-Type' => 'application/json',
                 ])->timeout(10)->post($url, [
                     'contents' => $contents,
                 ]);
@@ -489,10 +492,10 @@ Petunjuk Jawab:
                         return $text;
                     }
                 } else {
-                    Log::error("Gemini API {$model} Error Status: {$response->status()} Body: " . $response->body());
+                    Log::error("Gemini API {$model} Error Status: {$response->status()} Body: ".$response->body());
                 }
             } catch (\Exception $e) {
-                Log::error("Gemini API {$model} Exception: " . $e->getMessage());
+                Log::error("Gemini API {$model} Exception: ".$e->getMessage());
             }
         }
 

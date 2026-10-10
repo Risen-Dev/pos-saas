@@ -44,6 +44,7 @@ class SupplierController extends Controller
         }
 
         $supplier->delete();
+
         return redirect()->back()->with('success', 'Supplier berhasil dihapus');
     }
 }

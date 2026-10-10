@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\BelongsToTenant;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\Concerns\BelongsToTenant;
+use Illuminate\Database\Eloquent\Model;
 
 class Discount extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use BelongsToTenant, HasFactory;
 
     protected $fillable = [
         'tenant_id',
@@ -21,7 +21,7 @@ class Discount extends Model
         'start_time',
         'end_time',
         'days',
-        'is_active'
+        'is_active',
     ];
 
     protected $casts = [
@@ -37,7 +37,7 @@ class Discount extends Model
     public function isValidNow()
     {
         // 1. Cek apakah admin mengaktifkan diskon ini
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return false;
         }
 
@@ -45,12 +45,18 @@ class Discount extends Model
 
         // 2. Validasi Tanggal (start_date s/d end_date)
         $today = $now->toDateString();
-        if ($this->start_date && $today < $this->start_date) return false;
-        if ($this->end_date && $today > $this->end_date) return false;
+        if ($this->start_date && $today < $this->start_date) {
+            return false;
+        }
+        if ($this->end_date && $today > $this->end_date) {
+            return false;
+        }
 
         // 3. Validasi Hari (Misal: Hanya Senin & Kamis)
-        if (!empty($this->days) && is_array($this->days)) {
-            if (!in_array($now->englishDayOfWeek, $this->days)) return false;
+        if (! empty($this->days) && is_array($this->days)) {
+            if (! in_array($now->englishDayOfWeek, $this->days)) {
+                return false;
+            }
         }
 
         // 4. Validasi Jam (Misal: 08:00 - 11:00)
@@ -58,8 +64,12 @@ class Discount extends Model
         if ($this->start_time || $this->end_time) {
             $currentTime = $now->format('H:i:s');
 
-            if ($this->start_time && $currentTime < $this->start_time) return false;
-            if ($this->end_time && $currentTime > $this->end_time) return false;
+            if ($this->start_time && $currentTime < $this->start_time) {
+                return false;
+            }
+            if ($this->end_time && $currentTime > $this->end_time) {
+                return false;
+            }
         }
 
         return true;

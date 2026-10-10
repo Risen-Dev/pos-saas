@@ -35,17 +35,17 @@ class GoogleController extends Controller
             $isNewUser = false;
 
             if ($user) {
-                if (!$user->google_id) {
+                if (! $user->google_id) {
                     $user->update(['google_id' => $googleUser->getId()]);
                 }
             } else {
                 // 2. Registrasi User Baru (email_verified_at = null)
                 $isNewUser = true;
                 $user = User::create([
-                    'name'              => $googleUser->getName() ?? $googleUser->getNickname() ?? 'Pengguna GrowPOS',
-                    'email'             => $googleUser->getEmail(),
-                    'google_id'         => $googleUser->getId(),
-                    'password'          => Hash::make(Str::random(32)),
+                    'name' => $googleUser->getName() ?? $googleUser->getNickname() ?? 'Pengguna GrowPOS',
+                    'email' => $googleUser->getEmail(),
+                    'google_id' => $googleUser->getId(),
+                    'password' => Hash::make(Str::random(32)),
                     'email_verified_at' => null,
                 ]);
 
@@ -58,20 +58,21 @@ class GoogleController extends Controller
             request()->session()->regenerate();
 
             // 4. Jika BELUM VERIFIKASI -> Tahan di Halaman Verifikasi
-            if (!$user->hasVerifiedEmail()) {
+            if (! $user->hasVerifiedEmail()) {
                 return redirect()->route('verification.notice')
                     ->with('status', 'verification-link-sent');
             }
 
             // 5. Jika SUDAH VERIFIKASI tapi belum punya toko
-            if (!$user->tenant_id) {
+            if (! $user->tenant_id) {
                 return redirect()->route('tenants.create');
             }
 
             return redirect()->intended('/dashboard');
         } catch (\Exception $e) {
-            Log::error('Google Auth Error: ' . $e->getMessage());
-            return redirect()->route('login')->with('error', 'Gagal autentikasi Google: ' . $e->getMessage());
+            Log::error('Google Auth Error: '.$e->getMessage());
+
+            return redirect()->route('login')->with('error', 'Gagal autentikasi Google: '.$e->getMessage());
         }
     }
 }

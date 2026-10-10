@@ -15,6 +15,7 @@ class ProfileController extends Controller
     {
         return view('profile.index');
     }
+
     /**
      * Display the user's profile form.
      */

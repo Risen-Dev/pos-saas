@@ -22,7 +22,7 @@ return new class extends Migration
                 'stock_out',
                 'sales',
                 'adjustment',
-                'return'
+                'return',
             ]);
             $table->integer('quantity')->default(0);
             $table->integer('before_stock')->default(0);

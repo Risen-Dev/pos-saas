@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PaymentCallbackController; // <--- Pastikan import ini ada
+use App\Http\Controllers\PaymentCallbackController;
+use Illuminate\Support\Facades\Route; // <--- Pastikan import ini ada
 
 // Rute Webhook Penerima Sinyal Lunas dari Midtrans
 // Route::post('/api/midtrans/callback', [App\Http\Controllers\PaymentCallbackController::class, 'handleNotification']);

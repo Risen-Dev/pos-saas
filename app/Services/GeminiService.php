@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Log;
 class GeminiService
 {
     protected string $apiKey;
+
     protected string $model;
+
     protected string $baseUrl;
 
     public function __construct()
@@ -29,16 +31,17 @@ class GeminiService
         ]);
 
         if ($response->status() === 429) {
-            Log::warning('Gemini API rate limited: ' . $response->body());
+            Log::warning('Gemini API rate limited: '.$response->body());
             throw new \Exception('QUOTA_EXCEEDED');
         }
 
         if ($response->failed()) {
-            Log::error('Gemini API Response Error: ' . $response->body());
-            throw new \Exception('Gagal terhubung ke Gemini API: ' . $response->status());
+            Log::error('Gemini API Response Error: '.$response->body());
+            throw new \Exception('Gagal terhubung ke Gemini API: '.$response->status());
         }
 
         $data = $response->json();
+
         return $data['candidates'][0]['content']['parts'][0]['text'] ?? 'Tidak ada respon dari AI.';
     }
 }

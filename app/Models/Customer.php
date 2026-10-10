@@ -4,13 +4,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Concerns\BelongsToTenant;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Customer extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use BelongsToTenant, HasFactory;
 
     protected $fillable = [
         'tenant_id',
@@ -18,7 +18,7 @@ class Customer extends Model
         'phone',
         'points',
         'is_member',
-        'total_debt' // Pastikan ini ada jika Anda menambahkannya di migrasi
+        'total_debt', // Pastikan ini ada jika Anda menambahkannya di migrasi
     ];
 
     protected $casts = [

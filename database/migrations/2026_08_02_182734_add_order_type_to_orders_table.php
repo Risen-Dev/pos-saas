@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            if (!Schema::hasColumn('orders', 'order_type')) {
+            if (! Schema::hasColumn('orders', 'order_type')) {
                 $table->string('order_type')->default('dine_in')->after('invoice_number'); // dine_in, takeaway, delivery
             }
         });

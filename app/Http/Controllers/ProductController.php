@@ -7,6 +7,8 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\Tenant;
+use App\Services\Code128Barcode;
+use App\Services\RetailCatalog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -65,7 +67,7 @@ class ProductController extends Controller
             Tenant::whereKey($tenant->id)->lockForUpdate()->firstOrFail();
             abort_if(Product::where('tenant_id', $tenant->id)->count() >= $plan->max_products, 422, 'Batas produk paket tercapai.');
             $product = Product::create(array_merge($request->catalogData(), ['tenant_id' => $tenant->id, 'image' => $imagePath]));
-            app(\App\Services\RetailCatalog::class)->saveUnits($product, $request->validated('units', []));
+            app(RetailCatalog::class)->saveUnits($product, $request->validated('units', []));
         });
 
         $tenantId = auth()->user()->tenant_id;
@@ -83,7 +85,7 @@ class ProductController extends Controller
         }
 
         try {
-            $barcodeSvg = app(\App\Services\Code128Barcode::class)->svg($product->barcode);
+            $barcodeSvg = app(Code128Barcode::class)->svg($product->barcode);
         } catch (\InvalidArgumentException $exception) {
             return back()->withErrors(['barcode' => $exception->getMessage()]);
         }
@@ -125,7 +127,7 @@ class ProductController extends Controller
             $before = (float) $locked->stock;
             $locked->update($data);
             if ($request->has('units_present')) {
-                app(\App\Services\RetailCatalog::class)->saveUnits($locked, $request->validated('units', []));
+                app(RetailCatalog::class)->saveUnits($locked, $request->validated('units', []));
             }
             if ($before !== (float) $locked->stock) {
                 StockMovement::create([

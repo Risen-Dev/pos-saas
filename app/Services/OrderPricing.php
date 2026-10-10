@@ -12,10 +12,10 @@ class OrderPricing
         $tier = collect($product->price_tiers ?? [])
             ->filter(function ($tier) use ($quantity) {
                 if (
-                    !is_array($tier) ||
-                    !isset($tier['min_quantity'], $tier['price']) ||
-                    !is_numeric($tier['min_quantity']) ||
-                    !is_numeric($tier['price'])
+                    ! is_array($tier) ||
+                    ! isset($tier['min_quantity'], $tier['price']) ||
+                    ! is_numeric($tier['min_quantity']) ||
+                    ! is_numeric($tier['price'])
                 ) {
                     return false;
                 }
@@ -30,8 +30,9 @@ class OrderPricing
                 return RetailQuantity::ticks($quantity) >=
                     RetailQuantity::ticks($minQuantity);
             })
-            ->sortByDesc(fn($tier) => (float) $tier['min_quantity'])
+            ->sortByDesc(fn ($tier) => (float) $tier['min_quantity'])
             ->first();
+
         return (int) round($tier['price'] ?? $product->sell_price);
     }
 
@@ -39,7 +40,7 @@ class OrderPricing
     public function unitPrice(Product $product, ?float $override = null): array
     {
         $price = (int) round($override ?? $product->sell_price);
-        $discount = $product->discounts->sortBy('id')->first(fn($discount) => $discount->isValidNow());
+        $discount = $product->discounts->sortBy('id')->first(fn ($discount) => $discount->isValidNow());
         $amount = $discount ? ($discount->type === 'percentage' ? $price * $discount->value / 100 : $discount->value) : 0;
         $amount = min($price, max(0, (int) round($amount)));
 

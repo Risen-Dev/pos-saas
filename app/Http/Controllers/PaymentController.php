@@ -4,8 +4,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Payment;
 use App\Models\Order;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
@@ -24,11 +24,11 @@ class PaymentController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'order_id'       => 'required|exists:orders,id',
-            'amount'         => 'required|numeric|min:0',
+            'order_id' => 'required|exists:orders,id',
+            'amount' => 'required|numeric|min:0',
             'payment_method' => 'required|string|in:cash,qris,transfer,debit,credit', // sesuaikan enum Anda
-            'status'         => 'nullable|string|in:pending,paid,failed',
-            'reference_no'   => 'nullable|string',
+            'status' => 'nullable|string|in:pending,paid,failed',
+            'reference_no' => 'nullable|string',
         ]);
 
         // Pastikan order yang dipakai memang milik tenant yang sama.
@@ -37,7 +37,7 @@ class PaymentController extends Controller
             ->firstOrFail();
 
         $validated['tenant_id'] = auth()->user()->tenant_id;
-        $validated['user_id']   = auth()->id();
+        $validated['user_id'] = auth()->id();
 
         $payment = Payment::create($validated);
 
@@ -64,10 +64,10 @@ class PaymentController extends Controller
         );
 
         $validated = $request->validate([
-            'amount'         => 'sometimes|numeric|min:0',
+            'amount' => 'sometimes|numeric|min:0',
             'payment_method' => 'sometimes|string|in:cash,qris,transfer,debit,credit',
-            'status'         => 'sometimes|string|in:pending,paid,failed',
-            'reference_no'   => 'nullable|string',
+            'status' => 'sometimes|string|in:pending,paid,failed',
+            'reference_no' => 'nullable|string',
         ]);
 
         $payment->update($validated);

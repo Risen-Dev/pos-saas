@@ -28,8 +28,8 @@ class CategoryController extends Controller
         Category::create([
             // Tambahkan baris ini untuk mengambil ID bisnis user yang sedang login
             'tenant_id' => auth()->user()->tenant_id,
-            'name'      => $request->name,
-            'slug'      => Str::slug($request->name) . '-' . rand(100, 999),
+            'name' => $request->name,
+            'slug' => Str::slug($request->name).'-'.rand(100, 999),
         ]);
 
         return redirect()->back()->with('success', 'Kategori berhasil ditambahkan');
@@ -47,6 +47,7 @@ class CategoryController extends Controller
         }
 
         $category->delete();
+
         return redirect()->back()->with('success', 'Kategori dihapus');
     }
 }

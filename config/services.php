@@ -42,6 +42,6 @@ return [
     // config/services.php
     'social' => [
         'instagram' => env('SOCIAL_INSTAGRAM_URL'),
-        'whatsapp'  => env('SOCIAL_WHATSAPP_URL'),
+        'whatsapp' => env('SOCIAL_WHATSAPP_URL'),
     ],
 ];

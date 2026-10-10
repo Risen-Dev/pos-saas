@@ -78,14 +78,15 @@ class CustomerController extends Controller
 
             return redirect()->route('customers.index')->with('success', 'Pelanggan berhasil didaftarkan.');
         } catch (\Exception $e) {
+            report($e);
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal menyimpan: '.$e->getMessage(),
+                    'message' => 'Gagal menyimpan pelanggan. Silakan coba lagi.',
                 ], 500);
             }
 
-            return redirect()->back()->with('error', 'Gagal: '.$e->getMessage())->withInput();
+            return redirect()->back()->with('error', 'Gagal menyimpan pelanggan. Silakan coba lagi.')->withInput();
         }
     }
 
@@ -140,27 +141,20 @@ class CustomerController extends Controller
             ], 403);
         }
 
-        try {
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'phone' => 'nullable|string|max:20',
-            ]);
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:20',
+        ]);
 
-            $customer = Customer::create([
-                'tenant_id' => auth()->user()->tenant_id,
-                'name' => $validated['name'],
-                'phone' => $validated['phone'],
-            ]);
+        $customer = Customer::create([
+            'tenant_id' => $request->user()->tenant_id,
+            'name' => $validated['name'],
+            'phone' => $validated['phone'] ?? null,
+        ]);
 
-            return response()->json([
-                'success' => true,
-                'data' => $customer,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 422);
-        }
+        return response()->json([
+            'success' => true,
+            'data' => $customer,
+        ]);
     }
 }

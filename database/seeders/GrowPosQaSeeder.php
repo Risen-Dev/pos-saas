@@ -59,7 +59,7 @@ class GrowPosQaSeeder extends Seeder
         $this->command?->line('Tenant A kasir : qa.cashier@growpos.test');
         $this->command?->line('Tenant B owner : qa.owner.b@growpos.test');
         $this->command?->line('Tenant B kasir : qa.cashier.b@growpos.test');
-        $this->command?->line('Password        : ' . (env('GROWPOS_QA_PASSWORD') ? '[GROWPOS_QA_PASSWORD]' : 'GrowPOS-QA-2026!'));
+        $this->command?->line('Password        : '.(env('GROWPOS_QA_PASSWORD') ? '[GROWPOS_QA_PASSWORD]' : 'GrowPOS-QA-2026!'));
     }
 
     private function seedTenant(
@@ -125,7 +125,7 @@ class GrowPosQaSeeder extends Seeder
         if ($seedIsolationProduct) {
             $category = Category::updateOrCreate(
                 ['tenant_id' => $tenant->id, 'name' => 'QA Tenant B'],
-                ['slug' => 'qa-tenant-b-' . $tenant->id]
+                ['slug' => 'qa-tenant-b-'.$tenant->id]
             );
 
             Product::updateOrCreate(
@@ -156,15 +156,15 @@ class GrowPosQaSeeder extends Seeder
     {
         $goods = Category::updateOrCreate(
             ['tenant_id' => $tenant->id, 'name' => 'Barang QA'],
-            ['slug' => 'barang-qa-' . $tenant->id]
+            ['slug' => 'barang-qa-'.$tenant->id]
         );
         $grocery = Category::updateOrCreate(
             ['tenant_id' => $tenant->id, 'name' => 'Sembako QA'],
-            ['slug' => 'sembako-qa-' . $tenant->id]
+            ['slug' => 'sembako-qa-'.$tenant->id]
         );
         $services = Category::updateOrCreate(
             ['tenant_id' => $tenant->id, 'name' => 'Jasa QA'],
-            ['slug' => 'jasa-qa-' . $tenant->id]
+            ['slug' => 'jasa-qa-'.$tenant->id]
         );
 
         $water = Product::updateOrCreate(

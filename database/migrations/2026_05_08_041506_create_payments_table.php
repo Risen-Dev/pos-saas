@@ -21,7 +21,7 @@ return new class extends Migration
                 'transfer',
                 'ewallet',
                 'qris',
-                'credit_card'
+                'credit_card',
             ]);
             $table->decimal('amount', 15, 2);
             $table->string('reference_number')->nullable();

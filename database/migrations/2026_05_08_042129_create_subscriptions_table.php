@@ -24,7 +24,7 @@ return new class extends Migration
                 'active',
                 'expired',
                 'trial',
-                'cancelled'
+                'cancelled',
             ])->default('pending');
 
             $table->timestamps();

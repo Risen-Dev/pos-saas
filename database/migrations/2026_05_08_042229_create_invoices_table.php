@@ -24,7 +24,7 @@ return new class extends Migration
                 'pending',
                 'paid',
                 'expired',
-                'cancelled'
+                'cancelled',
             ])->default('pending');
 
             $table->string('snap_token')->nullable();

@@ -47,8 +47,8 @@ class WithdrawalApprovalController extends Controller
             // Saldo SUDAH dipotong saat pengajuan dibuat (lihat WithdrawalController::store),
             // jadi di sini tidak perlu potong saldo lagi - cukup update status.
             $withdrawal->update([
-                'status'       => 'approved',
-                'admin_note'   => $validated['admin_note'] ?? null,
+                'status' => 'approved',
+                'admin_note' => $validated['admin_note'] ?? null,
                 'processed_at' => now(),
             ]);
         });
@@ -79,8 +79,8 @@ class WithdrawalApprovalController extends Controller
             $wallet->increment('balance', $withdrawal->amount);
 
             $withdrawal->update([
-                'status'       => 'rejected',
-                'admin_note'   => $validated['admin_note'],
+                'status' => 'rejected',
+                'admin_note' => $validated['admin_note'],
                 'processed_at' => now(),
             ]);
         });

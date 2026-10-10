@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\OperationalHeartbeat;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -31,7 +32,7 @@ class LaunchCheck extends Command
         try {
             DB::connection()->getPdo();
             $checks['Database reachable'] = true;
-            $heartbeat = app(\App\Services\OperationalHeartbeat::class);
+            $heartbeat = app(OperationalHeartbeat::class);
             $checks['Scheduler heartbeat within 3 minutes'] = $heartbeat->fresh('scheduler', 3);
             $checks['Worker handled a recent job within 3 minutes'] = $heartbeat->fresh('worker', 3);
             $checks['Backup completed within 26 hours'] = $heartbeat->fresh('backup', 26 * 60);

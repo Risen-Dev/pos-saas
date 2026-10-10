@@ -14,7 +14,7 @@ class CheckSubscription
         $tenant = $user?->tenant;
 
         // 1. Cek apakah tenant terdaftar
-        if (!$tenant) {
+        if (! $tenant) {
             abort(403, 'Tenant tidak ditemukan.');
         }
 
@@ -24,12 +24,12 @@ class CheckSubscription
             ->where('end_date', '>=', now()->startOfDay())
             ->first();
 
-        if (!$activeSubscription) {
+        if (! $activeSubscription) {
             // Jika request AJAX / API (seperti pada POS store)
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Masa langganan Anda telah habis. Silakan perbarui paket di menu Billing.'
+                    'message' => 'Masa langganan Anda telah habis. Silakan perbarui paket di menu Billing.',
                 ], 403);
             }
 
