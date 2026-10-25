@@ -1,30 +1,16 @@
-<section id="us" class="py-24">
-    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <div class="relative p-10 overflow-hidden text-center rounded-lg bg-primary-500 md:p-20">
-            <div class="absolute inset-0 opacity-10">
-                <svg class="w-full h-full" fill="none" viewBox="0 0 100 100" preserveAspectRatio="none">
-                    <circle cx="100" cy="0" r="40" fill="white" />
-                    <circle cx="0" cy="100" r="30" fill="white" />
-                </svg>
-            </div>
-            <div class="relative z-10">
-                <h2 class="mb-6 text-3xl font-bold text-white text-display">
-                    Siap untuk pesanan pertama?
-                </h2>
-                <p class="max-w-xl mx-auto mb-10 font-semibold text-body-lg text-white/90">
-                    Siapkan katalog usaha, atur kasir, dan mulai mencatat penjualan dalam satu aplikasi.
-                </p>
-                <div class="flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-8">
-                    <a href="{{ route('register') }}"
-                        class="inline-block w-full sm:w-[280px] px-8 py-4 text-body-lg font-bold transition transform shadow-lg text-accent-100 bg-accent-700 rounded-md hover:bg-accent-500 hover:text-black hover:scale-105 active:scale-95">
-                        Siapkan usaha saya
-                    </a>
-                    <a href="#harga"
-                        class="inline-block w-full sm:w-[280px] px-8 py-4 text-body-lg font-bold text-white transition transform bg-primary-900 shadow-lg rounded-md hover:bg-primary-900/80 hover:scale-105 active:scale-95">
-                        Lihat paket GrowPOS
-                    </a>
-                </div>
-            </div>
+<section class="px-5 py-20 bg-white sm:px-8 sm:py-28">
+    <div
+        class="relative mx-auto max-w-7xl overflow-hidden rounded-[1.5rem] bg-[#174A32] px-7 py-16 text-center sm:px-12 sm:py-24">
+        <div class="pointer-events-none absolute -right-24 -top-36 h-96 w-96 rounded-full border-[70px] border-white/5">
+        </div>
+        <div class="relative z-10">
+            <p class="mb-5 text-xs font-bold uppercase tracking-[.22em] text-[#B1D8BF]">MULAI DENGAN GROWPOS</p>
+            <h2 class="mx-auto max-w-3xl text-4xl font-extrabold leading-tight tracking-[-.06em] text-white sm:text-6xl">
+                Usahamu punya banyak potensi.<br><span class="text-[#B4E1C3]">Kelola dengan lebih mudah.</span></h2>
+            <p class="max-w-lg mx-auto mt-6 text-sm leading-7 text-white/75">Siapkan katalog, mulai bertransaksi, dan
+                pantau perkembangan usaha.</p><a href="{{ route('register') }}"
+                class="mt-9 inline-flex min-h-12 items-center justify-center rounded-lg bg-white px-7 text-sm font-extrabold text-[#174A32] transition hover:bg-[#E9F4EA]">Buat
+                Akun GrowPOS <span class="ml-3" aria-hidden="true">↗</span></a>
         </div>
     </div>
 </section>

@@ -1,41 +1,39 @@
-@props([
-    'icon',
-    'title',
-    'desc',
-    'image' => null,
-    'variant' => 'large',
-    'bg' => 'bg-surface-0',
-    'iconBg' => 'bg-primary-100',
-    'iconColor' => 'text-primary-600',
-    'textColor' => 'text-ink-900',
-])
-
-<div @class([
-    'rounded-lg p-8 transition-all duration-300',
-    'shadow-md border border-border-200 hover:border-primary-500 hover:shadow-lg' =>
-        $variant === 'large',
-    $bg,
-    $textColor,
+@props(['title', 'desc', 'eyebrow' => '', 'image' => null, 'variant' => 'large'])
+@php
+    $dark = $variant === 'dark';
+    $large = $variant === 'large';
+@endphp
+<article @class([
+    'group relative flex h-full min-h-[350px] flex-col overflow-hidden rounded-[1.35rem] p-7 sm:p-9',
+    'bg-[#163E2C] text-white' => $dark,
+    'bg-white text-[#17372A]' => !$dark,
+    'lg:min-h-[440px]' => $large,
 ])>
-    @if ($variant === 'large' && $image)
-        <div class="flex flex-col items-center justify-between gap-6 md:flex-row">
-            <div class="items-center max-w-[450px]">
-                <x-icon
-                    class="{{ $iconBg }} {{ $iconColor }} text-2xl mb-3 fa-solid {{ $icon }} py-2 px-3 rounded-md inline-block transition-transform duration-300 hover:scale-110" />
-                <div class="mb-3 text-2xl font-bold">{{ $title }}</div>
-                <div class="font-medium text-ink-700 text-body-base">{{ $desc }}</div>
-            </div>
-            <div class="w-full md:w-auto">
-                <img src="{{ asset('img/' . $image) }}"
-                    class="w-full md:w-[450px] h-[220px] md:h-[250px] object-cover rounded-lg" alt="{{ $title }}">
-            </div>
+    <div class="relative z-10 max-w-md">
+        <p @class([
+            'mb-6 text-[11px] font-bold uppercase tracking-[.19em]',
+            'text-[#A5D5B7]' => $dark,
+            'text-primary-600' => !$dark,
+        ])>{{ $eyebrow }}</p>
+        <h3 class="max-w-sm text-3xl font-extrabold leading-[1.13] tracking-[-.05em] sm:text-4xl">{{ $title }}
+        </h3>
+        <p @class([
+            'mt-4 max-w-sm text-sm leading-7',
+            'text-white/75' => $dark,
+            'text-[#687B70]' => !$dark,
+        ])>{{ $desc }}</p>
+    </div>
+    @if ($image)
+        <div class="relative mt-8 min-h-[400px] flex-1 overflow-hidden rounded-xl bg-[#E8F1E9] ring-1 ring-[#E2ECE3]">
+            <img src="{{ asset('img/' . $image) }}" loading="lazy" alt="Pratinjau fitur {{ $title }}"
+                class="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
+                onerror="this.style.display='none'">
         </div>
     @else
-        <div class="h-[250px]">
-            <x-icon
-                class="{{ $iconBg }} {{ $iconColor }} text-2xl mb-4 fa-solid {{ $icon }} py-2 px-3 rounded-md inline-block transition-transform duration-300 hover:scale-110" />
-            <div class="mb-4 text-2xl font-bold">{{ $title }}</div>
-            <div class="font-normal text-body-base opacity-90">{{ $desc }}</div>
-        </div>
+        <div class="flex justify-end pt-10 mt-auto"><span @class([
+            'flex h-16 w-16 items-center justify-center rounded-full border text-3xl',
+            'border-white/25 text-white' => $dark,
+            'border-primary-100 text-primary-600' => !$dark,
+        ]) aria-hidden="true">↗</span></div>
     @endif
-</div>
+</article>

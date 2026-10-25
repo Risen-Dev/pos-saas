@@ -1,64 +1,33 @@
-<nav x-data="{ open: false, scrolled: false }" x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 20 })"
-    :class="scrolled ? 'shadow-lg bg-white/80' : 'shadow-md bg-primary-50'"
-    class="sticky top-0 z-50 font-sans transition-all duration-300 border-b border-border-200 backdrop-blur-md">
-    <div class="flex items-center justify-between px-4 py-5 mx-3 max-w-8xl sm:px-6 lg:px-8">
-        {{-- Logo --}}
-        <div class="flex items-center space-x-10">
-            <a href="/" class="flex items-center transition duration-500 scale-90 hover:scale-105">
-                <img src="{{ asset('img/growpos_logo.png') }}" class="w-12" alt="GrowPOS Logo">
-                <span
-                    class="text-3xl font-bold tracking-tight transition-all duration-500 font-heading text-primary-600 hover:text-primary-900">
-                    GrowPOS
-                </span>
-            </a>
-        </div>
-
-        {{-- Desktop Nav Links --}}
-        <div class="items-center hidden space-x-6 font-semibold text-body-lg md:flex">
+<nav x-data="{ open: false, scrolled: false }"
+     x-init="scrolled = window.scrollY > 24; window.addEventListener('scroll', () => { scrolled = window.scrollY > 24 }, { passive: true })"
+     class="fixed inset-x-0 top-0 z-50 transition-all duration-300"
+     :class="scrolled || open ? 'border-b border-[#E6ECE7] bg-white/95 shadow-sm backdrop-blur-xl' : 'border-b border-transparent bg-transparent'"
+     aria-label="Navigasi utama">
+    <div class="mx-auto flex h-[76px] max-w-7xl items-center justify-between gap-6 px-5 sm:px-8">
+        <a href="/" class="inline-flex shrink-0 items-center gap-2 text-xl font-extrabold tracking-[-.05em] text-[#172E24]">
+            <img src="{{ asset('img/growpos_logo.png') }}" class="h-9 w-9 object-contain" alt="">
+            <span>GrowPOS<span class="text-primary-600">.</span></span>
+        </a>
+        <div class="hidden items-center gap-9 md:flex">
             <x-landing.nav-link href="#fitur">Fitur</x-landing.nav-link>
+            <x-landing.nav-link href="#pengalaman">Untuk Usaha</x-landing.nav-link>
             <x-landing.nav-link href="#harga">Harga</x-landing.nav-link>
-            <x-landing.nav-link href="#about-growpos">Tentang Kami</x-landing.nav-link>
         </div>
-
-        {{-- Desktop CTA --}}
-        <div class="items-center hidden space-x-8 font-semibold text-body-lg text-ink-700 md:flex">
-            <a href="{{ route('login') }}" class="relative transition duration-300 group hover:text-primary-900">
-                Masuk
-                <span
-                    class="absolute left-0 bottom-[-6px] w-0 group-hover:w-full transition-all duration-500 h-0.5 bg-accent-500"></span>
-            </a>
-            <a href="{{ route('register') }}"
-                class="relative px-5 py-2.5 text-white transition duration-500 rounded-sm shadow-md bg-primary-900 scale-95 hover:scale-105 hover:bg-accent-500 shadow-primary-600/20">
-                Buat akun
-            </a>
+        <div class="hidden items-center gap-5 md:flex">
+            <a href="{{ route('login') }}" class="text-sm font-semibold text-[#243E30] hover:text-primary-600">Masuk</a>
+            <a href="{{ route('register') }}" class="inline-flex min-h-11 items-center justify-center rounded-xl bg-primary-600 px-5 text-sm font-bold text-white transition hover:bg-primary-900">Mulai Gratis <span class="ml-2" aria-hidden="true">↗</span></a>
         </div>
-
-        {{-- Mobile Toggle --}}
-        <button @click="open = !open" class="text-2xl md:hidden text-primary-900" aria-label="Buka menu" :aria-expanded="open" aria-controls="landing-mobile-menu">
-            <span aria-hidden="true" x-text="open ? '×' : '☰'">☰</span>
+        <button type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-[#DCE7DF] bg-white/80 text-[#17372A] md:hidden" @click="open = !open" :aria-expanded="open.toString()" aria-controls="landing-mobile-menu" :aria-label="open ? 'Tutup menu' : 'Buka menu'">
+            <span x-text="open ? '✕' : '☰'" aria-hidden="true">☰</span>
         </button>
     </div>
-
-    {{-- Mobile Menu --}}
-    <div id="landing-mobile-menu" x-show="open" x-cloak x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
-        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0"
-        x-transition:leave-end="opacity-0 -translate-y-4"
-        class="[&[x-cloak]]:!hidden px-6 pb-6 space-y-4 font-semibold border-t bg-surface-0 border-border-200 md:hidden">
-        <a href="#fitur" @click="open = false" class="block py-2 hover:text-primary-900">Fitur</a>
-        <a href="#harga" @click="open = false" class="block py-2 hover:text-primary-900">Harga</a>
-        <a href="#about-growpos" @click="open = false" class="block py-2 hover:text-primary-900">Tentang Kami</a>
-        <hr class="border-border-200">
-        <a href="{{ route('login') }}" class="block py-2 hover:text-primary-900">Masuk</a>
-        <a href="{{ route('register') }}"
-            class="block px-5 py-3 text-center text-white transition rounded-sm bg-primary-900 hover:bg-accent-500">
-            Buat akun
-        </a>
-    </div>
-    <noscript>
-        <div class="flex flex-wrap gap-4 p-4 md:hidden">
-            <a href="#fitur">Fitur</a><a href="#harga">Harga</a>
-            <a href="{{ route('login') }}">Masuk</a><a href="{{ route('register') }}">Buat akun</a>
+    <div id="landing-mobile-menu" x-show="open" x-cloak @keydown.escape.window="open=false" class="border-t border-[#E6ECE7] bg-white px-5 pb-6 pt-3 md:hidden">
+        <div class="flex flex-col gap-1">
+            <a href="#fitur" @click="open=false" class="py-3 text-sm font-semibold">Fitur</a>
+            <a href="#pengalaman" @click="open=false" class="py-3 text-sm font-semibold">Untuk Usaha</a>
+            <a href="#harga" @click="open=false" class="py-3 text-sm font-semibold">Harga</a>
+            <a href="{{ route('login') }}" class="py-3 text-sm font-semibold">Masuk</a>
+            <a href="{{ route('register') }}" class="mt-3 rounded-xl bg-primary-600 px-5 py-3 text-center text-sm font-bold text-white">Mulai Gratis ↗</a>
         </div>
-    </noscript>
+    </div>
 </nav>

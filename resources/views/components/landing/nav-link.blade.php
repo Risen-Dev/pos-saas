@@ -1,7 +1,3 @@
 @props(['href'])
-
-<a href="{{ $href }}" class="relative inline-block transition duration-300 group hover:text-primary-900">
-    <span>{{ $slot }}</span>
-    <span
-        class="absolute left-0 bottom-[-6px] w-0 group-hover:w-full transition-all duration-500 h-0.5 bg-primary-600"></span>
-</a>
+<a href="{{ $href }}"
+    {{ $attributes->class(['text-sm font-semibold text-[#506459] transition-colors hover:text-primary-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-600']) }}>{{ $slot }}</a>

@@ -10,69 +10,72 @@
     'popular' => false,
     'actionUrl' => null,
 ])
-
-<div @class([
-    'bg-surface-0 rounded-lg p-8 transition duration-300 hover:-translate-y-3 flex flex-col justify-between',
-    'border-2 py-14 border-primary-600 shadow-lg relative scale-100 md:scale-105' => $popular,
-    'border border-border-200 shadow-sm' => !$popular,
+<article @class([
+    'relative flex h-full flex-col rounded-[1.25rem] border p-7 sm:p-8',
+    'border-primary-600 bg-[#153F2C] text-white shadow-xl' => $popular,
+    'border-[#DFE8E1] bg-white text-[#17372A]' => !$popular,
 ])>
     @if ($popular)
-        <div
-            class="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary-600 text-white text-body-sm font-bold px-4 py-1.5 rounded-full tracking-wider uppercase whitespace-nowrap">
-            Untuk usaha berkembang
-        </div>
+        <span
+            class="mb-6 inline-flex w-fit rounded-full bg-[#D8F1E0] px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-[#155B39]">Pilihan
+            populer</span>
     @endif
-
-    <div class="space-y-4">
-        <h3 class="text-2xl font-bold text-ink-900">{{ $title }}</h3>
-        <p class="leading-relaxed text-body-sm text-ink-700">{{ $desc }}</p>
-        <div class="flex items-baseline gap-1 font-bold text-primary-600">
-            <span class="text-h2">{{ $price }}</span>
-            <span class="font-normal text-body-sm text-ink-400">/{{ $period }}</span>
-        </div>
-        @if($capacity)<p class="[color:#65796f] [font-size:13px] [line-height:1.6]">{{ $capacity }}</p>@endif
-        <ul class="pt-2 space-y-3 text-body-sm text-ink-700">
-            @foreach ($features as $feature => $included)
-                <li class="flex items-center gap-3 {{ !$included ? 'text-ink-400' : '' }}">
-                    <x-icon
-                        class="text-lg fa-regular {{ $included ? 'fa-circle-check text-primary-600' : 'fa-circle-xmark' }}" />
-                    <span>{{ is_int($feature) ? $included : $feature }}</span>
-                </li>
-            @endforeach
-        </ul>
-    </div>
-
+    <h3 class="text-xl font-extrabold tracking-tight">{{ $title }}</h3>
+    <p @class([
+        'mt-2 min-h-12 text-sm leading-6',
+        'text-white/70' => $popular,
+        'text-[#6D7D72]' => !$popular,
+    ])>{{ $desc }}</p>
+    <div class="flex flex-wrap items-baseline gap-2 mt-7"><strong
+            class="text-3xl font-extrabold tracking-[-.05em]">{{ $price }}</strong><span
+            @class([
+                'text-xs',
+                'text-white/60' => $popular,
+                'text-[#7A8B7E]' => !$popular,
+            ])>/ {{ $period }}</span></div>
+    @if ($capacity)
+        <p @class([
+            'mt-4 text-xs leading-6',
+            'text-white/70' => $popular,
+            'text-[#61766A]' => !$popular,
+        ])>{{ $capacity }}</p>
+    @endif
+    <div @class([
+        'my-7 h-px',
+        'bg-white/20' => $popular,
+        'bg-[#E5EDE7]' => !$popular,
+    ])></div>
+    <ul class="flex-1 space-y-3 mb-9">
+        @foreach ($features as $feature => $included)
+            @php
+                $enabled = is_int($feature) ? true : (bool) $included;
+                $label = is_int($feature) ? $included : $feature;
+            @endphp
+            <li @class([
+                'flex items-start gap-3 text-sm leading-6',
+                'opacity-45' => !$enabled,
+            ])><span class="mt-0.5 font-bold"
+                    aria-hidden="true">{{ $enabled ? '✓' : '–' }}</span><span>{{ $label }}</span></li>
+        @endforeach
+    </ul>
     @auth
         @if ($planId)
-            {{-- Form Submit Checkout Paket jika User Sudah Login --}}
-            <form action="{{ route('billing.subscribe') }}" method="POST" class="mt-6">
-                @csrf
-                <input type="hidden" name="plan_id" value="{{ $planId }}">
-                <button type="submit" @class([
-                    'w-full py-3 rounded-md font-bold text-body-sm transition',
-                    'bg-primary-600 text-white hover:bg-primary-900 shadow-md' => $popular,
-                    'border-2 border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white' => !$popular,
-                ])>
-                    {{ $cta }}
-                </button>
-            </form>
-        @else
-            <a href="{{ route('billing.index') }}" @class([
-                'w-full py-3 rounded-md font-bold text-body-sm transition text-center block mt-6',
-                'bg-primary-600 text-white hover:bg-primary-900 shadow-md' => $popular,
-                'border-2 border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white' => !$popular,
-            ])>
-                {{ $cta }}
-            </a>
+            <form action="{{ route('billing.subscribe') }}" method="POST">@csrf<input type="hidden" name="plan_id"
+                    value="{{ $planId }}"><button type="submit" @class([
+                        'flex min-h-12 w-full items-center justify-center rounded-lg px-4 text-sm font-bold transition',
+                        'bg-white text-[#174C33] hover:bg-[#EAF4EC]' => $popular,
+                        'bg-primary-600 text-white hover:bg-primary-900' => !$popular,
+                    ])>{{ $cta }}
+                    ↗</button></form>
+        @else<a href="{{ route('billing.index') }}" @class([
+            'flex min-h-12 items-center justify-center rounded-lg px-4 text-sm font-bold',
+            'bg-white text-[#174C33]' => $popular,
+            'bg-primary-600 text-white' => !$popular,
+        ])>{{ $cta }} ↗</a>
         @endif
-    @else
-        {{-- Redirect ke Halaman Register/Login jika Belum Auth --}}
-        <a href="{{ route('register') }}" @class([
-            'w-full py-3 rounded-md font-bold text-body-sm transition text-center block mt-6',
-            'bg-primary-600 text-white hover:bg-primary-900 shadow-md' => $popular,
-            'border-2 border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white' => !$popular,
-        ])>
-            {{ $cta }}
-        </a>
-    @endauth
-</div>
+@else<a href="{{ route('register') }}" @class([
+    'flex min-h-12 items-center justify-center rounded-lg px-4 text-sm font-bold transition',
+    'bg-white text-[#174C33] hover:bg-[#EAF4EC]' => $popular,
+    'bg-primary-600 text-white hover:bg-primary-900' => !$popular,
+])>{{ $cta }} ↗</a>@endauth
+</article>

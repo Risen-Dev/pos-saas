@@ -1,7 +1,6 @@
 <!DOCTYPE html>
-<html
-    class="motion-safe:scroll-smooth [&_*]:[-webkit-tap-highlight-color:transparent] motion-reduce:[&_*]:!scroll-auto motion-reduce:[&_*]:!transition-none motion-reduce:[&_*]:!animate-none motion-reduce:[&_*::before]:!animate-none motion-reduce:[&_*::after]:!animate-none"
-    lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
+    class="h-full motion-safe:scroll-smooth [&_*]:[-webkit-tap-highlight-color:transparent]">
 
 <head>
     <meta charset="utf-8">

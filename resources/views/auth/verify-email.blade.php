@@ -1,141 +1,33 @@
 <x-guest-layout>
-    @section('title', 'Verifikasi Alamat Email')
-
-    {{-- Alpine.js Store: Auto-Polling & Timer Cooldown 60 Detik --}}
-    <div x-data="{
-        timer: 60,
-        canResend: false,
-        timerInterval: null,
-
-        checkVerification() {
-            fetch('{{ route('api.check-verification') }}')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.verified) {
-                        // Email terverifikasi! Otomatis redirect ke halaman tujuan
-                        window.location.href = data.redirect_url;
-                    }
-                })
-                .catch(error => console.error('Error checking verification:', error));
-        },
-
-        startCooldown() {
-            this.canResend = false;
-            this.timer = 60;
-            if (this.timerInterval) clearInterval(this.timerInterval);
-
-            this.timerInterval = setInterval(() => {
-                this.timer--;
-                if (this.timer <= 0) {
-                    this.canResend = true;
-                    clearInterval(this.timerInterval);
-                }
-            }, 1000);
-        },
-
-        init() {
-            // 1. Jalankan Cooldown Timer saat halaman dimuat
-            this.startCooldown();
-
-            // 2. Jalankan Auto-Check status verifikasi setiap 3 detik
-            setInterval(() => {
-                this.checkVerification();
-            }, 3000);
-        }
-    }" class="grid min-h-screen grid-cols-1 overflow-hidden md:grid-cols-2">
-
-        {{-- Bagian Kiri (Branding GrowPOS) --}}
-        <div class="flex flex-col justify-between w-full px-8 py-12 bg-primary-600 md:px-16">
-            <div class="flex-grow space-y-8">
-                <a href="/" class="inline-block transition duration-500 scale-100 hover:scale-105">
-                    <div class="flex items-center gap-3">
-                        <img src="{{ asset('img/growpos-white.png') }}" class="w-16 h-auto" alt="GrowPOS Logo">
-                        <span class="text-4xl font-bold text-white">GrowPOS</span>
-                    </div>
-                </a>
-
-                <h1 class="font-bold leading-tight text-white text-display lg:text-5xl">
-                    Satu Langkah Lagi Menuju Bisnis Digital Anda.
-                </h1>
-
-                <p class="max-w-xl font-normal text-md text-white/90">
-                    Kami telah mengirimkan tautan verifikasi resmi ke alamat email Gmail Anda untuk memastikan keamanan
-                    akun.
-                </p>
-            </div>
-
-            <div class="max-w-md p-6 mt-12 border rounded-lg shadow-lg border-white/20 bg-white/10 backdrop-blur-sm">
-                <div class="flex items-center gap-3 text-white">
-                    <x-icon class="text-2xl fa-solid fa-shield-halved" />
-                    <div>
-                        <p class="font-semibold">Sistem Keamanan Terenkripsi</p>
-                        <p class="text-xs text-white/80">Perlindungan data akun & transaksi toko Anda adalah prioritas
-                            kami.</p>
-                    </div>
-                </div>
-            </div>
+    @section('title', 'Verifikasi Email')
+    <x-auth.shell eyebrow="VERIFY YOUR EMAIL" heading="Satu langkah lagi untuk memulai." description="Verifikasi email untuk mengaktifkan akses ke workspace GrowPOS.">
+        <div x-data="{
+            remaining:60, sending:false, verified:false, interval:null, poller:null,
+            init(){
+                this.interval = setInterval(()=>{if(this.remaining>0)this.remaining--},1000);
+                this.poller = setInterval(()=>this.check(),5000);
+                document.addEventListener('visibilitychange',()=>{if(!document.hidden)this.check()},{signal:this.$data.abortController?.signal});
+            },
+            abortController: new AbortController(),
+            async check(){
+                if(document.hidden || this.verified)return;
+                try{const r=await fetch(@js(route('api.check-verification')),{headers:{'Accept':'application/json'},credentials:'same-origin'});
+                if(!r.ok)return;const data=await r.json();
+                if(data.verified && data.redirect_url){this.verified=true;window.location.assign(data.redirect_url)}
+                }catch(e){}
+            },
+            destroy(){clearInterval(this.interval);clearInterval(this.poller);this.abortController.abort()}
+        }">
+            <div class="mb-7 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-primary-600"><svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div>
+            <p class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-primary-600">VERIFIKASI EMAIL</p>
+            <h1 class="text-4xl font-semibold tracking-[-0.055em]">Periksa email Anda.</h1>
+            <p class="mt-3 text-sm leading-7 text-ink-700">Kami telah mengirim tautan verifikasi ke email yang terdaftar. Klik tautan tersebut untuk melanjutkan.</p>
+            @auth<p class="mt-3 break-all rounded-lg bg-surface-100 px-3 py-2 text-sm font-medium text-ink-900">{{ auth()->user()->email }}</p>@endauth
+            <div role="status" class="my-7 flex items-start gap-3 rounded-xl border border-border-200 bg-surface-100 p-4 text-sm text-ink-700"><span class="mt-1 h-2.5 w-2.5 shrink-0 animate-pulse rounded-full bg-primary-600"></span><span>Menunggu verifikasi. Halaman akan otomatis beralih setelah email dikonfirmasi.</span></div>
+            @if(session('status') === 'verification-link-sent')<div role="status" class="mb-5 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">Tautan verifikasi baru telah dikirim.</div>@endif
+            <form method="POST" action="{{ route('verification.send') }}" @submit="sending=true"><input type="hidden" name="_token" value="{{ csrf_token() }}"><button type="submit" :disabled="remaining>0 || sending" class="w-full rounded-xl bg-primary-600 px-5 py-3.5 text-sm font-semibold text-white hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"><span x-text="sending ? 'Mengirim...' : remaining>0 ? 'Kirim ulang dalam '+remaining+' detik' : 'Kirim ulang email verifikasi →'"></span></button></form>
+            <p class="mt-4 text-center text-xs leading-6 text-ink-400">Tidak menemukan email? Periksa folder spam atau promosi.</p>
+            <form method="POST" action="{{ route('logout') }}" class="mt-8 text-center">@csrf<button type="submit" class="text-sm font-semibold text-ink-700 hover:text-primary-600">Keluar dari akun</button></form>
         </div>
-
-        {{-- Bagian Kanan (Verify Card) --}}
-        <div class="flex flex-col justify-center w-full px-8 py-12 bg-surface-0 md:px-12 lg:px-20">
-            <div class="w-full max-w-md mx-auto">
-
-                <div
-                    class="flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-primary-50 text-primary-600">
-                    <x-icon class="text-2xl fa-solid fa-envelope-circle-check" />
-                </div>
-
-                <h2 class="mb-2 text-2xl font-bold font-heading text-ink-900">Cek Kotak Masuk Gmail Anda</h2>
-                <p class="mb-6 text-sm leading-relaxed font-body text-ink-700">
-                    Terima kasih telah mendaftar! Sebelum melanjutkan, mohon verifikasi alamat email Anda dengan
-                    mengeklik tautan yang kami kirimkan ke email Anda.
-                </p>
-
-                {{-- Status Indicator Auto-Check --}}
-                <div
-                    class="flex items-center gap-2 p-3 mb-6 text-xs border rounded-lg text-ink-500 bg-surface-100 border-border-200">
-                    <span class="relative flex h-2.5 w-2.5">
-                        <span
-                            class="absolute inline-flex w-full h-full rounded-full opacity-75 animate-ping bg-primary-400"></span>
-                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary-600"></span>
-                    </span>
-                    <span>Menunggu verifikasi... Halaman ini akan beralih otomatis setelah email diklik.</span>
-                </div>
-
-                @if (session('status') == 'verification-link-sent')
-                    <div
-                        class="flex items-center gap-2 p-4 mb-6 text-xs font-semibold border rounded-md bg-emerald-50 text-emerald-800 border-emerald-200">
-                        <x-icon class="fa-solid fa-circle-check text-emerald-600" />
-                        <span>Tautan verifikasi baru telah dikirimkan ke email Anda.</span>
-                    </div>
-                @endif
-
-                <div class="pt-2 space-y-4">
-                    {{-- Form Kirim Ulang Email dengan Timer Anti-Spam --}}
-                    <form method="POST" action="{{ route('verification.send') }}"
-                        @submit="if(!canResend) $event.preventDefault(); startCooldown();">
-                        @csrf
-                        <button type="submit" :disabled="!canResend"
-                            class="w-full flex justify-center items-center py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg text-sm shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                            <x-icon class="mr-2 text-xs fa-solid fa-paper-plane" />
-                            <span
-                                x-text="canResend ? 'Kirim Ulang Email Verifikasi' : 'Tunggu ' + timer + ' detik untuk kirim ulang'"></span>
-                        </button>
-                    </form>
-
-                    {{-- Form Logout --}}
-                    <form method="POST" action="{{ route('logout') }}" class="text-center">
-                        @csrf
-                        <button type="submit"
-                            class="text-xs font-semibold transition-colors text-ink-400 hover:text-ink-900">
-                            <x-icon class="mr-1 fa-solid fa-right-from-bracket" />
-                            Keluar / Keluar Akun
-                        </button>
-                    </form>
-                </div>
-
-            </div>
-        </div>
-
-    </div>
+    </x-auth.shell>
 </x-guest-layout>
