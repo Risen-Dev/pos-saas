@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html class="motion-safe:scroll-smooth [&_*]:[-webkit-tap-highlight-color:transparent] motion-reduce:[&_*]:!scroll-auto motion-reduce:[&_*]:!transition-none motion-reduce:[&_*]:!animate-none motion-reduce:[&_*::before]:!animate-none motion-reduce:[&_*::after]:!animate-none" lang="id">
+<html
+    class="motion-safe:scroll-smooth [&_*]:[-webkit-tap-highlight-color:transparent] motion-reduce:[&_*]:!scroll-auto motion-reduce:[&_*]:!transition-none motion-reduce:[&_*]:!animate-none motion-reduce:[&_*::before]:!animate-none motion-reduce:[&_*::after]:!animate-none"
+    lang="id">
 
 <head>
     <meta charset="utf-8">
@@ -11,22 +13,13 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
 
-
     <title>GrowPOS - @yield('title', 'SaaS POS UMKM')</title>
-
-
-
-
     <!-- Google Fonts Google Jakarta Sans, Inter, IBM Plex Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@600&family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700&display=swap"
         rel="stylesheet">
-
-
-
-
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -53,21 +46,37 @@
             @if (auth()->user()->role !== 'kasir')
                 @include('layouts.navbar')
             @else
-                <header class="flex items-center justify-between h-16 gap-3 px-4 bg-surface-0 border-b border-border-200 shrink-0">
-                    <div class="flex items-center gap-2 min-w-0">
-                        <a href="{{ route('pos.index') }}" class="inline-flex items-center justify-center w-9 h-9 rounded-md bg-primary-50 text-primary-600" aria-label="Kembali ke kasir"><x-icon class="fa-solid fa-cash-register" /></a>
-                        <div class="min-w-0"><p class="text-sm font-bold truncate text-ink-900">{{ auth()->user()->tenant?->name ?? 'GrowPOS' }}</p><p class="text-[10px] font-semibold uppercase tracking-wider text-primary-600">Mode Kasir</p></div>
+                <header
+                    class="flex items-center justify-between h-16 gap-3 px-4 border-b bg-surface-0 border-border-200 shrink-0">
+                    <div class="flex items-center min-w-0 gap-2">
+                        <a href="{{ route('pos.index') }}"
+                            class="inline-flex items-center justify-center rounded-md w-9 h-9 bg-primary-50 text-primary-600"
+                            aria-label="Kembali ke kasir"><x-icon class="fa-solid fa-cash-register" /></a>
+                        <div class="min-w-0">
+                            <p class="text-sm font-bold truncate text-ink-900">
+                                {{ auth()->user()->tenant?->name ?? 'GrowPOS' }}</p>
+                            <p class="text-[10px] font-semibold uppercase tracking-wider text-primary-600">Mode Kasir
+                            </p>
+                        </div>
                     </div>
                     <nav class="flex items-center gap-1 sm:gap-2" aria-label="Navigasi kasir">
-                        <a href="{{ route('pos.index') }}" class="px-3 py-2 text-xs font-semibold rounded-md text-ink-700 hover:bg-surface-100">Kasir</a>
+                        <a href="{{ route('pos.index') }}"
+                            class="px-3 py-2 text-xs font-semibold rounded-md text-ink-700 hover:bg-surface-100">Kasir</a>
                         @if (auth()->user()->tenant?->hasBusinessModule('services'))
-                            <a href="{{ route('services.index') }}" class="hidden px-3 py-2 text-xs font-semibold rounded-md sm:inline-flex text-ink-700 hover:bg-surface-100">Pengerjaan jasa</a>
+                            <a href="{{ route('services.index') }}"
+                                class="hidden px-3 py-2 text-xs font-semibold rounded-md sm:inline-flex text-ink-700 hover:bg-surface-100">Pengerjaan
+                                jasa</a>
                         @endif
                         @if (auth()->user()->tenant?->hasBusinessModule('food'))
-                            <a href="{{ route('kitchen.index') }}" class="hidden px-3 py-2 text-xs font-semibold rounded-md sm:inline-flex text-ink-700 hover:bg-surface-100">Dapur</a>
+                            <a href="{{ route('kitchen.index') }}"
+                                class="hidden px-3 py-2 text-xs font-semibold rounded-md sm:inline-flex text-ink-700 hover:bg-surface-100">Dapur</a>
                         @endif
-                        <a href="{{ route('profile.index') }}" class="inline-flex items-center justify-center w-9 h-9 rounded-md text-ink-700 hover:bg-surface-100" aria-label="Akun"><x-icon class="fa-solid fa-user" /></a>
-                        <form method="POST" action="{{ route('logout') }}">@csrf<button class="inline-flex items-center justify-center w-9 h-9 rounded-md text-semantic-danger hover:bg-red-50" aria-label="Keluar"><x-icon class="fa-solid fa-right-from-bracket" /></button></form>
+                        <a href="{{ route('profile.index') }}"
+                            class="inline-flex items-center justify-center rounded-md w-9 h-9 text-ink-700 hover:bg-surface-100"
+                            aria-label="Akun"><x-icon class="fa-solid fa-user" /></a>
+                        <form method="POST" action="{{ route('logout') }}">@csrf<button
+                                class="inline-flex items-center justify-center rounded-md w-9 h-9 text-semantic-danger hover:bg-red-50"
+                                aria-label="Keluar"><x-icon class="fa-solid fa-right-from-bracket" /></button></form>
                     </nav>
                 </header>
             @endif
