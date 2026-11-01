@@ -20,7 +20,9 @@
         ['Barang dan jasa', 'Pilih tipe Barang Fisik atau Jasa saat mengisi katalog. Jasa tidak mengurangi stok barang. Keduanya bisa berada dalam satu nota. Untuk barcode, fokuskan kolom pencarian kasir lalu pindai kode dan Enter.'],
         ['Antrean dapur (kuliner)', 'Jika fitur kuliner diaktifkan, pesanan lunas masuk ke dapur. Gunakan tombol Mulai buat → Tandai siap → Sudah disajikan. Antrean memperbarui otomatis ketika halaman aktif. Hanya barang yang ditandai masuk dapur yang ditampilkan.'],
         ['Cetak struk', 'Hubungkan printer melalui perangkat dan driver yang tersedia. Klik Cetak struk untuk membuka dialog cetak browser. Pilih cetak 58 mm atau 80 mm di detail nota, sesuaikan ukuran kertas pada driver, gunakan margin minimum, dan matikan header/footer browser. Lakukan satu uji cetak sebelum membuka toko.'],
-        ['Tutup shift', 'Selesaikan sinkronisasi di setiap perangkat terlebih dahulu. Hitung uang fisik, masukkan ke dialog tutup shift, dan periksa selisih. Kas shift memperhitungkan penjualan tunai, cicilan yang diterima, refund, dan pengeluaran.'],
+        ['Transfer & QRIS toko', 'Pilih metode manual hanya setelah dana masuk diperiksa di rekening/aplikasi toko. Pembayaran ini tidak menambah uang laci atau saldo pencairan GrowPOS. QRIS otomatis mengikuti konfirmasi provider.'],
+        ['Tambah stok cepat', 'Buka Stok, cari barang, lalu isi jumlah masuk dan modal per satuan dasar jika diketahui. Modal diperbarui sebagai rata-rata. Pembayaran pembelian tunai dicatat terpisah di Kas & Pengeluaran.'],
+        ['Tutup penjualan', 'Selesaikan sinkronisasi di setiap perangkat terlebih dahulu. Hitung uang fisik, masukkan ke dialog tutup penjualan, dan periksa selisih. Kas shift memperhitungkan penjualan tunai, cicilan yang diterima, refund, dan pengeluaran.'],
         ['Data dan biaya langganan', 'Katalog dapat diekspor dari Mulai berjualan; laporan tersedia di menu Laporan. Harga, masa berlaku, dan batas paket tercantum pada halaman Langganan. Nilai penjualan QRIS dan saldo pencairan berbeda jika ada komisi platform.'],
     ] as [$title, $body])
                 <details

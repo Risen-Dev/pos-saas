@@ -1,0 +1,338 @@
+[
+  {
+    "bodyWidth": 320,
+    "overflow": [],
+    "page": "pos",
+    "scrollWidth": 320,
+    "smallControls": 0,
+    "width": 320
+  },
+  {
+    "bodyWidth": 375,
+    "overflow": [],
+    "page": "pos",
+    "scrollWidth": 375,
+    "smallControls": 0,
+    "width": 375
+  },
+  {
+    "bodyWidth": 390,
+    "overflow": [],
+    "page": "pos",
+    "scrollWidth": 390,
+    "smallControls": 0,
+    "width": 390
+  },
+  {
+    "bodyWidth": 768,
+    "overflow": [],
+    "page": "pos",
+    "scrollWidth": 768,
+    "smallControls": 0,
+    "width": 768
+  },
+  {
+    "bodyWidth": 1024,
+    "overflow": [],
+    "page": "pos",
+    "scrollWidth": 1024,
+    "smallControls": 0,
+    "width": 1024
+  },
+  {
+    "bodyWidth": 1440,
+    "overflow": [],
+    "page": "pos",
+    "scrollWidth": 1440,
+    "smallControls": 0,
+    "width": 1440
+  },
+  {
+    "bodyWidth": 1920,
+    "overflow": [],
+    "page": "pos",
+    "scrollWidth": 1920,
+    "smallControls": 0,
+    "width": 1920
+  },
+  {
+    "mainScrollWidth": 314,
+    "mainWidth": 314,
+    "page": "/dashboard",
+    "scrollWidth": 320,
+    "visibleEmptyButtons": 1,
+    "width": 320
+  },
+  {
+    "mainScrollWidth": 369,
+    "mainWidth": 369,
+    "page": "/dashboard",
+    "scrollWidth": 375,
+    "visibleEmptyButtons": 1,
+    "width": 375
+  },
+  {
+    "mainScrollWidth": 384,
+    "mainWidth": 384,
+    "page": "/dashboard",
+    "scrollWidth": 390,
+    "visibleEmptyButtons": 1,
+    "width": 390
+  },
+  {
+    "mainScrollWidth": 762,
+    "mainWidth": 762,
+    "page": "/dashboard",
+    "scrollWidth": 768,
+    "visibleEmptyButtons": 1,
+    "width": 768
+  },
+  {
+    "mainScrollWidth": 758,
+    "mainWidth": 758,
+    "page": "/dashboard",
+    "scrollWidth": 1024,
+    "visibleEmptyButtons": 0,
+    "width": 1024
+  },
+  {
+    "mainScrollWidth": 1174,
+    "mainWidth": 1174,
+    "page": "/dashboard",
+    "scrollWidth": 1440,
+    "visibleEmptyButtons": 0,
+    "width": 1440
+  },
+  {
+    "mainScrollWidth": 1654,
+    "mainWidth": 1654,
+    "page": "/dashboard",
+    "scrollWidth": 1920,
+    "visibleEmptyButtons": 0,
+    "width": 1920
+  },
+  {
+    "mainScrollWidth": 314,
+    "mainWidth": 314,
+    "page": "/products",
+    "scrollWidth": 320,
+    "visibleEmptyButtons": 1,
+    "width": 320
+  },
+  {
+    "mainScrollWidth": 370,
+    "mainWidth": 369,
+    "page": "/products",
+    "scrollWidth": 375,
+    "visibleEmptyButtons": 1,
+    "width": 375
+  },
+  {
+    "mainScrollWidth": 384,
+    "mainWidth": 384,
+    "page": "/products",
+    "scrollWidth": 390,
+    "visibleEmptyButtons": 1,
+    "width": 390
+  },
+  {
+    "mainScrollWidth": 768,
+    "mainWidth": 768,
+    "page": "/products",
+    "scrollWidth": 768,
+    "visibleEmptyButtons": 1,
+    "width": 768
+  },
+  {
+    "mainScrollWidth": 764,
+    "mainWidth": 764,
+    "page": "/products",
+    "scrollWidth": 1024,
+    "visibleEmptyButtons": 0,
+    "width": 1024
+  },
+  {
+    "mainScrollWidth": 1180,
+    "mainWidth": 1180,
+    "page": "/products",
+    "scrollWidth": 1440,
+    "visibleEmptyButtons": 0,
+    "width": 1440
+  },
+  {
+    "mainScrollWidth": 1660,
+    "mainWidth": 1660,
+    "page": "/products",
+    "scrollWidth": 1920,
+    "visibleEmptyButtons": 0,
+    "width": 1920
+  },
+  {
+    "mainScrollWidth": 314,
+    "mainWidth": 314,
+    "page": "/products/create",
+    "scrollWidth": 320,
+    "visibleEmptyButtons": 1,
+    "width": 320
+  },
+  {
+    "mainScrollWidth": 369,
+    "mainWidth": 369,
+    "page": "/products/create",
+    "scrollWidth": 375,
+    "visibleEmptyButtons": 1,
+    "width": 375
+  },
+  {
+    "mainScrollWidth": 384,
+    "mainWidth": 384,
+    "page": "/products/create",
+    "scrollWidth": 390,
+    "visibleEmptyButtons": 1,
+    "width": 390
+  },
+  {
+    "mainScrollWidth": 762,
+    "mainWidth": 762,
+    "page": "/products/create",
+    "scrollWidth": 768,
+    "visibleEmptyButtons": 1,
+    "width": 768
+  },
+  {
+    "mainScrollWidth": 758,
+    "mainWidth": 758,
+    "page": "/products/create",
+    "scrollWidth": 1024,
+    "visibleEmptyButtons": 0,
+    "width": 1024
+  },
+  {
+    "mainScrollWidth": 1174,
+    "mainWidth": 1174,
+    "page": "/products/create",
+    "scrollWidth": 1440,
+    "visibleEmptyButtons": 0,
+    "width": 1440
+  },
+  {
+    "mainScrollWidth": 1654,
+    "mainWidth": 1654,
+    "page": "/products/create",
+    "scrollWidth": 1920,
+    "visibleEmptyButtons": 0,
+    "width": 1920
+  },
+  {
+    "mainScrollWidth": 1047,
+    "mainWidth": 314,
+    "page": "/reports",
+    "scrollWidth": 320,
+    "visibleEmptyButtons": 1,
+    "width": 320
+  },
+  {
+    "mainScrollWidth": 369,
+    "mainWidth": 369,
+    "page": "/reports",
+    "scrollWidth": 375,
+    "visibleEmptyButtons": 1,
+    "width": 375
+  },
+  {
+    "mainScrollWidth": 384,
+    "mainWidth": 384,
+    "page": "/reports",
+    "scrollWidth": 390,
+    "visibleEmptyButtons": 1,
+    "width": 390
+  },
+  {
+    "mainScrollWidth": 762,
+    "mainWidth": 762,
+    "page": "/reports",
+    "scrollWidth": 768,
+    "visibleEmptyButtons": 1,
+    "width": 768
+  },
+  {
+    "mainScrollWidth": 957,
+    "mainWidth": 758,
+    "page": "/reports",
+    "scrollWidth": 1024,
+    "visibleEmptyButtons": 0,
+    "width": 1024
+  },
+  {
+    "mainScrollWidth": 1304,
+    "mainWidth": 1174,
+    "page": "/reports",
+    "scrollWidth": 1440,
+    "visibleEmptyButtons": 0,
+    "width": 1440
+  },
+  {
+    "mainScrollWidth": 1654,
+    "mainWidth": 1654,
+    "page": "/reports",
+    "scrollWidth": 1920,
+    "visibleEmptyButtons": 0,
+    "width": 1920
+  },
+  {
+    "mainScrollWidth": 314,
+    "mainWidth": 314,
+    "page": "/billing",
+    "scrollWidth": 320,
+    "visibleEmptyButtons": 1,
+    "width": 320
+  },
+  {
+    "mainScrollWidth": 369,
+    "mainWidth": 369,
+    "page": "/billing",
+    "scrollWidth": 375,
+    "visibleEmptyButtons": 1,
+    "width": 375
+  },
+  {
+    "mainScrollWidth": 384,
+    "mainWidth": 384,
+    "page": "/billing",
+    "scrollWidth": 390,
+    "visibleEmptyButtons": 1,
+    "width": 390
+  },
+  {
+    "mainScrollWidth": 762,
+    "mainWidth": 762,
+    "page": "/billing",
+    "scrollWidth": 768,
+    "visibleEmptyButtons": 1,
+    "width": 768
+  },
+  {
+    "mainScrollWidth": 758,
+    "mainWidth": 758,
+    "page": "/billing",
+    "scrollWidth": 1024,
+    "visibleEmptyButtons": 0,
+    "width": 1024
+  },
+  {
+    "mainScrollWidth": 1174,
+    "mainWidth": 1174,
+    "page": "/billing",
+    "scrollWidth": 1440,
+    "visibleEmptyButtons": 0,
+    "width": 1440
+  },
+  {
+    "mainScrollWidth": 1654,
+    "mainWidth": 1654,
+    "page": "/billing",
+    "scrollWidth": 1920,
+    "visibleEmptyButtons": 0,
+    "width": 1920
+  }
+]

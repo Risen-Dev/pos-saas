@@ -6,8 +6,9 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
- // Opsional jika ingin ditarik ke laporan detail kelak
+// Opsional jika ingin ditarik ke laporan detail kelak
 
 class FinanceController extends Controller
 {
@@ -25,7 +26,7 @@ class FinanceController extends Controller
 
         // 2. Jika tenant baru pertama kali buka menu ini dan dompet belum terdaftar di DB, buatkan otomatis
         if (! $wallet) {
-            DB::table('tenant_wallets')->insert([
+            DB::table('tenant_wallets')->insertOrIgnore([
                 'tenant_id' => $tenantId,
                 'balance' => 0,
                 'created_at' => now(),
@@ -49,15 +50,16 @@ class FinanceController extends Controller
      */
     public function withdraw(Request $request)
     {
-        $request->validate([
-            'amount' => 'required|integer|min:10000',
+        $data = $request->validate([
+            'idempotency_key' => 'required|uuid',
+            'amount' => 'required|integer|min:10000|max:999999999999',
         ]);
 
         $tenantId = Auth::user()->tenant_id;
         $amountToWithdraw = (int) $request->amount;
 
         try {
-            return DB::transaction(function () use ($tenantId, $amountToWithdraw) {
+            return DB::transaction(function () use ($tenantId, $amountToWithdraw, $data) {
 
                 $wallet = DB::table('tenant_wallets')
                     ->where('tenant_id', $tenantId)
@@ -68,6 +70,13 @@ class FinanceController extends Controller
                     return response()->json(['success' => false, 'message' => 'Dompet toko tidak ditemukan.'], 404);
                 }
 
+                $existing = DB::table('withdrawal_requests')->where('tenant_id', $tenantId)->where('idempotency_key', $data['idempotency_key'])->first();
+                if ($existing) {
+                    abort_unless((int) $existing->amount === $amountToWithdraw, 409, 'Referensi pengajuan sudah digunakan untuk nominal berbeda.');
+
+                    return response()->json(['success' => true, 'reference_number' => $existing->reference_number, 'message' => 'Pengajuan ini sudah tercatat.']);
+                }
+
                 if (empty($wallet->account_number)) {
                     return response()->json(['success' => false, 'message' => 'Informasi rekening bank tujuan belum dilengkapi.'], 422);
                 }
@@ -76,7 +85,7 @@ class FinanceController extends Controller
                     return response()->json(['success' => false, 'message' => 'Saldo Anda tidak mencukupi untuk melakukan penarikan ini.'], 422);
                 }
 
-                $referenceNumber = 'WDR-'.now()->format('Ymd').'-'.strtoupper(bin2hex(random_bytes(3)));
+                $referenceNumber = 'WDR-'.Str::ulid();
 
                 DB::table('tenant_wallets')
                     ->where('tenant_id', $tenantId)
@@ -89,6 +98,7 @@ class FinanceController extends Controller
                 DB::table('withdrawal_requests')->insert([
                     'tenant_id' => $tenantId,
                     'reference_number' => $referenceNumber,
+                    'idempotency_key' => $data['idempotency_key'],
                     'bank_name' => $wallet->bank_name,
                     'account_number' => $wallet->account_number,
                     'account_name' => $wallet->account_name,
@@ -102,6 +112,7 @@ class FinanceController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Pengajuan penarikan berhasil didaftarkan.',
+                    'reference_number' => $referenceNumber,
                 ]);
             });
         } catch (QueryException $e) {
@@ -145,7 +156,7 @@ class FinanceController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menyimpan data: '.$e->getMessage(),
+                'message' => 'Pengaturan rekening belum dapat disimpan. Silakan coba lagi.',
             ], 500);
         }
     }

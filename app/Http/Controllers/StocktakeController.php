@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\StockMovement;
 use App\Models\Stocktake;
 use App\Models\Tenant;
 use App\Services\RetailQuantity;
@@ -10,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class StocktakeController extends Controller
 {
@@ -25,15 +27,18 @@ class StocktakeController extends Controller
         $data = $request->validate(['note' => 'nullable|string|max:1000']);
         $tenant = $request->user()->tenant_id;
         $stocktake = DB::transaction(function () use ($request, $data, $tenant) {
+            Tenant::whereKey($tenant)->lockForUpdate()->firstOrFail();
             $stocktake = Stocktake::create(['tenant_id' => $tenant, 'created_by' => $request->user()->id, 'number' => 'SO-'.now()->format('Ymd').'-'.Str::ulid(), 'note' => $data['note'] ?? null]);
             Product::where('tenant_id', $tenant)->where('type', 'product')
                 ->where('manage_stock', true)->where('is_active', true)
                 ->select(['id', 'stock'])->chunkById(500, function ($products) use ($stocktake) {
                     $timestamp = now();
+                    $movements = StockMovement::whereIn('product_id', $products->pluck('id'))->selectRaw('product_id, MAX(id) as movement_id')->groupBy('product_id')->pluck('movement_id', 'product_id');
                     $stocktake->items()->insert($products->map(fn ($product) => [
                         'stocktake_id' => $stocktake->id,
                         'product_id' => $product->id,
                         'system_quantity' => $product->stock,
+                        'movement_id' => $movements[$product->id] ?? 0,
                         'created_at' => $timestamp,
                         'updated_at' => $timestamp,
                     ])->all());
@@ -66,6 +71,10 @@ class StocktakeController extends Controller
                 $count = (float) ($data['counts'][$line->id] ?? -1);
                 abort_if($count < 0, 422, 'Semua produk harus dihitung.');
                 $product = Product::where('tenant_id', $request->user()->tenant_id)->whereKey($line->product_id)->lockForUpdate()->firstOrFail();
+                $movementId = StockMovement::where('tenant_id', $stocktake->tenant_id)->where('product_id', $product->id)->max('id') ?? 0;
+                if ((int) $movementId !== (int) $line->movement_id || RetailQuantity::ticks($product->stock) !== RetailQuantity::ticks($line->system_quantity)) {
+                    throw ValidationException::withMessages(['counts' => 'Stok '.$product->product_name.' berubah selama penghitungan. Mulai sesi opname baru dan hitung ulang sebelum menyelesaikan.']);
+                }
                 RetailQuantity::requireWhole($count, $product->allow_fraction);
                 $before = (float) $product->stock;
                 $product->update(['stock' => $count]);

@@ -4,8 +4,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\ServiceOrder;
+use App\Models\Tenant;
+use App\Services\LegacyServiceProgress;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class ServiceOrderController extends Controller
@@ -19,7 +23,16 @@ class ServiceOrderController extends Controller
 
     public function store(Request $request)
     {
-        return ServiceOrder::create(array_merge($this->validated($request), ['tenant_id' => $request->user()->tenant_id]));
+        $data = $this->validated($request);
+
+        return DB::transaction(function () use ($request, $data) {
+            Tenant::whereKey($request->user()->tenant_id)->lockForUpdate()->firstOrFail();
+            $order = Order::whereKey($data['order_id'])->lockForUpdate()->firstOrFail();
+            abort_if(ServiceOrder::where('order_id', $order->id)->exists(), 409, 'Pengerjaan jasa ini sudah tercatat.');
+            app(LegacyServiceProgress::class)->apply($order, $data['service_status'] ?? 'received');
+
+            return ServiceOrder::create([...$data, 'tenant_id' => $request->user()->tenant_id]);
+        }, 3);
     }
 
     public function show(ServiceOrder $serviceOrder)
@@ -30,7 +43,16 @@ class ServiceOrderController extends Controller
     public function update(Request $request, ServiceOrder $serviceOrder)
     {
         $data = $this->validated($request, false);
-        $serviceOrder->update($data);
+        DB::transaction(function () use ($request, $serviceOrder, $data) {
+            Tenant::whereKey($request->user()->tenant_id)->lockForUpdate()->firstOrFail();
+            $order = Order::whereKey($serviceOrder->order_id)->lockForUpdate()->firstOrFail();
+            $legacy = ServiceOrder::whereKey($serviceOrder->id)->lockForUpdate()->firstOrFail();
+            if (isset($data['service_status'])) {
+                app(LegacyServiceProgress::class)->apply($order, $data['service_status']);
+            }
+            $legacy->update($data);
+        }, 3);
+        $serviceOrder->refresh();
 
         return $serviceOrder;
     }

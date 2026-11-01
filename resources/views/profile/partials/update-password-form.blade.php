@@ -17,9 +17,9 @@
                 class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
                 Kata Sandi Saat Ini
             </label>
-            <input type="password" id="update_password_current_password" name="current_password"
+            <div class="relative" x-data="{ passwordVisible: false }"><input type="password" :type="passwordVisible ? 'text' : 'password'" id="update_password_current_password" name="current_password"
                 autocomplete="current-password"
-                class="w-full px-3 font-mono text-xs transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
+                class="pr-12 w-full px-3 font-mono text-xs transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100"><x-password-toggle control="update_password_current_password" /></div>
             <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-1" />
         </div>
 
@@ -27,8 +27,8 @@
             <label for="update_password_password" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
                 Kata Sandi Baru
             </label>
-            <input type="password" id="update_password_password" name="password" autocomplete="new-password"
-                class="w-full px-3 font-mono text-xs transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
+            <div class="relative" x-data="{ passwordVisible: false }"><input type="password" :type="passwordVisible ? 'text' : 'password'" id="update_password_password" name="password" autocomplete="new-password"
+                class="pr-12 w-full px-3 font-mono text-xs transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100"><x-password-toggle control="update_password_password" /></div>
             <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-1" />
         </div>
 
@@ -37,9 +37,9 @@
                 class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
                 Konfirmasi Kata Sandi Baru
             </label>
-            <input type="password" id="update_password_password_confirmation" name="password_confirmation"
+            <div class="relative" x-data="{ passwordVisible: false }"><input type="password" :type="passwordVisible ? 'text' : 'password'" id="update_password_password_confirmation" name="password_confirmation"
                 autocomplete="new-password"
-                class="w-full px-3 font-mono text-xs transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
+                class="pr-12 w-full px-3 font-mono text-xs transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100"><x-password-toggle control="update_password_password_confirmation" /></div>
             <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-1" />
         </div>
 

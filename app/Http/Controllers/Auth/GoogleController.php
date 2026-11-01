@@ -34,6 +34,10 @@ class GoogleController extends Controller
 
             $isNewUser = false;
 
+            if ($user && $user->status !== 'active') {
+                return redirect()->route('login')->withErrors(['email' => 'Akun dinonaktifkan. Hubungi pemilik usaha.']);
+            }
+
             if ($user) {
                 if (! $user->google_id) {
                     $user->update(['google_id' => $googleUser->getId()]);
@@ -72,7 +76,7 @@ class GoogleController extends Controller
         } catch (\Exception $e) {
             Log::error('Google Auth Error: '.$e->getMessage());
 
-            return redirect()->route('login')->with('error', 'Gagal autentikasi Google: '.$e->getMessage());
+            return redirect()->route('login')->with('error', 'Autentikasi Google belum berhasil. Silakan coba lagi.');
         }
     }
 }

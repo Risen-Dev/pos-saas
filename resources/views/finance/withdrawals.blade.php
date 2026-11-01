@@ -99,7 +99,7 @@
         </div>
 
         {{-- Modal Ajukan Penarikan --}}
-        <div x-show="modalOpen" x-cloak class="[&[x-cloak]]:!hidden fixed inset-0 z-[90] flex items-center justify-center px-4"
+        <div data-dialog x-show="modalOpen" x-cloak class="[&[x-cloak]]:!hidden fixed inset-0 z-[90] flex items-center justify-center px-4"
             x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100">
 

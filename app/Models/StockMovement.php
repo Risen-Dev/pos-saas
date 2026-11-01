@@ -13,6 +13,7 @@ class StockMovement extends Model
     use BelongsToTenant, HasFactory;
 
     protected $fillable = [
+        'operation_key', 'request_hash',
         'tenant_id',
         'product_id',
         'material_id',
@@ -32,15 +33,6 @@ class StockMovement extends Model
     {
         return $this->belongsTo(Supplier::class);
     }
-
-    // protected static function booted()
-    // {
-    //     static::addGlobalScope('tenant', function ($builder) {
-    //         if (auth()->check()) {
-    //             $builder->where('tenant_id', auth()->user()->tenant_id);
-    //         }
-    //     });
-    // }
 
     // Helper untuk label warna di view nanti
     public function getTypeLabelAttribute()

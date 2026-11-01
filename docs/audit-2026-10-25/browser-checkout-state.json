@@ -1,0 +1,8 @@
+{
+    "fixture_only": true,
+    "order_payment_status": "paid",
+    "order_total": 22500,
+    "order_qty": 1.5,
+    "remaining_stock": 18.5,
+    "cash_ledger_total": 22500
+}

@@ -79,11 +79,7 @@ class OrderReturnService
             }
             $priorRefund = (float) DB::table('order_returns')->where('order_id', $order->id)->sum('amount');
             DB::table('order_returns')->insert(['tenant_id' => $actor->tenant_id, 'order_id' => $order->id, 'order_item_id' => $item->id, 'cash_entry_id' => $entry->id, 'quantity' => $quantity, 'amount' => $amount, 'restock' => $restock, 'created_at' => now(), 'updated_at' => now()]);
-            if ($order->customer_id && $order->points_awarded > 0 && $order->grand_total > 0) {
-                $points = (int) floor($order->points_awarded * ($priorRefund + $amount) / $order->grand_total) - (int) floor($order->points_awarded * $priorRefund / $order->grand_total);
-                $customer = Customer::whereKey($order->customer_id)->lockForUpdate()->firstOrFail();
-                $customer->update(['points' => max(0, $customer->points - $points)]);
-            }
+            app(CustomerPoints::class)->reverseForReturn($order, $amount, (int) $priorRefund, $entry->id);
             ActivityLog::create(['tenant_id' => $actor->tenant_id, 'user_id' => $actor->id, 'action' => 'order.return', 'description' => 'Order '.$order->id.' item '.$item->id.'; '.$quantity.' unit; Rp '.$amount.'; '.$data['reason']]);
         }, 3);
     }

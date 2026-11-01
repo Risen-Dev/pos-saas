@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Invoice;
 use App\Models\Plan;
 use App\Models\Subscription;
-use Carbon\Carbon;
+use App\Models\Tenant;
+use App\Services\BillingPaymentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Midtrans\Config;
 use Midtrans\Snap;
 use Midtrans\Transaction;
@@ -23,7 +26,7 @@ class SubscriptionController extends Controller
         // 🛠️ PERBAIKAN: Hanya ambil subscription yang berstatus ACTIVE dan belum expired
         $currentSubscription = $tenant ? $tenant->subscriptions()
             ->where('status', 'active')
-            ->where('end_date', '>=', now())
+            ->whereDate('end_date', '>=', today())
             ->latest('id')
             ->first() : null;
 
@@ -39,57 +42,38 @@ class SubscriptionController extends Controller
 
     public function subscribe(Request $request)
     {
-        $request->validate([
-            'plan_id' => 'required|exists:plans,id',
+        $data = $request->validate([
+            'plan_id' => ['required', 'integer', Rule::exists('plans', 'id')->where('is_active', true)->where('is_public', true)],
         ]);
+        $user = $request->user();
+        abort_unless($user->tenant_id, 422, 'Siapkan bisnis sebelum memilih paket.');
+        $invoice = DB::transaction(function () use ($user, $data) {
+            $tenant = Tenant::whereKey($user->tenant_id)->lockForUpdate()->firstOrFail();
+            $plan = Plan::where('is_active', true)->where('is_public', true)->findOrFail($data['plan_id']);
+            if ((float) $plan->price === 0.0) {
+                $active = $tenant->subscriptions()->where('status', 'active')->where('start_date', '<=', today())->whereDate('end_date', '>=', today())->latest('id')->first();
+                if ($active) {
+                    return null;
+                }
+                Subscription::create(['tenant_id' => $tenant->id, 'plan_id' => $plan->id,
+                    'status' => 'active', 'start_date' => today(), 'end_date' => now()->addDays($plan->duration_days ?? 30)]);
+                $tenant->update(['status' => 'active']);
 
-        $user = auth()->user();
-        $tenant = $user->tenant;
-        $plan = Plan::findOrFail($request->plan_id);
+                return null;
+            }
 
-        // Jika memilih paket gratis (Starter)
-        if ($plan->price == 0) {
-            Subscription::create([
-                'tenant_id' => $tenant->id,
-                'plan_id' => $plan->id,
-                'status' => 'active',
-                'start_date' => now(),
-                'end_date' => now()->addDays($plan->duration_days ?? 30),
-            ]);
-
-            $tenant->update(['status' => 'active']);
-
-            return redirect()->route('dashboard')
-                ->with('success', 'Paket Starter berhasil diaktifkan!');
+            return Invoice::where('tenant_id', $tenant->id)->where('plan_id', $plan->id)
+                ->where('status', 'pending')->where('due_date', '>=', now())->latest('id')->first()
+                ?? Invoice::create(['tenant_id' => $tenant->id, 'plan_id' => $plan->id,
+                    'invoice_number' => 'INV-SAAS-'.Str::uuid(), 'amount' => (int) round($plan->price),
+                    'duration_days' => $plan->duration_days ?? 30, 'status' => 'pending', 'due_date' => now()->addDay()]);
+        }, 3);
+        if (! $invoice) {
+            return redirect()->route('dashboard')->with('success', 'Paket aktif siap digunakan.');
         }
-
-        // Cek jika sudah ada Invoice PENDING untuk paket ini
-        $existingInvoice = Invoice::where('tenant_id', $tenant->id)
-            ->where('status', 'pending')
-            ->where('due_date', '>=', now())
-            ->latest('id')
-            ->first();
-
-        if ($existingInvoice && $existingInvoice->subscription?->plan_id == $plan->id) {
-            return redirect()->route('billing.invoice', $existingInvoice->id);
+        if (! $invoice->snap_token) {
+            $this->createSnapTransaction($invoice, $user);
         }
-
-        // 🛠️ PERBAIKAN UTAMA:
-        // Invoice TIDAK LAGI membutuhkan subscription_id di awal!
-        // Record Subscription HANYA diciptakan saat pembayaran telah LUNAS di Midtrans.
-        $invoiceNumber = 'INV-SAAS-'.date('Ymd').'-'.strtoupper(Str::random(5));
-
-        $invoice = Invoice::create([
-            'tenant_id' => $tenant->id,
-            'subscription_id' => null, // Set null saat pending
-            'plan_id' => $plan->id, // Simpan plan_id target pada invoice
-            'invoice_number' => $invoiceNumber,
-            'amount' => $plan->price,
-            'status' => 'pending',
-            'due_date' => now()->addDays(1),
-        ]);
-
-        $this->createSnapTransaction($invoice, $user);
 
         return redirect()->route('billing.invoice', $invoice->id);
     }
@@ -114,9 +98,7 @@ class SubscriptionController extends Controller
             abort(403);
         }
 
-        if ($invoice->status === 'pending') {
-            $invoice->update(['status' => 'cancelled']);
-        }
+        Invoice::whereKey($invoice->id)->where('status', 'pending')->update(['status' => 'cancelled']);
 
         return redirect()->route('billing.index')->with('success', 'Tagihan berhasil dibatalkan.');
     }
@@ -127,7 +109,7 @@ class SubscriptionController extends Controller
             abort(403);
         }
 
-        if ($invoice->status === 'paid') {
+        if ($invoice->status === 'paid' && $invoice->subscription_id) {
             return response()->json(['success' => true, 'status' => 'paid']);
         }
 
@@ -135,58 +117,14 @@ class SubscriptionController extends Controller
 
         try {
             $midtransStatus = Transaction::status($invoice->invoice_number);
-            $this->applyMidtransStatus($invoice, $midtransStatus);
+            app(BillingPaymentService::class)->apply($invoice->id, (array) $midtransStatus);
         } catch (\Exception $e) {
-            Log::error("Billing Check Status Error [{$invoice->invoice_number}]: ".$e->getMessage());
+            report($e);
+
+            return response()->json(['success' => false, 'message' => 'Status pembayaran belum dapat dikonfirmasi. Silakan coba lagi.'], 503);
         }
 
         return response()->json(['success' => true, 'status' => $invoice->fresh()->status]);
-    }
-
-    public function notification(Request $request)
-    {
-        $payload = $request->all();
-
-        $orderId = $payload['order_id'] ?? null;
-        $statusCode = $payload['status_code'] ?? null;
-        $grossAmount = $payload['gross_amount'] ?? null;
-        $signatureKey = $payload['signature_key'] ?? null;
-
-        if (! $orderId || ! $statusCode || ! $grossAmount || ! $signatureKey) {
-            Log::warning('Midtrans notification: payload tidak lengkap', $payload);
-
-            return response()->json(['message' => 'invalid payload'], 400);
-        }
-
-        $serverKey = config('services.midtrans.server_key');
-        $expectedSignature = hash('sha512', $orderId.$statusCode.$grossAmount.$serverKey);
-
-        if (! hash_equals($expectedSignature, $signatureKey)) {
-            Log::warning("Midtrans notification: signature tidak valid untuk order_id {$orderId}");
-
-            return response()->json(['message' => 'invalid signature'], 403);
-        }
-
-        $invoice = Invoice::where('invoice_number', $orderId)->first();
-
-        if (! $invoice) {
-            Log::warning("Midtrans notification: invoice tidak ditemukan untuk order_id {$orderId}");
-
-            return response()->json(['message' => 'invoice not found'], 404);
-        }
-
-        $this->configureMidtrans();
-
-        try {
-            $midtransStatus = Transaction::status($orderId);
-            $this->applyMidtransStatus($invoice, $midtransStatus);
-        } catch (\Exception $e) {
-            Log::error("Midtrans notification: gagal fetch status [{$orderId}]: ".$e->getMessage());
-
-            return response()->json(['message' => 'error checking status'], 500);
-        }
-
-        return response()->json(['message' => 'ok']);
     }
 
     private function createSnapTransaction(Invoice $invoice, $user): void
@@ -213,67 +151,7 @@ class SubscriptionController extends Controller
             $snapToken = Snap::getSnapToken($params);
             $invoice->update(['snap_token' => $snapToken]);
         } catch (\Exception $e) {
-            Log::error("Midtrans Snap Error [{$invoice->invoice_number}]: ".$e->getMessage());
-        }
-    }
-
-    private function applyMidtransStatus(Invoice $invoice, $midtransStatus): void
-    {
-        $status = $midtransStatus->transaction_status ?? '';
-        $paymentType = $midtransStatus->payment_type ?? null;
-
-        if (in_array($status, ['settlement', 'capture']) && $invoice->status !== 'paid') {
-
-            // Dapatkan Plan target dari Invoice (atau dari relasi subscription jika ada)
-            $planId = $invoice->plan_id ?? $invoice->subscription?->plan_id;
-            $plan = Plan::find($planId);
-
-            if ($plan) {
-                $tenant = $invoice->tenant;
-
-                // Cek apakah tenant punya paket aktif saat ini
-                $activeSub = $tenant->subscriptions()
-                    ->where('status', 'active')
-                    ->where('end_date', '>=', now())
-                    ->latest('id')
-                    ->first();
-
-                if ($activeSub && $activeSub->plan_id == $plan->id) {
-                    // JIKA PERPANJANG PAKET SAMA: Tambahkan durasi dari end_date lama
-                    $startDate = $activeSub->start_date;
-                    $endDate = Carbon::parse($activeSub->end_date)->addDays($plan->duration_days ?? 30);
-
-                    $activeSub->update([
-                        'end_date' => $endDate,
-                    ]);
-
-                    $subscription = $activeSub;
-                } else {
-                    // JIKA UPGRADE PAKET BARU: Aktifkan paket baru mulai hari ini
-                    if ($activeSub) {
-                        $activeSub->update(['status' => 'cancelled']); // Nonaktifkan paket lama
-                    }
-
-                    $subscription = Subscription::create([
-                        'tenant_id' => $tenant->id,
-                        'plan_id' => $plan->id,
-                        'status' => 'active',
-                        'start_date' => now(),
-                        'end_date' => now()->addDays($plan->duration_days ?? 30),
-                    ]);
-                }
-
-                $tenant->update(['status' => 'active']);
-
-                $invoice->update([
-                    'subscription_id' => $subscription->id,
-                    'status' => 'paid',
-                    'paid_at' => now(),
-                    'payment_method' => $paymentType,
-                ]);
-            }
-        } elseif (in_array($status, ['expire', 'cancel', 'deny']) && $invoice->status === 'pending') {
-            $invoice->update(['status' => $status === 'expire' ? 'expired' : 'failed']);
+            Log::error('Midtrans Snap request failed.', ['invoice' => $invoice->invoice_number, 'exception' => $e::class]);
         }
     }
 

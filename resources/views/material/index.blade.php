@@ -190,7 +190,7 @@
     </div>
 
     <!-- Modal 1: Tambah Bahan Baku Baru (Max-Width 480px / max-w-modal-sm) -->
-    <div id="addMaterialModal"
+    <div data-dialog id="addMaterialModal"
         class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-ink-900/40 backdrop-blur-[2px]">
         <div class="w-full p-6 border rounded-lg shadow-lg bg-surface-0 max-w-modal-sm border-border-200">
 
@@ -205,17 +205,17 @@
             <form action="{{ route('materials.store') }}" method="POST" class="space-y-4">
                 @csrf
                 <div>
-                    <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                    <label for="field-name" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
                         Nama Bahan Baku <span class="text-semantic-danger">*</span>
                     </label>
-                    <input type="text" name="name" placeholder="Contoh: Biji Kopi Arabica, Susu UHT" required
+                    <input id="field-name" type="text" name="name" placeholder="Contoh: Biji Kopi Arabica, Susu UHT" required
                         class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Satuan Ukur</label>
-                        <select name="unit"
+                        <label for="field-unit" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Satuan Ukur</label>
+                        <select id="field-unit" name="unit"
                             class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                             <option value="kg">Kilogram (kg)</option>
                             <option value="gr">Gram (gr)</option>
@@ -225,15 +225,15 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Stok Awal</label>
-                        <input type="number" name="stock" value="0" min="0" required
+                        <label for="field-stock" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Stok Awal</label>
+                        <input id="field-stock" type="number" name="stock" value="0" min="0" required
                             class="w-full px-3 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Min. Stok Warning</label>
-                    <input type="number" name="min_stock" value="5" min="1" required
+                    <label for="field-min_stock" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Min. Stok Warning</label>
+                    <input id="field-min_stock" type="number" name="min_stock" value="5" min="1" required
                         class="w-full px-3 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                     <p class="font-body text-[11px] text-ink-400 mt-1">Sistem akan memberi peringatan jika stok di
                         bawah batas ini.</p>
@@ -256,7 +256,7 @@
     </div>
 
     <!-- Modal 2: Update Stok / Mutasi Barang (Max-Width 480px / max-w-modal-sm) -->
-    <div id="updateStockModal"
+    <div data-dialog id="updateStockModal"
         class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-ink-900/40 backdrop-blur-[2px]">
         <div class="w-full p-6 border rounded-lg shadow-lg bg-surface-0 max-w-modal-sm border-border-200">
 
@@ -272,8 +272,8 @@
                 <input type="hidden" name="material_id" id="stockMaterialId">
 
                 <div>
-                    <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Tipe Mutasi Stok</label>
-                    <select name="type" id="typeSelect" onchange="toggleSupplierFields()"
+                    <label for="typeSelect" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Tipe Mutasi Stok</label>
+                    <select name="type" id="typeSelect" onchange="togglePemasokFields()"
                         class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                         <option value="stock_in">Barang Masuk / Restock (+)</option>
                         <option value="stock_out">Barang Keluar / Pemakaian (-)</option>
@@ -281,23 +281,23 @@
                     </select>
                 </div>
 
-                <!-- Supplier Info Box (Shown when stock_in) -->
+                <!-- Pemasok Info Box (Shown when stock_in) -->
                 <div id="supplierFields" class="p-3 space-y-3 border rounded-md bg-primary-50 border-primary-100">
                     <div>
-                        <label class="block font-body text-[11px] font-semibold text-primary-700 mb-1">Pilih
-                            Supplier</label>
-                        <select name="supplier_id"
+                        <label for="field-supplier_id" class="block font-body text-[11px] font-semibold text-primary-700 mb-1">Pilih
+                            Pemasok</label>
+                        <select id="field-supplier_id" name="supplier_id"
                             class="w-full h-10 px-3 text-xs border rounded-sm outline-none font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
-                            <option value="">-- Tanpa Supplier --</option>
+                            <option value="">-- Tanpa Pemasok --</option>
                             @foreach ($suppliers as $s)
                                 <option value="{{ $s->id }}">{{ $s->name }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label class="block font-body text-[11px] font-semibold text-primary-700 mb-1">Harga Beli
+                        <label for="field-purchase_price" class="block font-body text-[11px] font-semibold text-primary-700 mb-1">Harga Beli
                             Satuan (Rp)</label>
-                        <input type="text" data-rupiah-input name="purchase_price" placeholder="0"
+                        <input id="field-purchase_price" type="text" data-rupiah-input name="purchase_price" placeholder="0"
                             class="w-full h-10 px-3 font-mono text-xs font-semibold border rounded-sm outline-none text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                     </div>
                 </div>
@@ -312,8 +312,8 @@
                 </div>
 
                 <div>
-                    <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Catatan Mutasi</label>
-                    <textarea name="note" required maxlength="255" rows="2" placeholder="Contoh: Restock mingguan pasar atau kemasan bocor"
+                    <label for="field-note" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Catatan Mutasi</label>
+                    <textarea id="field-note" name="note" required maxlength="255" rows="2" placeholder="Contoh: Restock mingguan pasar atau kemasan bocor"
                         class="w-full p-3 text-xs transition-all border rounded-sm outline-none font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600"></textarea>
                 </div>
 
@@ -333,7 +333,7 @@
     </div>
 
     <!-- Modal 3: Riwayat Mutasi Stok (Max-Width 640px / max-w-modal-md) -->
-    <div id="historyModal"
+    <div data-dialog id="historyModal"
         class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-ink-900/40 backdrop-blur-[2px]">
         <div
             class="bg-surface-0 rounded-lg p-6 w-full max-w-modal-md shadow-lg border border-border-200 max-h-[85vh] flex flex-col">
@@ -373,7 +373,7 @@
             }).format(number);
         }
 
-        function toggleSupplierFields() {
+        function togglePemasokFields() {
             const type = document.getElementById('typeSelect').value;
             const fields = document.getElementById('supplierFields');
             fields.classList.toggle('hidden', type !== 'stock_in');
@@ -384,7 +384,7 @@
             document.getElementById('stockModalTitle').innerText = 'Update Stok: ' + name;
             document.getElementById('displayUnit').innerText = 'Satuan: ' + unit;
             document.getElementById('updateStockModal').classList.remove('hidden');
-            toggleSupplierFields();
+            togglePemasokFields();
         }
 
         function closeStockModal() {
@@ -400,7 +400,7 @@
                 '<tr><td colspan="5" class="py-8 text-xs text-center text-ink-400 font-body">Memuat riwayat...</td></tr>';
 
             fetch(`/materials/${id}/history`)
-                .then(response => response.json())
+                .then(response => { if (!response.ok) throw new Error('Riwayat belum dapat dimuat.'); return response.json(); })
                 .then(data => {
                     if (data.length === 0) {
                         content.innerHTML =
@@ -408,50 +408,32 @@
                         return;
                     }
 
-                    content.innerHTML = data.map(item => {
-                        const date = new Date(item.created_at).toLocaleDateString('id-ID', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric'
-                        });
-                        const time = new Date(item.created_at).toLocaleTimeString('id-ID', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        });
-
-                        let typeBadge = 'bg-surface-100 text-ink-700';
-                        if (item.type === 'stock_in') typeBadge = 'bg-primary-100 text-primary-700';
-                        if (item.type === 'stock_out' || item.type === 'adjustment') typeBadge =
-                            'bg-red-50 text-semantic-danger';
-
-                        const supplierInfo = item.supplier ?
-                            `<p class="text-[10px] text-primary-600 font-semibold mt-0.5">Supplier: ${item.supplier.name}</p>` :
-                            '';
-                        const priceInfo = item.purchase_price > 0 ?
-                            `<p class="text-[10px] text-ink-400 font-mono">${formatRupiah(item.purchase_price)}</p>` :
-                            '';
-
-                        return `
-                            <tr class="h-10 hover:bg-surface-100/60">
-                                <td class="px-4 py-2 font-mono text-[11px]">
-                                    <span class="font-semibold text-ink-900">${date}</span><br>
-                                    <span class="text-ink-400">${time} WIB</span>
-                                </td>
-                                <td class="px-4 py-2">
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase ${typeBadge}">
-                                        ${item.type.replace('_', ' ')}
-                                    </span>
-                                    ${supplierInfo}
-                                </td>
-                                <td class="px-4 py-2 text-center font-mono font-semibold ${item.type === 'stock_in' ? 'text-primary-600' : 'text-semantic-danger'}">
-                                    ${item.type === 'stock_in' ? '+' : '-'}${item.quantity}
-                                    ${priceInfo}
-                                </td>
-                                <td class="px-4 py-2 font-mono font-semibold text-center text-ink-900">${item.after_stock}</td>
-                                <td class="px-4 py-2 font-body text-xs text-ink-700 truncate max-w-[140px]" title="${item.note ?? ''}">${item.note ?? '—'}</td>
-                            </tr>
-                        `;
-                    }).join('');
+                    const rows = data.map(item => {
+                        const row = document.createElement('tr');
+                        row.className = 'h-10 hover:bg-surface-100/60';
+                        const values = [
+                            new Date(item.created_at).toLocaleString('id-ID'),
+                            String(item.type || '').replaceAll('_', ' ') + (item.supplier ? ' · Pemasok: ' + item.supplier.name : ''),
+                            String(item.quantity), String(item.after_stock), item.note || '—'
+                        ];
+                        for (const value of values) {
+                            const cell = document.createElement('td');
+                            cell.className = 'px-4 py-2 text-xs text-ink-700';
+                            cell.textContent = value;
+                            cell.title = value;
+                            row.append(cell);
+                        }
+                        return row;
+                    });
+                    content.replaceChildren(...rows);
+                }).catch(() => {
+                    content.replaceChildren();
+                    const row = document.createElement('tr');
+                    const cell = document.createElement('td');
+                    cell.colSpan = 5;
+                    cell.textContent = 'Riwayat belum dapat dimuat. Tutup dialog dan coba lagi.';
+                    row.append(cell);
+                    content.append(row);
                 });
         }
 

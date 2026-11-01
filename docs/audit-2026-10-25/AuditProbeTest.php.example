@@ -1,0 +1,73 @@
+<?php
+namespace Tests\Feature\Pos;
+use App\Models\{Invoice, Plan, Subscription, Customer};
+class AuditProbeTest extends PosTestCase
+{
+    public function test_billing_webhook_marks_paid_without_activating_subscription(): void
+    {
+        $user = $this->shop();
+        Subscription::withoutGlobalScopes()->where('tenant_id', $user->tenant_id)->delete();
+        $plan = Plan::where('slug', 'growth')->first();
+        $invoice = Invoice::create(['tenant_id'=>$user->tenant_id,'plan_id'=>$plan->id,'subscription_id'=>null,'invoice_number'=>'INV-SAAS-AUDIT','amount'=>100000,'status'=>'pending','due_date'=>now()->addDay()]);
+        config(['services.midtrans.server_key'=>'audit-key']);
+        $payload = ['order_id'=>$invoice->invoice_number,'transaction_status'=>'settlement','status_code'=>'200','gross_amount'=>'100000.00','signature_key'=>hash('sha512', $invoice->invoice_number.'200100000.00audit-key')];
+        $this->postJson('/api/midtrans/callback', $payload)->assertOk();
+        $this->assertSame('paid', $invoice->fresh()->status);
+        $this->assertSame(0, Subscription::withoutGlobalScopes()->where('tenant_id',$user->tenant_id)->count());
+        $this->actingAs($user)->get('/billing/invoices/'.$invoice->id.'/check-status')->assertJsonPath('status','paid');
+        $this->assertNull($user->tenant->currentPlan());
+    }
+    public function test_customer_detail_view_is_missing(): void
+    {
+        $user=$this->shop();
+        $customer=Customer::withoutGlobalScopes()->create(['tenant_id'=>$user->tenant_id,'name'=>'Audit']);
+        $this->actingAs($user)->get('/customers/'.$customer->id)->assertStatus(500);
+        $this->assertFalse(view()->exists('customers.show'));
+    }
+    public function test_inactive_private_free_plan_can_be_activated(): void
+    {
+        $user=$this->shop();
+        $plan=Plan::create(['slug'=>'scale','name'=>'Private Scale','price'=>0,'is_active'=>false,'is_public'=>false]);
+        $this->actingAs($user)->post('/billing/subscribe',['plan_id'=>$plan->id])->assertRedirect('/dashboard');
+        $this->assertDatabaseHas('subscriptions',['tenant_id'=>$user->tenant_id,'plan_id'=>$plan->id,'status'=>'active']);
+    }
+    public function test_inactive_user_can_access_pos(): void
+    {
+        $user=$this->shop();
+        $user->update(['status'=>'inactive']);
+        $this->actingAs($user)->get('/pos')->assertOk();
+    }
+    public function test_stocktake_overwrites_intervening_sale(): void
+    {
+        $user=$this->shop(); $product=$this->product($user,['manage_stock'=>true]); $this->shift($user);
+        $this->actingAs($user)->post('/stocktakes')->assertRedirect();
+        $take=\App\Models\Stocktake::first(); $line=$take->items()->first();
+        $this->postJson('/pos',$this->checkout($product))->assertOk();
+        $this->assertEquals(9,$product->fresh()->stock);
+        $this->post('/stocktakes/'.$take->id.'/complete',['counts'=>[$line->id=>10]])->assertRedirect();
+        $this->assertEquals(10,$product->fresh()->stock);
+    }
+    public function test_stale_billing_invoice_extends_subscription_twice(): void
+    {
+        $user=$this->shop();
+        $plan=Plan::where('slug','growth')->first();
+        $invoice=Invoice::create(['tenant_id'=>$user->tenant_id,'plan_id'=>$plan->id,'invoice_number'=>'INV-SAAS-RACE','amount'=>100000,'status'=>'pending','due_date'=>now()->addDay()]);
+        $stale=Invoice::find($invoice->id);
+        $controller=app(\App\Http\Controllers\SubscriptionController::class);
+        $method=new \ReflectionMethod($controller,'applyMidtransStatus');
+        $status=(object)['transaction_status'=>'settlement','payment_type'=>'qris'];
+        $method->invoke($controller,$invoice,$status);
+        $first=Subscription::withoutGlobalScopes()->where('tenant_id',$user->tenant_id)->first()->end_date;
+        $method->invoke($controller,$stale,$status);
+        $second=Subscription::withoutGlobalScopes()->where('tenant_id',$user->tenant_id)->first()->end_date;
+        $this->assertTrue(\Carbon\Carbon::parse($second)->greaterThan(\Carbon\Carbon::parse($first)));
+    }
+    public function test_capture_challenge_activates_subscription_via_polling_handler(): void
+    {
+        $user=$this->shop(); $plan=Plan::where('slug','growth')->first();
+        $invoice=Invoice::create(['tenant_id'=>$user->tenant_id,'plan_id'=>$plan->id,'invoice_number'=>'INV-SAAS-CHALLENGE','amount'=>100000,'status'=>'pending','due_date'=>now()->addDay()]);
+        $method=new \ReflectionMethod(\App\Http\Controllers\SubscriptionController::class,'applyMidtransStatus');
+        $method->invoke(app(\App\Http\Controllers\SubscriptionController::class),$invoice,(object)['transaction_status'=>'capture','fraud_status'=>'challenge','gross_amount'=>'1.00']);
+        $this->assertSame('paid',$invoice->fresh()->status);
+    }
+}

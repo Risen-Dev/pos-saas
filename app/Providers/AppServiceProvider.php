@@ -36,8 +36,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('feature-crm', function (User $user) {
             $plan = $user->tenant?->currentPlan();
 
-            return $plan && in_array($plan->slug, ['growth', 'scale']);
+            return $plan !== null;
         });
+
+        Gate::define('feature-loyalty', fn (User $user) => in_array($user->tenant?->currentPlan()?->slug, ['growth', 'scale'], true));
 
         // 3. Gate Fitur Multi-Outlet / Cabang (Khusus Growth & Scale)
         Gate::define('feature-multi-outlet', function (User $user) {

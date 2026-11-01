@@ -229,7 +229,7 @@
 
                             <div
                                 class="font-body text-xs md:text-sm text-ink-900 leading-relaxed prose prose-emerald max-w-none prose-headings:font-heading prose-headings:font-bold prose-headings:text-ink-900 prose-h3:text-sm prose-h3:mt-4 prose-h3:mb-2 prose-h3:text-primary-700 prose-p:text-ink-700 prose-p:mb-3 prose-p:text-xs md:prose-p:text-sm prose-strong:text-ink-900 prose-strong:font-semibold prose-ul:list-disc prose-ul:pl-4 prose-ul:my-2 prose-table:w-full prose-table:my-3 prose-table:border-collapse prose-th:bg-surface-100 prose-th:px-3 prose-th:py-2 prose-th:text-left prose-th:text-[11px] prose-th:font-heading prose-th:text-ink-700 prose-th:uppercase prose-td:px-3 prose-td:py-2 prose-td:border-b prose-td:border-border-200 prose-td:text-xs">
-                                {!! $aiAnalysis !!}
+                                {!! app(\App\Services\SafeReportHtml::class)->clean($aiAnalysis) !!}
                             </div>
                         </div>
 

@@ -11,11 +11,13 @@
             </div>
         </div>
 
+        @can('manage-finance')
         <a class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-600 hover:text-primary-700 transition-colors self-start sm:self-auto"
             href="{{ route('cash.index') }}">
             <span>Periksa Buku Kas</span>
             <x-icon class="fa-solid fa-chevron-right text-[10px]" />
         </a>
+        @endcan
     </div>
 
     <!-- Metrik Arus Kas (Grid 4 Kolom) -->
@@ -61,7 +63,7 @@
             </div>
             <strong
                 class="text-base sm:text-lg font-bold {{ $cashSummary['net'] >= 0 ? 'text-semantic-success' : 'text-semantic-danger' }}">
-                Rp {{ number_format($cashSummary['net'], 0, ',', '.') }}
+                {{ $cashSummary['net'] < 0 ? '-Rp ' . number_format(abs($cashSummary['net']), 0, ',', '.') : 'Rp ' . number_format($cashSummary['net'], 0, ',', '.') }}
             </strong>
         </div>
     </div>

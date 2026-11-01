@@ -1,0 +1,56 @@
+{
+  "assets": [
+    {
+      "path": "public/build/assets/app-D68ULRXp.js",
+      "bytes": 119995,
+      "gzip_bytes": 41703
+    },
+    {
+      "path": "public/build/assets/app-E-jChhiG.css",
+      "bytes": 100483,
+      "gzip_bytes": 17880
+    }
+  ],
+  "images": [
+    {
+      "path": "public/img/section.png",
+      "bytes": 6079163
+    },
+    {
+      "path": "public/img/hero.png",
+      "bytes": 5759375
+    },
+    {
+      "path": "public/img/growpos-hero.png",
+      "bytes": 2045074
+    },
+    {
+      "path": "public/img/growpos-retail.png",
+      "bytes": 2024056
+    },
+    {
+      "path": "public/img/hero-screen.png",
+      "bytes": 1624760
+    },
+    {
+      "path": "public/img/growpos-white.png",
+      "bytes": 1493397
+    },
+    {
+      "path": "public/img/warehouse.png",
+      "bytes": 1423600
+    },
+    {
+      "path": "public/img/maps.png",
+      "bytes": 1252099
+    },
+    {
+      "path": "public/img/growpos_logo.png",
+      "bytes": 419244
+    },
+    {
+      "path": "public/img/growpos_logo-bg.png",
+      "bytes": 99243
+    }
+  ]
+}

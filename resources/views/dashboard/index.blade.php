@@ -54,16 +54,16 @@
         <div class="p-4 border shadow-sm bg-surface-0 border-border-200 rounded-xl">
             <form method="get" class="flex flex-wrap items-end gap-3 sm:gap-4">
                 <div class="flex-1 min-w-[140px]">
-                    <label class="block mb-1 text-xs font-semibold text-ink-700">Mulai</label>
+                    <label for="field-start_date" class="block mb-1 text-xs font-semibold text-ink-700">Mulai</label>
                     <div class="relative">
-                        <input type="date" name="start_date" value="{{ $start->toDateString() }}" required
+                        <input id="field-start_date" type="date" name="start_date" value="{{ $start->toDateString() }}" required
                             class="w-full py-2 pl-3 pr-2 text-xs border rounded-lg outline-none sm:text-sm text-ink-900 bg-surface-0 border-border-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600">
                     </div>
                 </div>
                 <div class="flex-1 min-w-[140px]">
-                    <label class="block mb-1 text-xs font-semibold text-ink-700">Sampai</label>
+                    <label for="field-end_date" class="block mb-1 text-xs font-semibold text-ink-700">Sampai</label>
                     <div class="relative">
-                        <input type="date" name="end_date" value="{{ $end->toDateString() }}" required
+                        <input id="field-end_date" type="date" name="end_date" value="{{ $end->toDateString() }}" required
                             class="w-full py-2 pl-3 pr-2 text-xs border rounded-lg outline-none sm:text-sm text-ink-900 bg-surface-0 border-border-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600">
                     </div>
                 </div>
@@ -80,6 +80,7 @@
             </form>
         </div>
 
+        <x-business-overview :overview="$overview" />
         @include('reports.partials.cash-summary')
 
         <!-- Key Metrics Cards -->
@@ -154,7 +155,7 @@
                             <x-icon class="fa-solid fa-scale-unbalanced" />
                         </span>
                     </div>
-                    <p class="mt-2 text-2xl font-bold text-ink-900">Rp {{ number_format($cashDifference, 0, ',', '.') }}
+                    <p class="mt-2 text-2xl font-bold text-ink-900">{{ $cashDifference < 0 ? '-Rp ' . number_format(abs($cashDifference), 0, ',', '.') : 'Rp ' . number_format($cashDifference, 0, ',', '.') }}
                     </p>
                 </div>
                 <div class="pt-3 mt-3 text-xs border-t border-border-200">
@@ -346,7 +347,7 @@
                                             class="fa-solid {{ $method->payment_method === 'cash' ? 'fa-money-bill-wave' : 'fa-qrcode' }}"></i>
                                     </span>
                                     <span class="text-xs font-bold text-ink-900">
-                                        {{ $method->payment_method === 'cash' ? 'Tunai' : 'QRIS' }}
+                                        {{ \App\Support\PaymentMethod::label($method->payment_method) }}
                                     </span>
                                 </div>
                                 <span class="text-xs font-bold text-ink-900">

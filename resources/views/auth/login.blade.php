@@ -45,11 +45,8 @@
                     <div class="relative"><input id="password" name="password"
                             :type="showPassword ? 'text' : 'password'" required autocomplete="current-password"
                             placeholder="Masukkan kata sandi"
-                            class="block w-full px-4 py-3 pr-16 text-sm transition border outline-none rounded-xl border-border-200 bg-surface-0 text-ink-900 focus:border-primary-600 focus:ring-4 focus:ring-primary-600/10"><button
-                            type="button" @click="showPassword = !showPassword"
-                            :aria-label="showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'"
-                            class="absolute inset-y-0 px-2 text-xs font-semibold right-3 text-ink-700 hover:text-primary-600"
-                            x-text="showPassword ? 'Tutup' : 'Lihat'"></button></div>
+                            class="block w-full px-4 py-3 pr-12 text-sm transition border outline-none rounded-xl border-border-200 bg-surface-0 text-ink-900 focus:border-primary-600 focus:ring-4 focus:ring-primary-600/10"><x-password-toggle
+                            state="showPassword" control="password" /></div>
                     <p x-cloak x-show="capsLock" class="mt-2 text-xs text-amber-700">Caps Lock sedang aktif.</p>
                     <x-input-error :messages="$errors->get('password')" class="mt-2" />
                 </div>

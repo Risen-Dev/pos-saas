@@ -26,6 +26,17 @@ class ServiceOrder extends Model
         'finished_at' => 'datetime',
     ];
 
+    public function getServiceStatusAttribute($value): string
+    {
+        return match ($this->order?->service_status) {
+            'queued' => 'received',
+            'working' => $value === 'drying' ? 'drying' : 'washing',
+            'ready' => 'finished',
+            'completed' => 'picked_up',
+            default => $value ?? 'received',
+        };
+    }
+
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);

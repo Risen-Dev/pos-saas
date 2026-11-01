@@ -5,6 +5,7 @@ export default () => ({
     pendingPayments: [],
     config: null,
     products: [],
+    visibleLimit: 60,
     cart: [],
     favorites: [],
     drafts: [],
@@ -15,6 +16,15 @@ export default () => ({
     orderType: "takeaway",
     table: "",
     customer: "",
+    customerOptions: [],
+    customerSearch: "",
+    customerSearchVersion: 0,
+    customerSearchError: "",
+    newCustomerName: "",
+    newCustomerPhone: "",
+    newCustomerMember: false,
+    customerCreateError: "",
+    pointsToRedeem: 0,
     orderNote: "",
     modal: "",
     selected: null,
@@ -25,6 +35,8 @@ export default () => ({
     itemNote: "",
     cash: "",
     method: "cash",
+    manualConfirmed: false,
+    paymentReference: "",
     busy: false,
     syncing: false,
     online: navigator.onLine,
@@ -70,6 +82,7 @@ export default () => ({
             document.getElementById("grow-pos-data").textContent,
         );
         this.products = this.config.products;
+        this.customerOptions = this.config.customers || [];
         this.pendingPayments = this.config.pendingPayments || [];
         this.shift = this.config.shift;
         this.key = `growpos:${this.config.tenant}:${this.config.user}:v1`;
@@ -89,8 +102,28 @@ export default () => ({
             this.error =
                 "Penyimpanan perangkat tidak tersedia. Aktifkan penyimpanan browser sebelum menerima transaksi.";
         }
+        if (this.customer && this.config.canCredit) this.lookupCustomers();
+        this.$watch("customer", (value) => {
+            this.pointsToRedeem = 0;
+            if (
+                value &&
+                !this.customerOptions.some(
+                    (person) => Number(person.id) === Number(value),
+                )
+            )
+                this.lookupCustomers();
+        });
         this.$watch("cart", () => this.persist());
-        this.$watch("modal", (value) => {
+        for (const field of ["search", "category", "itemType"]) {
+            this.$watch(field, () => {
+                this.visibleLimit = 60;
+            });
+        }
+        let modalTrigger = null;
+        this.$watch("modal", (value, previous) => {
+            if (value && !previous) modalTrigger = document.activeElement;
+            if (!value && modalTrigger?.isConnected)
+                this.$nextTick(() => modalTrigger.focus());
             document.body.classList.toggle("overflow-hidden", Boolean(value));
             if (value)
                 this.$nextTick(() => {
@@ -112,6 +145,7 @@ export default () => ({
         });
         window.addEventListener("offline", () => {
             this.online = false;
+            this.pointsToRedeem = 0;
         });
         this.syncQueue();
     },
@@ -182,6 +216,9 @@ export default () => ({
                 Math.round(tierPrice * Number(this.itemQuantity || 0)),
         );
     },
+    get visibleProducts() {
+        return this.filtered.slice(0, this.visibleLimit);
+    },
     get filtered() {
         const q = this.search.toLowerCase().trim();
         return this.products.filter(
@@ -213,7 +250,31 @@ export default () => ({
         this.search = "";
     },
     get amounts() {
-        return totals(this.cart, this.config?.taxRate || 0);
+        const amounts = totals(this.cart, this.config?.taxRate || 0);
+        const points = Number(this.pointsToRedeem) || 0;
+        const step = Number(this.config?.pointRedemptionPoints) || 1;
+        const value = Number(this.config?.pointRedemptionValue) || 0;
+        const discount = this.canUsePoints && points > 0 && points % step === 0 && points <= this.maxRedeemablePoints
+            ? Math.floor(points / step) * value
+            : 0;
+
+        return { ...amounts, loyaltyDiscount: discount, total: amounts.total - discount };
+    },
+    get selectedCustomer() {
+        return this.customerOptions.find((person) => Number(person.id) === Number(this.customer)) || null;
+    },
+    get canUsePoints() {
+        return Boolean(this.online && this.config?.loyaltyProgramEnabled && this.selectedCustomer?.is_member && this.method !== "credit");
+    },
+    get maxRedeemablePoints() {
+        if (!this.canUsePoints) return 0;
+        const step = Number(this.config?.pointRedemptionPoints) || 1;
+        const value = Number(this.config?.pointRedemptionValue) || 0;
+        const available = Math.floor(Number(this.selectedCustomer.points || 0) / step) * step;
+        const payable = totals(this.cart, this.config?.taxRate || 0).total;
+        const affordable = value > 0 ? Math.floor(Math.max(0, payable - 1) / value) * step : 0;
+
+        return Math.min(available, affordable);
     },
     get itemCount() {
         return this.cart.reduce((n, i) => n + i.quantity, 0);
@@ -258,6 +319,17 @@ export default () => ({
             ? this.favorites.filter((v) => v !== id)
             : [...this.favorites, id];
         this.persist();
+    },
+    pick(product) {
+        this.choose(product);
+        if (
+            !product.allow_fraction &&
+            !product.variants.length &&
+            !product.addons.length &&
+            !(product.units || []).length
+        ) {
+            this.addItem();
+        }
     },
     choose(product) {
         this.selected = product;
@@ -398,6 +470,12 @@ export default () => ({
     },
     hold() {
         if (!this.cart.length) return;
+        const manual = ["transfer", "qris_manual"].includes(this.method);
+        if (manual && (!navigator.onLine || !this.manualConfirmed)) {
+            this.error =
+                "Periksa dana masuk pada rekening/aplikasi toko dan centang konfirmasi. Pembayaran manual memerlukan koneksi.";
+            return;
+        }
         if (!this.storageReady) {
             this.error = "Pesanan belum bisa disimpan di perangkat.";
             return;
@@ -461,6 +539,56 @@ export default () => ({
         this.method = "cash";
         this.modal = "pay";
     },
+    async lookupCustomers() {
+        const version = ++this.customerSearchVersion;
+        this.customerSearchError = "";
+        try {
+            const params = new URLSearchParams({ q: this.customerSearch });
+            if (this.customer) params.set("selected", this.customer);
+            const result = await this.request(
+                `${this.config.customerLookup}?${params}`,
+            );
+            if (version === this.customerSearchVersion)
+                this.customerOptions = result.customers;
+        } catch (error) {
+            if (version === this.customerSearchVersion)
+                this.customerSearchError = error.message;
+        }
+    },
+    openCustomerForm() {
+        this.newCustomerName = "";
+        this.newCustomerPhone = "";
+        this.newCustomerMember = false;
+        this.customerCreateError = "";
+        this.modal = "customer";
+    },
+    async saveCustomer() {
+        if (this.busy) return;
+        this.customerCreateError = "";
+        this.busy = true;
+        try {
+            const response = await this.request(this.config.customerStore, "POST", {
+                name: this.newCustomerName,
+                phone: this.newCustomerPhone,
+                is_member: this.newCustomerMember,
+            });
+            const person = response.data;
+            this.customerOptions = [
+                person,
+                ...this.customerOptions.filter((existing) => Number(existing.id) !== Number(person.id)),
+            ];
+            this.customer = String(person.id);
+            this.customerSearch = person.name;
+            this.modal = "";
+            this.notice = person.is_member
+                ? "Member disimpan. Tautan kartu akan tersedia setelah transaksi berhasil."
+                : "Pelanggan disimpan dan dipilih untuk transaksi.";
+        } catch (error) {
+            this.customerCreateError = error.message;
+        } finally {
+            this.busy = false;
+        }
+    },
     async request(url, method = "GET", body = null) {
         const response = await fetch(url, {
             method,
@@ -502,12 +630,30 @@ export default () => ({
         if (this.busy) return;
         this.error = "";
         const total = this.amounts.total;
+        if (!this.shift || !this.cart.length) {
+            this.error =
+                "Mulai jualan dan pilih item sebelum mencatat transaksi.";
+            return;
+        }
+        if (
+            this.method === "credit" &&
+            (!this.config.canCredit || !this.customer)
+        ) {
+            this.error = "Pilih pelanggan untuk mencatat bon.";
+            return;
+        }
         if (this.method === "cash" && Number(this.cash) < total) {
             this.error = "Uang tunai kurang.";
             return;
         }
         if (this.method === "midtrans" && !navigator.onLine) {
             this.error = "QRIS membutuhkan koneksi internet.";
+            return;
+        }
+        const manual = ["transfer", "qris_manual"].includes(this.method);
+        if (manual && (!navigator.onLine || !this.manualConfirmed)) {
+            this.error =
+                "Periksa dana masuk pada rekening/aplikasi toko dan centang konfirmasi. Pembayaran manual memerlukan koneksi.";
             return;
         }
         if (!this.storageReady) {
@@ -519,9 +665,20 @@ export default () => ({
             checkout_key: crypto.randomUUID(),
             shift_id: this.shift.id,
             sold_at: new Date().toISOString(),
-            payment_method: this.method,
-            payment_status: "paid",
-            paid_amount: this.method === "cash" ? Number(this.cash) : 0,
+            payment_method: this.method === "credit" ? "cash" : this.method,
+            payment_status: this.method === "credit" ? "unpaid" : "paid",
+            points_to_redeem: this.method === "credit" ? 0 : Number(this.pointsToRedeem || 0),
+            paid_amount: manual
+                ? total
+                : this.method === "cash"
+                  ? Number(this.cash)
+                  : 0,
+            ...(manual
+                ? {
+                      manual_confirmed: true,
+                      payment_reference: this.paymentReference || null,
+                  }
+                : {}),
             grand_total: total,
             order_type: this.orderType,
             table_number: this.table || null,
@@ -634,6 +791,9 @@ export default () => ({
         }
     },
     showResult(result) {
+        this.manualConfirmed = false;
+        this.paymentReference = "";
+        this.pointsToRedeem = 0;
         if (result.order_status === "cancelled") {
             this.modal = "";
             this.notice = "Pembayaran sudah dibatalkan.";
@@ -654,6 +814,15 @@ export default () => ({
         } else {
             this.receipt = result;
             this.modal = "receipt";
+        }
+    },
+    async copyCardLink() {
+        if (!this.receipt?.loyalty_card_url) return;
+        try {
+            await navigator.clipboard.writeText(this.receipt.loyalty_card_url);
+            this.notice = "Tautan kartu member tersalin.";
+        } catch {
+            window.prompt("Salin tautan kartu member", this.receipt.loyalty_card_url);
         }
     },
     trapFocus(event) {
@@ -690,12 +859,13 @@ export default () => ({
             const result = await this.request(
                 "/orders/" + this.payment.order_id + "/check-status",
             );
-            if (["paid", "cancelled"].includes(result.status))
+            const paid = result.status === "paid" || result.payment_status === "paid";
+            if (paid || result.status === "cancelled")
                 this.pendingPayments = this.pendingPayments.filter(
                     (p) => p.order_id !== this.payment.order_id,
                 );
-            if (result.status === "paid") {
-                this.receipt = this.payment;
+            if (paid) {
+                this.receipt = result.payment_status === "paid" ? result : this.payment;
                 this.modal = "receipt";
                 this.notice = "Pembayaran QRIS terkonfirmasi.";
             } else if (result.status === "cancelled") {
@@ -728,7 +898,7 @@ export default () => ({
         if (this.queue.length) {
             this.modal = "queue";
             this.error =
-                "Sinkronkan antrean perangkat ini sebelum menutup shift.";
+                "Sinkronkan antrean perangkat ini sebelum menutup penjualan.";
             return;
         }
         try {

@@ -33,3 +33,7 @@ Thumbs.db
 /storage/framework/testing/
 /storage/app/private/
 /storage/logs/
+
+# Browser test artifacts
+/test-results/
+/playwright-report/

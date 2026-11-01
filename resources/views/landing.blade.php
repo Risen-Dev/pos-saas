@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
+<html lang="id" class="scroll-smooth">
 
 <head>
     <meta charset="utf-8">
@@ -42,7 +42,7 @@
                     <div class="lg:col-span-7"><x-landing.feature-card variant="large" eyebrow="01 / PENJUALAN"
                             title="Kasir yang mengikuti ritme toko."
                             desc="Cari produk, catat pembayaran, dan lanjutkan ke pelanggan berikutnya."
-                            image="hero-screen.png" /></div>
+                            image="hero-screen-960.webp" /></div>
                     <div class="lg:col-span-5"><x-landing.feature-card variant="dark" eyebrow="02 / PERSEDIAAN"
                             title="Stok lebih terkendali."
                             desc="Pantau barang masuk, keluar, dan perubahan persediaan dalam satu alur." /></div>
@@ -71,8 +71,11 @@
                 </div>
                 <div class="relative lg:col-span-7">
                     <div class="aspect-[5/4] overflow-hidden rounded-[1.5rem] bg-[#DCE9DF]">
-                        <img src="{{ asset('img/growpos-retail.png') }}" alt="Aktivitas toko retail" loading="lazy"
-                            class="object-cover w-full h-full" onerror="this.style.display='none'">
+                        <img src="{{ asset('img/growpos-retail-960.webp') }}"
+                            srcset="{{ asset('img/growpos-retail-480.webp') }} 480w, {{ asset('img/growpos-retail-960.webp') }} 960w, {{ asset('img/growpos-retail-1440.webp') }} 1440w, {{ asset('img/growpos-retail-1920.webp') }} 1672w"
+                            sizes="(min-width: 1024px) 50vw, 100vw" width="1672" height="941"
+                            alt="Aktivitas toko retail" loading="lazy" class="object-cover w-full h-full"
+                            onerror="this.style.display='none'">
                         {{-- <div class="flex h-full items-center justify-center px-8 text-center text-[#517662]"
                             aria-hidden="true"><span class="text-lg font-semibold">Foto aktivitas toko GrowPOS</span>
                         </div> --}}

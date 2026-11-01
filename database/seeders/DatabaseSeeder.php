@@ -17,8 +17,12 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        $this->call([
-            PlanSeeder::class,
-        ]);
+        if (app()->environment(['local', 'testing'])) {
+            $this->call(GrowPosDemoSeeder::class);
+
+            return;
+        }
+
+        $this->call(PlanSeeder::class);
     }
 }

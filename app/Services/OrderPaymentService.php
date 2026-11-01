@@ -38,6 +38,7 @@ class OrderPaymentService
             } elseif (in_array($status, ['cancel', 'deny', 'expire'], true) && $order->order_status !== 'cancelled') {
                 app(OrderStock::class)->change($order, true);
                 $order->update(['order_status' => 'cancelled']);
+                app(CustomerPoints::class)->releaseRedemption($order, 'Poin dikembalikan karena pembayaran QRIS dibatalkan.');
             }
             if (in_array($status, ['cancel', 'deny', 'expire'], true)) {
                 $order->update(['payment_attention' => false]);

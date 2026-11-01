@@ -4,7 +4,7 @@
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop" x-data="{ showDeleteModal: false, deleteUrl: '', productName: '' }">
 
         @php
-            $productCount = $products->total();
+            $productCount = $catalogTotal;
             $currentPlan = auth()->user()->tenant?->currentPlan();
             $maxProducts = $currentPlan?->max_products ?? 100;
             $isProductFull = $productCount >= $maxProducts;
@@ -90,7 +90,7 @@
                     <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Total Item
                         Produk</span>
                     <p class="mt-2 font-mono text-2xl font-semibold md:text-3xl text-ink-900">
-                        {{ $products->count() }}
+                        {{ $catalogTotal }}
                     </p>
                 </div>
                 <div
@@ -106,7 +106,7 @@
                     <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Stok Aman /
                         Unlimited</span>
                     <p class="mt-2 font-mono text-2xl font-semibold md:text-3xl text-primary-600">
-                        {{ $products->filter(fn($p) => ($p->type ?? '') === 'service' || empty($p->manage_stock) || $p->stock > $p->min_stock)->count() }}
+                        {{ $safeCount }}
                     </p>
                 </div>
                 <div
@@ -122,7 +122,7 @@
                     <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Stok Menipis /
                         Habis</span>
                     <p class="mt-2 font-mono text-2xl font-semibold md:text-3xl text-semantic-danger">
-                        {{ $products->filter(fn($p) => ($p->type ?? '') !== 'service' && !empty($p->manage_stock) && $p->stock <= $p->min_stock)->count() }}
+                        {{ $lowCount }}
                     </p>
                 </div>
                 <div
@@ -132,6 +132,13 @@
             </div>
         </div>
 
+        <form method="GET" action="{{ route('products.index') }}" class="flex flex-wrap items-end gap-3 p-4 mb-5 border rounded-lg bg-white border-border-200">
+            <label class="flex-1 min-w-0 text-sm font-semibold">Cari produk<input type="search" name="search" value="{{ request('search') }}" placeholder="Nama, SKU, atau barcode" class="block w-full mt-1 rounded-md border-border-200"></label>
+            <label class="text-sm font-semibold">Tipe<select name="type" class="block mt-1 rounded-md border-border-200"><option value="">Semua tipe</option><option value="product" @selected(request('type')==='product')>Barang</option><option value="service" @selected(request('type')==='service')>Jasa</option></select></label>
+            <label class="text-sm font-semibold">Status<select name="status" class="block mt-1 rounded-md border-border-200"><option value="">Semua status</option><option value="active" @selected(request('status')==='active')>Aktif</option><option value="inactive" @selected(request('status')==='inactive')>Nonaktif</option><option value="low" @selected(request('status')==='low')>Stok menipis</option></select></label>
+            <button class="px-4 h-11 font-semibold text-white rounded-md bg-primary-600">Cari</button><a href="{{ route('products.index') }}" class="inline-flex items-center h-11 px-3 underline">Reset</a>
+        </form>
+        <p class="mb-3 text-sm text-ink-700">Menampilkan {{ $products->firstItem() ?? 0 }}–{{ $products->lastItem() ?? 0 }} dari {{ $products->total() }} hasil. Ringkasan di atas mencakup seluruh katalog.</p>
         <!-- Table Container -->
         <div class="mb-6 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
             <div class="w-full overflow-x-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
@@ -206,12 +213,12 @@
                                         <span
                                             class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold text-semantic-danger bg-red-50 rounded-full">
                                             <x-icon class="fa-solid fa-circle-exclamation text-[10px]" />
-                                            {{ \App\Support\NumberFormat::quantity($product->stock) }} Unit (Menipis)
+                                            {{ \App\Support\NumberFormat::quantity($product->stock) }} {{ $product->base_unit ?: 'pcs' }} (Menipis)
                                         </span>
                                     @else
                                         <span
                                             class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full">
-                                            {{ \App\Support\NumberFormat::quantity($product->stock) }} Unit
+                                            {{ \App\Support\NumberFormat::quantity($product->stock) }} {{ $product->base_unit ?: 'pcs' }}
                                         </span>
                                     @endif
                                 </td>
@@ -250,7 +257,7 @@
                                             <x-icon class="text-xl fa-solid fa-boxes-packing" />
                                         </div>
                                         <p class="text-sm font-semibold font-heading text-ink-900">Belum ada produk
-                                            dalam katalog</p>
+                                            yang cocok dengan pencarian ini</p>
                                     </div>
                                 </td>
                             </tr>
@@ -260,8 +267,10 @@
             </div>
         </div>
 
+        {{ $products->links() }}
+
         <!-- Modal Confirm Hapus Produk -->
-        <div x-show="showDeleteModal" x-cloak
+        <div data-dialog x-show="showDeleteModal" x-cloak
             class="[&[x-cloak]]:!hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-[2px]">
             <div class="w-full p-6 border rounded-lg shadow-lg max-w-modal-sm bg-surface-0 border-border-200"
                 @click.away="showDeleteModal = false">

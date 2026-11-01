@@ -1,4 +1,5 @@
 <x-app-layout>
+@if($order->payment_verified_at)<p class="p-4 text-sm bg-primary-50">Pembayaran diperiksa manual oleh petugas toko pada {{ $order->payment_verified_at }}. {{ $order->payment_reference ? 'Referensi: '.$order->payment_reference : '' }} Dana diterima langsung oleh toko.</p>@endif
     @section('title', 'Detail Struk Transaksi')
 
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-modal-lg">
@@ -49,7 +50,7 @@
                     </div>
                     <div class="p-5 space-y-4">
                         <div><label class="block mb-1.5 text-xs font-semibold text-ink-700">Nominal Diterima</label><div class="relative"><span class="absolute text-xs font-semibold -translate-y-1/2 left-3 top-1/2 text-ink-400">Rp</span><input class="w-full h-11 pl-10 pr-3 text-sm border rounded-md border-border-200 focus:border-primary-500 focus:ring-primary-500" type="text" data-rupiah-input name="amount" min="1" max="{{ $remainingPayment }}" required placeholder="0"></div></div>
-                        <div><label class="block mb-1.5 text-xs font-semibold text-ink-700">Catatan Pembayaran</label><input class="w-full h-11 px-3 text-sm border rounded-md border-border-200 focus:border-primary-500 focus:ring-primary-500" name="reason" maxlength="500" required placeholder="Contoh: DP tahap 1 atau pelunasan"></div>
+                        <div><label for="field-reason" class="block mb-1.5 text-xs font-semibold text-ink-700">Catatan Pembayaran</label><input id="field-reason" class="w-full h-11 px-3 text-sm border rounded-md border-border-200 focus:border-primary-500 focus:ring-primary-500" name="reason" maxlength="500" required placeholder="Contoh: DP tahap 1 atau pelunasan"></div>
                         <button class="inline-flex items-center justify-center w-full h-11 gap-2 text-xs font-semibold text-white rounded-md bg-primary-600 hover:bg-primary-700"><x-icon class="fa-solid fa-plus" /> Catat Pembayaran</button>
                     </div>
                 </form>
@@ -60,7 +61,7 @@
                         <form method="POST" action="{{ route('orders.cancel', $order) }}" class="p-5 pt-1 space-y-3 border-t border-border-200">
                             @csrf
                             <p class="text-[11px] leading-relaxed text-ink-400">Stok akan dikembalikan dan piutang transaksi ini akan dihapus. Gunakan hanya bila transaksi memang batal.</p>
-                            <div><label class="block mb-1.5 text-xs font-semibold text-ink-700">Alasan Pembatalan</label><input class="w-full h-11 px-3 text-sm border rounded-md border-border-200 focus:border-semantic-danger focus:ring-red-200" name="reason" maxlength="500" required placeholder="Tuliskan alasan pembatalan"></div>
+                            <div><label for="field-reason" class="block mb-1.5 text-xs font-semibold text-ink-700">Alasan Pembatalan</label><input id="field-reason" class="w-full h-11 px-3 text-sm border rounded-md border-border-200 focus:border-semantic-danger focus:ring-red-200" name="reason" maxlength="500" required placeholder="Tuliskan alasan pembatalan"></div>
                             <button class="inline-flex items-center justify-center h-10 gap-2 px-4 text-xs font-semibold text-white rounded-md bg-semantic-danger hover:opacity-90"><x-icon class="fa-solid fa-trash-can" /> Batalkan Bon</button>
                         </form>
                     </details>
@@ -74,9 +75,9 @@
                         @csrf
                         <input type="hidden" name="operation_key" value="{{ old('operation_key', (string) Illuminate\Support\Str::uuid()) }}">
                         <div class="p-3 text-[11px] leading-relaxed rounded-md bg-accent-100/50 text-accent-700">Refund dihitung proporsional setelah diskon dan pajak. Bahan resep tidak otomatis dikembalikan.</div>
-                        <div><label class="block mb-1.5 text-xs font-semibold text-ink-700">Item yang Diretur</label><select name="item_id" required class="w-full h-11 px-3 text-sm border rounded-md border-border-200 focus:border-primary-500 focus:ring-primary-500">@foreach($order->items as $item)<option value="{{ $item->id }}">{{ $item->product_name }} · {{ \App\Support\NumberFormat::quantity($item->quantity) }} unit dibeli</option>@endforeach</select></div>
-                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2"><div><label class="block mb-1.5 text-xs font-semibold text-ink-700">Jumlah Retur</label><input class="w-full h-11 px-3 text-sm border rounded-md border-border-200 focus:border-primary-500 focus:ring-primary-500" type="number" name="quantity" step="0.001" min="0.001" max="100000" required></div><label class="flex items-start gap-3 p-3 border rounded-md cursor-pointer border-border-200 bg-surface-100"><input class="mt-0.5 rounded border-border-200 text-primary-600 focus:ring-primary-500" type="checkbox" name="restock" value="1"><span><strong class="block text-xs text-ink-900">Kembalikan ke stok</strong><span class="text-[10px] leading-relaxed text-ink-400">Centang hanya jika barang masih layak dijual.</span></span></label></div>
-                        <div><label class="block mb-1.5 text-xs font-semibold text-ink-700">Alasan Retur</label><input class="w-full h-11 px-3 text-sm border rounded-md border-border-200 focus:border-primary-500 focus:ring-primary-500" name="reason" maxlength="255" required placeholder="Contoh: ukuran tidak sesuai"></div>
+                        <div><label for="field-item_id" class="block mb-1.5 text-xs font-semibold text-ink-700">Item yang Diretur</label><select id="field-item_id" name="item_id" required class="w-full h-11 px-3 text-sm border rounded-md border-border-200 focus:border-primary-500 focus:ring-primary-500">@foreach($order->items as $item)<option value="{{ $item->id }}">{{ $item->product_name }} · {{ \App\Support\NumberFormat::quantity($item->quantity) }} unit dibeli</option>@endforeach</select></div>
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2"><div><label for="field-quantity" class="block mb-1.5 text-xs font-semibold text-ink-700">Jumlah Retur</label><input id="field-quantity" class="w-full h-11 px-3 text-sm border rounded-md border-border-200 focus:border-primary-500 focus:ring-primary-500" type="number" name="quantity" step="0.001" min="0.001" max="100000" required></div><label class="flex items-start gap-3 p-3 border rounded-md cursor-pointer border-border-200 bg-surface-100"><input class="mt-0.5 rounded border-border-200 text-primary-600 focus:ring-primary-500" type="checkbox" name="restock" value="1"><span><strong class="block text-xs text-ink-900">Kembalikan ke stok</strong><span class="text-[10px] leading-relaxed text-ink-400">Centang hanya jika barang masih layak dijual.</span></span></label></div>
+                        <div><label for="field-reason" class="block mb-1.5 text-xs font-semibold text-ink-700">Alasan Retur</label><input id="field-reason" class="w-full h-11 px-3 text-sm border rounded-md border-border-200 focus:border-primary-500 focus:ring-primary-500" name="reason" maxlength="255" required placeholder="Contoh: ukuran tidak sesuai"></div>
                         <button class="inline-flex items-center justify-center h-10 gap-2 px-4 text-xs font-semibold text-white rounded-md bg-accent-700 hover:opacity-90"><x-icon class="fa-solid fa-money-bill-transfer" /> Proses Retur & Uang Keluar</button>
                     </form>
                 </details>
@@ -179,6 +180,12 @@
                         <span>-Rp {{ number_format($order->discount, 0, ',', '.') }}</span>
                     </div>
                 @endif
+                @if ($order->loyalty_discount > 0)
+                    <div class="flex justify-between text-semantic-danger">
+                        <span>Potongan poin loyalitas ({{ number_format($order->points_redeemed, 0, ',', '.') }} poin)</span>
+                        <span>-Rp {{ number_format($order->loyalty_discount, 0, ',', '.') }}</span>
+                    </div>
+                @endif
                 @if ($order->tax > 0)
                     <div class="flex justify-between text-ink-700">
                         <span>Pajak Outlet</span>
@@ -193,7 +200,7 @@
                 </div>
 
                 <div class="flex justify-between pt-2 text-ink-700">
-                    <span>Bayar ({{ strtoupper($order->payment_method) }})</span>
+                    <span>Bayar ({{ \App\Support\PaymentMethod::label($order->payment_method) }})</span>
                     <span>Rp {{ number_format($order->paid_amount, 0, ',', '.') }}</span>
                 </div>
                 <div class="flex justify-between text-ink-700">

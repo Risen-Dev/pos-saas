@@ -1,0 +1,1142 @@
+[
+    {
+        "role": "admin",
+        "path": "/",
+        "status": 200,
+        "redirect": null,
+        "queries": 1,
+        "sql_ms": 0.05,
+        "response_ms": 34.88,
+        "html_bytes": 26145
+    },
+    {
+        "role": "admin",
+        "path": "/dashboard",
+        "status": 200,
+        "redirect": null,
+        "queries": 26,
+        "sql_ms": 4.77,
+        "response_ms": 33.6,
+        "html_bytes": 79639
+    },
+    {
+        "role": "admin",
+        "path": "/getting-started",
+        "status": 200,
+        "redirect": null,
+        "queries": 13,
+        "sql_ms": 0.29,
+        "response_ms": 6.31,
+        "html_bytes": 55883
+    },
+    {
+        "role": "admin",
+        "path": "/tenants",
+        "status": 200,
+        "redirect": null,
+        "queries": 12,
+        "sql_ms": 0.39,
+        "response_ms": 8.91,
+        "html_bytes": 61609
+    },
+    {
+        "role": "admin",
+        "path": "/business",
+        "status": 200,
+        "redirect": null,
+        "queries": 8,
+        "sql_ms": 0.17,
+        "response_ms": 5.37,
+        "html_bytes": 51628
+    },
+    {
+        "role": "admin",
+        "path": "/profile",
+        "status": 200,
+        "redirect": null,
+        "queries": 11,
+        "sql_ms": 0.23,
+        "response_ms": 6.07,
+        "html_bytes": 61934
+    },
+    {
+        "role": "admin",
+        "path": "/profile/edit",
+        "status": 200,
+        "redirect": null,
+        "queries": 11,
+        "sql_ms": 0.25,
+        "response_ms": 11.51,
+        "html_bytes": 68701
+    },
+    {
+        "role": "admin",
+        "path": "/billing",
+        "status": 200,
+        "redirect": null,
+        "queries": 12,
+        "sql_ms": 0.28,
+        "response_ms": 11.23,
+        "html_bytes": 72949
+    },
+    {
+        "role": "admin",
+        "path": "/employees",
+        "status": 200,
+        "redirect": null,
+        "queries": 12,
+        "sql_ms": 0.29,
+        "response_ms": 8.31,
+        "html_bytes": 73607
+    },
+    {
+        "role": "admin",
+        "path": "/categories",
+        "status": 200,
+        "redirect": null,
+        "queries": 11,
+        "sql_ms": 0.25,
+        "response_ms": 7.83,
+        "html_bytes": 68513
+    },
+    {
+        "role": "admin",
+        "path": "/products",
+        "status": 200,
+        "redirect": null,
+        "queries": 14,
+        "sql_ms": 0.31,
+        "response_ms": 8.01,
+        "html_bytes": 84565
+    },
+    {
+        "role": "admin",
+        "path": "/products/create",
+        "status": 200,
+        "redirect": null,
+        "queries": 10,
+        "sql_ms": 0.25,
+        "response_ms": 7.81,
+        "html_bytes": 70438
+    },
+    {
+        "role": "admin",
+        "path": "/materials",
+        "status": 200,
+        "redirect": null,
+        "queries": 11,
+        "sql_ms": 0.37,
+        "response_ms": 8.89,
+        "html_bytes": 74732
+    },
+    {
+        "role": "admin",
+        "path": "/suppliers",
+        "status": 200,
+        "redirect": null,
+        "queries": 10,
+        "sql_ms": 0.22,
+        "response_ms": 6.47,
+        "html_bytes": 66413
+    },
+    {
+        "role": "admin",
+        "path": "/inventory",
+        "status": 200,
+        "redirect": null,
+        "queries": 12,
+        "sql_ms": 0.26,
+        "response_ms": 6.28,
+        "html_bytes": 56811
+    },
+    {
+        "role": "admin",
+        "path": "/inventory/history",
+        "status": 200,
+        "redirect": null,
+        "queries": 10,
+        "sql_ms": 0.23,
+        "response_ms": 7.02,
+        "html_bytes": 49176
+    },
+    {
+        "role": "admin",
+        "path": "/stock-movements",
+        "status": 200,
+        "redirect": null,
+        "queries": 2,
+        "sql_ms": 0.05,
+        "response_ms": 1.8,
+        "html_bytes": 546
+    },
+    {
+        "role": "admin",
+        "path": "/purchases",
+        "status": 200,
+        "redirect": null,
+        "queries": 10,
+        "sql_ms": 0.22,
+        "response_ms": 6.54,
+        "html_bytes": 48284
+    },
+    {
+        "role": "admin",
+        "path": "/purchases/create",
+        "status": 200,
+        "redirect": null,
+        "queries": 11,
+        "sql_ms": 0.25,
+        "response_ms": 6.13,
+        "html_bytes": 49504
+    },
+    {
+        "role": "admin",
+        "path": "/stocktakes",
+        "status": 200,
+        "redirect": null,
+        "queries": 10,
+        "sql_ms": 0.25,
+        "response_ms": 6.74,
+        "html_bytes": 48318
+    },
+    {
+        "role": "admin",
+        "path": "/customers",
+        "status": 200,
+        "redirect": null,
+        "queries": 15,
+        "sql_ms": 0.33,
+        "response_ms": 9.38,
+        "html_bytes": 69160
+    },
+    {
+        "role": "admin",
+        "path": "/discounts",
+        "status": 200,
+        "redirect": null,
+        "queries": 10,
+        "sql_ms": 0.22,
+        "response_ms": 6.56,
+        "html_bytes": 58846
+    },
+    {
+        "role": "admin",
+        "path": "/discounts/create",
+        "status": 200,
+        "redirect": null,
+        "queries": 10,
+        "sql_ms": 0.23,
+        "response_ms": 6.19,
+        "html_bytes": 60431
+    },
+    {
+        "role": "admin",
+        "path": "/pos",
+        "status": 200,
+        "redirect": null,
+        "queries": 16,
+        "sql_ms": 1.73,
+        "response_ms": 9.15,
+        "html_bytes": 79185
+    },
+    {
+        "role": "admin",
+        "path": "/orders",
+        "status": 200,
+        "redirect": null,
+        "queries": 9,
+        "sql_ms": 0.22,
+        "response_ms": 6.9,
+        "html_bytes": 52195
+    },
+    {
+        "role": "admin",
+        "path": "/service-orders",
+        "status": 200,
+        "redirect": null,
+        "queries": 2,
+        "sql_ms": 0.04,
+        "response_ms": 1.36,
+        "html_bytes": 2
+    },
+    {
+        "role": "admin",
+        "path": "/payments/review",
+        "status": 200,
+        "redirect": null,
+        "queries": 10,
+        "sql_ms": 0.23,
+        "response_ms": 6.58,
+        "html_bytes": 48179
+    },
+    {
+        "role": "admin",
+        "path": "/cash",
+        "status": 200,
+        "redirect": null,
+        "queries": 12,
+        "sql_ms": 0.28,
+        "response_ms": 33.78,
+        "html_bytes": 63570
+    },
+    {
+        "role": "admin",
+        "path": "/shifts",
+        "status": 200,
+        "redirect": null,
+        "queries": 10,
+        "sql_ms": 0.21,
+        "response_ms": 7.82,
+        "html_bytes": 63176
+    },
+    {
+        "role": "admin",
+        "path": "/finance",
+        "status": 200,
+        "redirect": null,
+        "queries": 13,
+        "sql_ms": 1.38,
+        "response_ms": 9.2,
+        "html_bytes": 67870
+    },
+    {
+        "role": "admin",
+        "path": "/reports",
+        "status": 200,
+        "redirect": null,
+        "queries": 23,
+        "sql_ms": 0.52,
+        "response_ms": 8.69,
+        "html_bytes": 78796
+    },
+    {
+        "role": "admin",
+        "path": "/reports/exports",
+        "status": 200,
+        "redirect": null,
+        "queries": 9,
+        "sql_ms": 0.21,
+        "response_ms": 6.92,
+        "html_bytes": 53984
+    },
+    {
+        "role": "admin",
+        "path": "/activity-logs",
+        "status": 200,
+        "redirect": null,
+        "queries": 2,
+        "sql_ms": 0.04,
+        "response_ms": 1.37,
+        "html_bytes": 538
+    },
+    {
+        "role": "admin",
+        "path": "/settings",
+        "status": 200,
+        "redirect": null,
+        "queries": 16,
+        "sql_ms": 0.35,
+        "response_ms": 8.11,
+        "html_bytes": 59139
+    },
+    {
+        "role": "admin",
+        "path": "/help",
+        "status": 200,
+        "redirect": null,
+        "queries": 8,
+        "sql_ms": 0.18,
+        "response_ms": 6.26,
+        "html_bytes": 57143
+    },
+    {
+        "role": "admin",
+        "path": "/services",
+        "status": 200,
+        "redirect": null,
+        "queries": 11,
+        "sql_ms": 0.25,
+        "response_ms": 6.51,
+        "html_bytes": 54756
+    },
+    {
+        "role": "admin",
+        "path": "/kitchen",
+        "status": 200,
+        "redirect": null,
+        "queries": 10,
+        "sql_ms": 0.24,
+        "response_ms": 6.28,
+        "html_bytes": 59808
+    },
+    {
+        "role": "admin",
+        "path": "/menu/configure",
+        "status": 200,
+        "redirect": null,
+        "queries": 15,
+        "sql_ms": 0.34,
+        "response_ms": 6.9,
+        "html_bytes": 83526
+    },
+    {
+        "role": "manager",
+        "path": "/",
+        "status": 200,
+        "redirect": null,
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 2.12,
+        "html_bytes": 26145
+    },
+    {
+        "role": "manager",
+        "path": "/dashboard",
+        "status": 200,
+        "redirect": null,
+        "queries": 24,
+        "sql_ms": 0.55,
+        "response_ms": 8.04,
+        "html_bytes": 66805
+    },
+    {
+        "role": "manager",
+        "path": "/getting-started",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 0,
+        "sql_ms": 0,
+        "response_ms": 1.09,
+        "html_bytes": 346
+    },
+    {
+        "role": "manager",
+        "path": "/tenants",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 0,
+        "sql_ms": 0,
+        "response_ms": 0.55,
+        "html_bytes": 346
+    },
+    {
+        "role": "manager",
+        "path": "/business",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 0,
+        "sql_ms": 0,
+        "response_ms": 0.51,
+        "html_bytes": 346
+    },
+    {
+        "role": "manager",
+        "path": "/profile",
+        "status": 200,
+        "redirect": null,
+        "queries": 10,
+        "sql_ms": 0.22,
+        "response_ms": 5.29,
+        "html_bytes": 52110
+    },
+    {
+        "role": "manager",
+        "path": "/profile/edit",
+        "status": 200,
+        "redirect": null,
+        "queries": 10,
+        "sql_ms": 0.23,
+        "response_ms": 5.81,
+        "html_bytes": 51959
+    },
+    {
+        "role": "manager",
+        "path": "/billing",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 0,
+        "sql_ms": 0,
+        "response_ms": 0.49,
+        "html_bytes": 346
+    },
+    {
+        "role": "manager",
+        "path": "/employees",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.63,
+        "html_bytes": 346
+    },
+    {
+        "role": "manager",
+        "path": "/categories",
+        "status": 200,
+        "redirect": null,
+        "queries": 10,
+        "sql_ms": 0.26,
+        "response_ms": 5.83,
+        "html_bytes": 58681
+    },
+    {
+        "role": "manager",
+        "path": "/products",
+        "status": 200,
+        "redirect": null,
+        "queries": 13,
+        "sql_ms": 0.31,
+        "response_ms": 6.65,
+        "html_bytes": 72552
+    },
+    {
+        "role": "manager",
+        "path": "/products/create",
+        "status": 200,
+        "redirect": null,
+        "queries": 9,
+        "sql_ms": 0.2,
+        "response_ms": 4.86,
+        "html_bytes": 58425
+    },
+    {
+        "role": "manager",
+        "path": "/materials",
+        "status": 200,
+        "redirect": null,
+        "queries": 10,
+        "sql_ms": 0.22,
+        "response_ms": 5.36,
+        "html_bytes": 62719
+    },
+    {
+        "role": "manager",
+        "path": "/suppliers",
+        "status": 200,
+        "redirect": null,
+        "queries": 9,
+        "sql_ms": 0.19,
+        "response_ms": 5.05,
+        "html_bytes": 54400
+    },
+    {
+        "role": "manager",
+        "path": "/inventory",
+        "status": 200,
+        "redirect": null,
+        "queries": 11,
+        "sql_ms": 0.24,
+        "response_ms": 4.83,
+        "html_bytes": 44798
+    },
+    {
+        "role": "manager",
+        "path": "/inventory/history",
+        "status": 200,
+        "redirect": null,
+        "queries": 9,
+        "sql_ms": 0.18,
+        "response_ms": 4.59,
+        "html_bytes": 37163
+    },
+    {
+        "role": "manager",
+        "path": "/stock-movements",
+        "status": 200,
+        "redirect": null,
+        "queries": 2,
+        "sql_ms": 0.05,
+        "response_ms": 0.88,
+        "html_bytes": 546
+    },
+    {
+        "role": "manager",
+        "path": "/purchases",
+        "status": 200,
+        "redirect": null,
+        "queries": 9,
+        "sql_ms": 0.2,
+        "response_ms": 4.7,
+        "html_bytes": 36271
+    },
+    {
+        "role": "manager",
+        "path": "/purchases/create",
+        "status": 200,
+        "redirect": null,
+        "queries": 10,
+        "sql_ms": 0.24,
+        "response_ms": 4.8,
+        "html_bytes": 37491
+    },
+    {
+        "role": "manager",
+        "path": "/stocktakes",
+        "status": 200,
+        "redirect": null,
+        "queries": 9,
+        "sql_ms": 0.19,
+        "response_ms": 4.65,
+        "html_bytes": 36305
+    },
+    {
+        "role": "manager",
+        "path": "/customers",
+        "status": 200,
+        "redirect": null,
+        "queries": 14,
+        "sql_ms": 0.33,
+        "response_ms": 7.04,
+        "html_bytes": 57147
+    },
+    {
+        "role": "manager",
+        "path": "/discounts",
+        "status": 200,
+        "redirect": null,
+        "queries": 9,
+        "sql_ms": 0.2,
+        "response_ms": 5.33,
+        "html_bytes": 46833
+    },
+    {
+        "role": "manager",
+        "path": "/discounts/create",
+        "status": 200,
+        "redirect": null,
+        "queries": 9,
+        "sql_ms": 0.26,
+        "response_ms": 5.35,
+        "html_bytes": 48418
+    },
+    {
+        "role": "manager",
+        "path": "/pos",
+        "status": 200,
+        "redirect": null,
+        "queries": 16,
+        "sql_ms": 0.49,
+        "response_ms": 5.87,
+        "html_bytes": 78705
+    },
+    {
+        "role": "manager",
+        "path": "/orders",
+        "status": 200,
+        "redirect": null,
+        "queries": 8,
+        "sql_ms": 0.22,
+        "response_ms": 5.79,
+        "html_bytes": 40182
+    },
+    {
+        "role": "manager",
+        "path": "/service-orders",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.03,
+        "response_ms": 0.79,
+        "html_bytes": 346
+    },
+    {
+        "role": "manager",
+        "path": "/payments/review",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.79,
+        "html_bytes": 346
+    },
+    {
+        "role": "manager",
+        "path": "/cash",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 0,
+        "sql_ms": 0,
+        "response_ms": 0.57,
+        "html_bytes": 346
+    },
+    {
+        "role": "manager",
+        "path": "/shifts",
+        "status": 200,
+        "redirect": null,
+        "queries": 9,
+        "sql_ms": 0.25,
+        "response_ms": 6.53,
+        "html_bytes": 53344
+    },
+    {
+        "role": "manager",
+        "path": "/finance",
+        "status": 403,
+        "redirect": null,
+        "queries": 1,
+        "sql_ms": 0.03,
+        "response_ms": 4.3,
+        "html_bytes": 6605
+    },
+    {
+        "role": "manager",
+        "path": "/reports",
+        "status": 200,
+        "redirect": null,
+        "queries": 22,
+        "sql_ms": 0.56,
+        "response_ms": 8.21,
+        "html_bytes": 66783
+    },
+    {
+        "role": "manager",
+        "path": "/reports/exports",
+        "status": 200,
+        "redirect": null,
+        "queries": 8,
+        "sql_ms": 0.23,
+        "response_ms": 6.05,
+        "html_bytes": 41971
+    },
+    {
+        "role": "manager",
+        "path": "/activity-logs",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.03,
+        "response_ms": 0.91,
+        "html_bytes": 346
+    },
+    {
+        "role": "manager",
+        "path": "/settings",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.68,
+        "html_bytes": 346
+    },
+    {
+        "role": "manager",
+        "path": "/help",
+        "status": 200,
+        "redirect": null,
+        "queries": 7,
+        "sql_ms": 0.16,
+        "response_ms": 4.51,
+        "html_bytes": 47311
+    },
+    {
+        "role": "manager",
+        "path": "/services",
+        "status": 200,
+        "redirect": null,
+        "queries": 10,
+        "sql_ms": 0.24,
+        "response_ms": 5.56,
+        "html_bytes": 42743
+    },
+    {
+        "role": "manager",
+        "path": "/kitchen",
+        "status": 200,
+        "redirect": null,
+        "queries": 9,
+        "sql_ms": 0.23,
+        "response_ms": 5.27,
+        "html_bytes": 47795
+    },
+    {
+        "role": "manager",
+        "path": "/menu/configure",
+        "status": 200,
+        "redirect": null,
+        "queries": 14,
+        "sql_ms": 0.31,
+        "response_ms": 5.68,
+        "html_bytes": 71513
+    },
+    {
+        "role": "kasir",
+        "path": "/",
+        "status": 200,
+        "redirect": null,
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 2.06,
+        "html_bytes": 26145
+    },
+    {
+        "role": "kasir",
+        "path": "/dashboard",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 2,
+        "sql_ms": 0.04,
+        "response_ms": 0.75,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/getting-started",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 0,
+        "sql_ms": 0,
+        "response_ms": 0.5,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/tenants",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 0,
+        "sql_ms": 0,
+        "response_ms": 0.46,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/business",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 0,
+        "sql_ms": 0,
+        "response_ms": 0.57,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/profile",
+        "status": 200,
+        "redirect": null,
+        "queries": 3,
+        "sql_ms": 0.07,
+        "response_ms": 2.33,
+        "html_bytes": 25015
+    },
+    {
+        "role": "kasir",
+        "path": "/profile/edit",
+        "status": 200,
+        "redirect": null,
+        "queries": 3,
+        "sql_ms": 0.07,
+        "response_ms": 2.52,
+        "html_bytes": 24864
+    },
+    {
+        "role": "kasir",
+        "path": "/billing",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 0,
+        "sql_ms": 0,
+        "response_ms": 0.5,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/employees",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.03,
+        "response_ms": 0.66,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/categories",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.62,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/products",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.62,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/products/create",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.62,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/materials",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.6,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/suppliers",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.61,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/inventory",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.6,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/inventory/history",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.62,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/stock-movements",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.61,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/purchases",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.59,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/purchases/create",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.59,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/stocktakes",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.62,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/customers",
+        "status": 200,
+        "redirect": null,
+        "queries": 7,
+        "sql_ms": 0.15,
+        "response_ms": 3.06,
+        "html_bytes": 32261
+    },
+    {
+        "role": "kasir",
+        "path": "/discounts",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.87,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/discounts/create",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.03,
+        "response_ms": 0.8,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/pos",
+        "status": 200,
+        "redirect": null,
+        "queries": 16,
+        "sql_ms": 0.41,
+        "response_ms": 4.21,
+        "html_bytes": 77950
+    },
+    {
+        "role": "kasir",
+        "path": "/orders",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos?panel=history",
+        "queries": 0,
+        "sql_ms": 0,
+        "response_ms": 0.57,
+        "html_bytes": 402
+    },
+    {
+        "role": "kasir",
+        "path": "/service-orders",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.65,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/payments/review",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.61,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/cash",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 0,
+        "sql_ms": 0,
+        "response_ms": 0.5,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/shifts",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.6,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/finance",
+        "status": 403,
+        "redirect": null,
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.8,
+        "html_bytes": 6605
+    },
+    {
+        "role": "kasir",
+        "path": "/reports",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 0,
+        "sql_ms": 0,
+        "response_ms": 0.51,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/reports/exports",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 0,
+        "sql_ms": 0,
+        "response_ms": 0.5,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/activity-logs",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.61,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/settings",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.64,
+        "html_bytes": 346
+    },
+    {
+        "role": "kasir",
+        "path": "/help",
+        "status": 200,
+        "redirect": null,
+        "queries": 0,
+        "sql_ms": 0,
+        "response_ms": 1.41,
+        "html_bytes": 20244
+    },
+    {
+        "role": "kasir",
+        "path": "/services",
+        "status": 200,
+        "redirect": null,
+        "queries": 3,
+        "sql_ms": 0.07,
+        "response_ms": 2.35,
+        "html_bytes": 15676
+    },
+    {
+        "role": "kasir",
+        "path": "/kitchen",
+        "status": 200,
+        "redirect": null,
+        "queries": 2,
+        "sql_ms": 0.07,
+        "response_ms": 2.41,
+        "html_bytes": 20706
+    },
+    {
+        "role": "kasir",
+        "path": "/menu/configure",
+        "status": 302,
+        "redirect": "http://127.0.0.1:8765/pos",
+        "queries": 1,
+        "sql_ms": 0.02,
+        "response_ms": 0.69,
+        "html_bytes": 346
+    }
+]

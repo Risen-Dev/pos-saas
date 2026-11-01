@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('title', 'Manajemen Tenant SaaS')
+    @section('title', 'Manajemen Bisnis SaaS')
 
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop" x-data="{ showDeleteModal: false, deleteUrl: '', tenantName: '' }">
 
@@ -19,7 +19,7 @@
             </div>
         @endif
 
-        <!-- Banner Kuota Cabang/Tenant -->
+        <!-- Banner Kuota Cabang/Bisnis -->
         <div
             class="flex flex-col justify-between gap-3 p-4 mb-6 border rounded-lg shadow-sm sm:flex-row sm:items-center bg-surface-0 border-border-200">
             <div class="flex items-center gap-3">
@@ -47,12 +47,12 @@
             @endif
         </div>
 
-        <!-- Header Halaman & Tombol Tambah Tenant -->
+        <!-- Header Halaman & Tombol Tambah Bisnis -->
         <div
             class="flex flex-col justify-between gap-4 pb-6 mb-8 border-b sm:flex-row sm:items-center border-border-200">
             <div>
                 <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
-                    Manajemen Tenant (Cabang & Toko)
+                    Manajemen Bisnis (Cabang & Toko)
                 </h1>
                 <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
                     Kelola outlet/cabang bisnis mitra atau buat tenant baru dalam ekosistem GrowPOS.
@@ -66,10 +66,10 @@
                     <span>Kuota Cabang Penuh</span>
                 </button>
             @else
-                <a href="{{ route('tenants.create') }}"
+                <a href="{{ route('tenants.add') }}"
                     class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm shrink-0">
                     <x-icon class="text-xs fa-solid fa-plus" />
-                    <span>Tambah Tenant Baru</span>
+                    <span>Tambah bisnis</span>
                 </a>
             @endif
         </div>
@@ -77,7 +77,7 @@
         <!-- 3 Cards Metric Statistik -->
         <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-3 md:gap-6">
             <div class="p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
-                <p class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Total Tenant Mitra</p>
+                <p class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Total Bisnis Mitra</p>
                 <p class="mt-2 font-mono text-2xl font-semibold md:text-3xl text-ink-900">{{ $tenants->count() }}</p>
             </div>
 
@@ -186,7 +186,7 @@
                                         <button type="button"
                                             @click="showDeleteModal = true; deleteUrl = '{{ route('tenants.destroy', $tenant->id) }}'; tenantName = '{{ $tenant->name }}'"
                                             class="p-2 transition-colors rounded-md text-ink-700 hover:text-semantic-danger bg-surface-100 hover:bg-red-50"
-                                            title="Hapus Tenant">
+                                            title="Hapus Bisnis">
                                             <x-icon class="text-xs fa-solid fa-trash-can" />
                                         </button>
                                     </div>
@@ -211,7 +211,7 @@
         </div>
 
         <!-- Modal Delete Confirmation -->
-        <div x-show="showDeleteModal" x-transition:enter="transition ease-out duration-200"
+        <div data-dialog x-show="showDeleteModal" x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"

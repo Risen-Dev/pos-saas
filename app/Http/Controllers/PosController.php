@@ -54,7 +54,7 @@ class PosController extends Controller
                 return $product;
             });
 
-        $customers = Customer::where('tenant_id', $tenantId)->get();
+        $customers = Customer::where('tenant_id', $tenantId)->orderBy('name')->limit(50)->get(['id', 'name', 'is_member', 'points', 'loyalty_member_code']);
 
         $activeShift = Shift::where('tenant_id', $tenantId)
             ->where('user_id', $userId)
@@ -72,7 +72,7 @@ class PosController extends Controller
 
         $pendingPayments = Order::where('tenant_id', $tenantId)->where('user_id', $userId)
             ->where('payment_method', 'midtrans')->where('payment_status', 'unpaid')
-            ->where('order_status', '!=', 'cancelled')->latest()->get()
+            ->where('order_status', '!=', 'cancelled')->latest()->limit(50)->get()
             ->map(fn (Order $order) => ['order_id' => $order->id, 'invoice_number' => $order->invoice_number,
                 'payment_method' => 'midtrans', 'grand_total' => (float) $order->grand_total, 'qr_url' => $order->qr_url]);
 
@@ -100,12 +100,15 @@ class PosController extends Controller
             'items.*.addon_ids' => 'nullable|array|max:20',
             'items.*.addon_ids.*' => 'integer',
             'items.*.note' => 'nullable|string|max:300',
-            'checkout_key' => 'required_if:payment_method,midtrans|nullable|uuid',
+            'checkout_key' => 'required_if:payment_method,midtrans,transfer,qris_manual|nullable|uuid',
             'shift_id' => 'nullable|integer',
             'sold_at' => 'nullable|date|before_or_equal:now',
             'items.*.quantity' => 'required|numeric|decimal:0,3|min:0.001|max:100000',
             'customer_id' => ['nullable', 'integer', Rule::exists('customers', 'id')->where('tenant_id', $tenantId)],
-            'payment_method' => 'required|in:cash,midtrans',
+            'points_to_redeem' => 'sometimes|integer|min:0|max:100000000',
+            'payment_method' => 'required|in:cash,midtrans,transfer,qris_manual',
+            'manual_confirmed' => Rule::when(in_array($request->input('payment_method'), ['transfer', 'qris_manual'], true), ['required', 'accepted'], ['exclude']),
+            'payment_reference' => 'nullable|string|max:100',
             'payment_status' => 'required|in:paid,unpaid',
             'paid_amount' => 'required|numeric|min:0|max:999999999999',
             'grand_total' => 'nullable|numeric|min:0|max:999999999999',
@@ -114,7 +117,12 @@ class PosController extends Controller
             'note' => 'nullable|string|max:2000',
         ]);
         abort_if($data['payment_method'] === 'midtrans' && Gate::denies('feature-qris'), 403, 'Paket Anda tidak mendukung QRIS.');
-        abort_if(! empty($data['customer_id']) && Gate::denies('feature-crm'), 403, 'Paket Anda tidak mendukung CRM.');
+        abort_if(! empty($data['customer_id']) && Gate::denies('feature-crm'), 403, 'Pelanggan dan bon memerlukan paket aktif.');
+
+        $manual = in_array($data['payment_method'], ['transfer', 'qris_manual'], true);
+        if ($manual && $data['payment_status'] !== 'paid') {
+            throw ValidationException::withMessages(['payment_status' => 'Pembayaran manual harus sudah diterima dan diperiksa. Gunakan bon untuk tagihan belum lunas.']);
+        }
 
         $hash = hash('sha256', json_encode($data));
 
@@ -134,7 +142,7 @@ class PosController extends Controller
             }
             $shift = Shift::where('tenant_id', $tenantId)->where('user_id', auth()->id())->where('status', 'open')->lockForUpdate()->first();
             if (! $shift || (isset($data['shift_id']) && (int) $data['shift_id'] !== $shift->id)) {
-                throw ValidationException::withMessages(['shift' => 'Buka shift sebelum melakukan transaksi.']);
+                throw ValidationException::withMessages(['shift' => 'Mulai jualan sebelum melakukan transaksi.']);
             }
 
             if (! empty($data['sold_at']) && Carbon::parse($data['sold_at'])->lt(Carbon::parse($shift->start_time, config('app.timezone')))) {
@@ -198,12 +206,26 @@ class PosController extends Controller
             $settings = Setting::where('tenant_id', $tenantId)->pluck('value', 'key');
             $taxRate = min(100, max(0, (float) ($settings['tax_percentage'] ?? 0)));
             $tax = ($settings['tax_active'] ?? '0') === '1' ? (int) round(($subtotal - $discount) * $taxRate / 100) : 0;
-            $total = $subtotal - $discount + $tax;
+            $beforeLoyaltyTotal = $subtotal - $discount + $tax;
+            $pointsToRedeem = (int) ($data['points_to_redeem'] ?? 0);
+            $loyaltyDiscount = 0;
+            if ($pointsToRedeem > 0) {
+                if (empty($data['customer_id'])) {
+                    throw ValidationException::withMessages(['points_to_redeem' => 'Pilih member untuk menggunakan poin.']);
+                }
+                $member = Customer::where('tenant_id', $tenantId)->lockForUpdate()->findOrFail($data['customer_id']);
+                $loyaltyDiscount = app(CustomerPoints::class)->redemptionDiscount($member, $pointsToRedeem, $beforeLoyaltyTotal, $settings->all());
+            }
+            $total = $beforeLoyaltyTotal - $loyaltyDiscount;
             if ($total > 999999999999 || (isset($data['grand_total']) && (float) $data['grand_total'] !== (float) $total)) {
                 throw ValidationException::withMessages(['grand_total' => 'Total berubah. Muat ulang kasir dan periksa harga terbaru.']);
             }
             $digital = $data['payment_method'] === 'midtrans';
+            $manual = in_array($data['payment_method'], ['transfer', 'qris_manual'], true);
             $paid = ! $digital && $data['payment_status'] === 'paid';
+            if ($manual && (float) $data['paid_amount'] !== (float) $total) {
+                throw ValidationException::withMessages(['paid_amount' => 'Nominal pembayaran manual harus sama dengan total tagihan.']);
+            }
             if ($paid && $data['paid_amount'] < $total) {
                 throw ValidationException::withMessages(['paid_amount' => 'Uang tunai kurang.']);
             }
@@ -215,6 +237,9 @@ class PosController extends Controller
             }
 
             $order = Order::create([
+                'payment_reference' => $manual ? ($data['payment_reference'] ?? null) : null,
+                'payment_verified_at' => $manual ? now() : null,
+                'payment_verified_by' => $manual ? auth()->id() : null,
                 'payment_attention' => $digital,
                 'checkout_key' => $data['checkout_key'] ?? null, 'request_hash' => $hash,
                 'service_status' => $products->contains(fn ($product) => $product->type === 'service') ? 'queued' : null,
@@ -224,11 +249,13 @@ class PosController extends Controller
                 'invoice_number' => 'INV-'.($data['checkout_key'] ?? Str::uuid()),
                 'order_type' => $data['order_type'], 'table_number' => $data['table_number'] ?? null,
                 'subtotal' => $subtotal, 'discount' => $discount, 'tax' => $tax, 'grand_total' => $total,
+                'points_redeemed' => $pointsToRedeem, 'loyalty_discount' => $loyaltyDiscount,
                 'payment_method' => $data['payment_method'], 'payment_status' => $paid ? 'paid' : 'unpaid',
                 'paid_amount' => $paid ? $data['paid_amount'] : 0,
                 'change_amount' => $paid ? $data['paid_amount'] - $total : 0,
                 'order_status' => $paid ? 'completed' : 'pending', 'note' => $data['note'] ?? null,
             ]);
+            app(CustomerPoints::class)->redeemForOrder($order);
             app(CashLedger::class)->checkout($order);
             foreach ($lines as $line) {
                 $orderItem = $order->items()->create($line);
@@ -280,7 +307,27 @@ class PosController extends Controller
 
     private function receiptResponse(Order $order)
     {
-        return response()->json(['success' => true, 'order_id' => $order->id, 'invoice_number' => $order->invoice_number, 'payment_method' => $order->payment_method, 'payment_status' => $order->payment_status, 'order_status' => $order->order_status, 'grand_total' => (float) $order->grand_total, 'qr_url' => $order->qr_url]);
+        $loyalty = [];
+        $customer = $order->customer;
+        if ($customer?->is_member && Gate::allows('feature-loyalty')) {
+            $customer->ensureLoyaltyCard();
+            $cardUrl = route('loyalty.card', $customer->loyalty_card_token);
+            $phone = preg_replace('/\D+/', '', (string) $customer->phone);
+            if (str_starts_with($phone, '0')) {
+                $phone = '62'.substr($phone, 1);
+            }
+            $message = 'Kartu member '.$order->tenant->name.' untuk '.$customer->name.': '.$cardUrl;
+            $loyalty = [
+                'loyalty_card_url' => $cardUrl,
+                'whatsapp_share_url' => 'https://wa.me/'.($phone ?: '').'?text='.rawurlencode($message),
+                'points_awarded' => (int) $order->points_awarded,
+                'points_balance' => (int) $customer->fresh()->points,
+                'points_redeemed' => (int) $order->points_redeemed,
+                'loyalty_discount' => (int) $order->loyalty_discount,
+            ];
+        }
+
+        return response()->json(array_merge(['success' => true, 'status' => $order->payment_status, 'order_id' => $order->id, 'invoice_number' => $order->invoice_number, 'payment_method' => $order->payment_method, 'payment_status' => $order->payment_status, 'order_status' => $order->order_status, 'grand_total' => (float) $order->grand_total, 'qr_url' => $order->qr_url], $loyalty));
     }
 
     public function checkStatus(int $id)
@@ -298,6 +345,10 @@ class PosController extends Controller
             }
         }
 
-        return response()->json(['success' => true, 'status' => $order->payment_status === 'paid' ? 'paid' : ($order->order_status === 'cancelled' ? 'cancelled' : 'unpaid')]);
+        if ($order->payment_status === 'paid') {
+            return $this->receiptResponse($order);
+        }
+
+        return response()->json(['success' => true, 'status' => $order->order_status === 'cancelled' ? 'cancelled' : 'unpaid']);
     }
 }

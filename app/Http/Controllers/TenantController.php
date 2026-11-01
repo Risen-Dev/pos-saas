@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tenant;
+use App\Models\User;
 use App\Support\BusinessProfile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class TenantController extends Controller
 {
@@ -22,7 +26,20 @@ class TenantController extends Controller
 
     public function create()
     {
+        if (auth()->user()->tenants()->exists()) {
+            return redirect()->route('tenants.add');
+        }
+
         return view('tenants.create');
+    }
+
+    public function createAdditional()
+    {
+        if (! auth()->user()->tenants()->exists()) {
+            return redirect()->route('tenants.create');
+        }
+
+        return view('tenants.add');
     }
 
     public function store(Request $request)
@@ -53,7 +70,7 @@ class TenantController extends Controller
         // -------------------------------------------------------------------------
         $request->validate([
             'name' => 'required|string|max:255',
-            'business_type' => 'required|string|max:100',
+            'business_type' => ['required', Rule::in(array_keys(BusinessProfile::TYPES))],
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:20',
             'address' => 'required|string',
@@ -67,23 +84,32 @@ class TenantController extends Controller
             $logoPath = $file->storeAs('logos', $fileName, 'public');
         }
 
-        $tenant = $currentUser->tenants()->create([
-            'name' => $request->name,
-            'slug' => Str::slug($request->name).'-'.rand(100, 999),
-            'business_type' => $request->business_type,
-            'business_modules' => BusinessProfile::defaults(BusinessProfile::normalize($request->business_type)),
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'address' => $request->address,
-            'img_logo' => $logoPath,
-            'status' => 'active',
-        ]);
+        DB::transaction(function () use ($currentUser, $request, $logoPath) {
+            $owner = User::whereKey($currentUser->id)->lockForUpdate()->firstOrFail();
+            $owned = $owner->tenants()->count();
+            $plan = $owner->tenant?->currentPlan();
+            if ($owned > 0 && (! $plan || $owned >= $plan->max_outlets)) {
+                throw ValidationException::withMessages(['name' => 'Kuota outlet paket tercapai atau paket belum aktif.']);
+            }
+            $tenant = $currentUser->tenants()->create([
+                'name' => $request->name,
+                'slug' => Str::slug($request->name).'-'.rand(100, 999),
+                'business_type' => $request->business_type,
+                'business_modules' => BusinessProfile::defaults(BusinessProfile::normalize($request->business_type)),
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'img_logo' => $logoPath,
+                'status' => 'active',
+            ]);
 
-        $currentUser->update([
-            'tenant_id' => $tenant->id,
-        ]);
+            $currentUser->update([
+                'tenant_id' => $tenant->id,
+            ]);
 
-        return redirect()->route('getting-started')->with('success', 'Bisnis berhasil didaftarkan! Lanjutkan persiapan kedai.');
+        }, 3);
+
+        return redirect()->route('getting-started')->with('success', 'Bisnis berhasil ditambahkan. Siapkan katalog dan mulai berjualan.');
     }
 
     public function edit(Tenant $tenant)
@@ -103,7 +129,7 @@ class TenantController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'business_type' => 'required|string|max:100',
+            'business_type' => ['required', Rule::in(array_keys(BusinessProfile::TYPES))],
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:20',
             'address' => 'required|string',

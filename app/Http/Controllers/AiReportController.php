@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Material;
-use App\Models\Order;
+use App\Services\SafeReportHtml;
+use App\Services\SalesDataset;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +38,8 @@ class AiReportController extends Controller
         if (! $tenantId) {
             $aiAnalysis = "<p class='italic text-center text-gray-400'>Silakan pilih atau daftarkan bisnis Anda terlebih dahulu untuk memulai analisis AI.</p>";
 
+            $aiAnalysis = app(SafeReportHtml::class)->clean($aiAnalysis);
+
             return view('reports.ai-analysis', compact('aiAnalysis'));
         }
 
@@ -44,7 +48,8 @@ class AiReportController extends Controller
             ->join('products', 'order_items.product_id', '=', 'products.id')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->where('orders.tenant_id', $tenantId)
-            ->where('orders.created_at', '>=', now()->subDays(30))
+            ->where('orders.payment_status', 'paid')->where('orders.order_status', 'completed')
+            ->whereRaw('COALESCE(orders.sold_at, orders.created_at) >= ?', [now()->subDays(30)])
             ->select('products.product_name', DB::raw('SUM(order_items.quantity) as total_terjual'))
             ->groupBy('products.product_name')
             ->orderBy('total_terjual', 'desc')
@@ -56,7 +61,8 @@ class AiReportController extends Controller
             ->join('products', 'order_items.product_id', '=', 'products.id')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->where('orders.tenant_id', $tenantId)
-            ->where('orders.created_at', '>=', now()->subDays(30))
+            ->where('orders.payment_status', 'paid')->where('orders.order_status', 'completed')
+            ->whereRaw('COALESCE(orders.sold_at, orders.created_at) >= ?', [now()->subDays(30)])
             ->select('products.product_name', DB::raw('SUM(order_items.quantity) as total_terjual'))
             ->groupBy('products.product_name')
             ->orderBy('total_terjual', 'asc')
@@ -64,15 +70,14 @@ class AiReportController extends Controller
             ->get();
 
         // 3. TREN OMSET HARIAN (30 hari)
-        $salesTrend = Order::where('tenant_id', $tenantId)
-            ->where('created_at', '>=', now()->subDays(30))
+        $salesTrend = app(SalesDataset::class)->orders($tenantId)
+            ->whereRaw('COALESCE(sold_at, created_at) >= ?', [now()->subDays(30)])
             ->select(
-                DB::raw('DATE(created_at) as tanggal'),
+                DB::raw('DATE(COALESCE(sold_at, created_at)) as tanggal'),
                 DB::raw('SUM(grand_total) as total_omset'),
-                DB::raw('COUNT(id) as total_nota'),
-                DB::raw('DAYNAME(created_at) as nama_hari')
+                DB::raw('COUNT(id) as total_nota')
             )
-            ->groupBy('tanggal', 'nama_hari')
+            ->groupBy('tanggal')
             ->get();
 
         // 4. KALKULASI METRIK UTAMA
@@ -83,12 +88,9 @@ class AiReportController extends Controller
         $rataRataOmsetHarian = $totalOmset / $jumlahHariAktif;
         $rataRataNilaiPerNota = $totalTransaksi > 0 ? ($totalOmset / $totalTransaksi) : 0;
 
-        $dayAnalysis = Order::where('tenant_id', $tenantId)
-            ->where('created_at', '>=', now()->subDays(30))
-            ->select(DB::raw('DAYNAME(created_at) as hari'), DB::raw('SUM(grand_total) as omset_hari'))
-            ->groupBy('hari')
-            ->orderBy('omset_hari', 'desc')
-            ->get();
+        $dayAnalysis = $salesTrend->groupBy(fn ($row) => Carbon::parse($row->tanggal)->englishDayOfWeek)
+            ->map(fn ($rows, $day) => (object) ['hari' => $day, 'omset_hari' => $rows->sum('total_omset')])
+            ->sortByDesc('omset_hari')->values();
 
         $hariTeramai = $dayAnalysis->first()->hari ?? 'Tidak Terdeteksi';
         $hariTersepi = $dayAnalysis->last()->hari ?? 'Tidak Terdeteksi';
@@ -96,12 +98,12 @@ class AiReportController extends Controller
         // 5. TREN PERTUMBUHAN: 7 hari terakhir vs 7 hari sebelumnya
         // Ini yang bikin laporan terasa "hidup" -> bisa deteksi naik/turun tanpa
         // pemilik toko harus baca grafik sendiri.
-        $omset7HariIni = Order::where('tenant_id', $tenantId)
-            ->where('created_at', '>=', now()->subDays(7))
+        $omset7HariIni = app(SalesDataset::class)->orders($tenantId)
+            ->whereRaw('COALESCE(sold_at, created_at) >= ?', [now()->subDays(7)])
             ->sum('grand_total');
 
-        $omset7HariSebelumnya = Order::where('tenant_id', $tenantId)
-            ->whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])
+        $omset7HariSebelumnya = app(SalesDataset::class)->orders($tenantId)
+            ->whereRaw('COALESCE(sold_at, created_at) >= ? AND COALESCE(sold_at, created_at) < ?', [now()->subDays(14), now()->subDays(7)])
             ->sum('grand_total');
 
         $growthPercent = $omset7HariSebelumnya > 0
@@ -121,7 +123,8 @@ class AiReportController extends Controller
             ->join('products as p2', 'oi2.product_id', '=', 'p2.id')
             ->join('orders', 'oi1.order_id', '=', 'orders.id')
             ->where('orders.tenant_id', $tenantId)
-            ->where('orders.created_at', '>=', now()->subDays(30))
+            ->where('orders.payment_status', 'paid')->where('orders.order_status', 'completed')
+            ->whereRaw('COALESCE(orders.sold_at, orders.created_at) >= ?', [now()->subDays(30)])
             ->select('p1.product_name as produk_a', 'p2.product_name as produk_b', DB::raw('COUNT(*) as frekuensi'))
             ->groupBy('p1.product_name', 'p2.product_name')
             ->orderBy('frekuensi', 'desc')
@@ -167,7 +170,7 @@ Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat
         // baru panggil Gemini. Hasil hanya disimpan ke cache kalau BERHASIL,
         // supaya kegagalan sementara (429/timeout) tidak "mengunci" fallback
         // selama 6 jam penuh.
-        $cacheKey = "ai_report_{$tenantId}_".now()->format('Y-m-d');
+        $cacheKey = "ai_report_v2_{$tenantId}_".now()->format('Y-m-d');
         $aiAnalysis = Cache::get($cacheKey);
 
         if (! $aiAnalysis) {
@@ -176,7 +179,7 @@ Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat
             ]);
 
             if ($aiAnalysis) {
-                Cache::put($cacheKey, $aiAnalysis, now()->addHours(6));
+                Cache::put($cacheKey, app(SafeReportHtml::class)->clean($aiAnalysis), now()->addHours(6));
             }
         }
 
@@ -185,13 +188,13 @@ Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat
             $kamusHari = ['Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu'];
             $hariIndoRamai = $kamusHari[$hariTeramai] ?? $hariTeramai;
             $hariIndoSepi = $kamusHari[$hariTersepi] ?? $hariTersepi;
-            $produkJuaraStr = $topProducts->first()->product_name ?? 'Produk Utama';
+            $produkJuaraStr = e($topProducts->first()->product_name ?? 'Produk Utama');
 
             // FIX BUG: pastikan produk pasangan bundling BEDA dari produk juara.
             // Sebelumnya kode lama bisa menyarankan "gabungkan Es Teh dengan Es Teh"
             // kalau kebetulan cuma ada 1 produk yang terjual di periode itu.
-            $produkSepiObj = $bottomProducts->first(fn ($p) => $p->product_name !== $produkJuaraStr);
-            $produkSepiStr = $produkSepiObj->product_name ?? null;
+            $produkSepiObj = $bottomProducts->first(fn ($p) => $p->product_name !== ($topProducts->first()->product_name ?? null));
+            $produkSepiStr = isset($produkSepiObj->product_name) ? e($produkSepiObj->product_name) : null;
 
             $disclaimerDataTipis = ! $dataCukup
                 ? "<div class='flex items-center gap-2 p-3 mb-4 text-xs text-blue-800 border border-blue-200 rounded-lg bg-blue-50'>
@@ -213,6 +216,9 @@ Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat
             $komboHtml = '<p>Belum ada pola kombinasi produk yang cukup jelas terdeteksi dari transaksi 30 hari terakhir. Pola ini akan mulai terlihat seiring bertambahnya jumlah struk.</p>';
             if ($comboPairs->isNotEmpty()) {
                 $itemsKombo = $comboPairs->map(function ($p) {
+                    $p->produk_a = e($p->produk_a);
+                    $p->produk_b = e($p->produk_b);
+
                     return "<li><strong>{$p->produk_a}</strong> + <strong>{$p->produk_b}</strong> — dibeli bersamaan sebanyak <strong>{$p->frekuensi}x</strong>. Pertimbangkan paket bundling resmi untuk kombinasi ini.</li>";
                 })->implode('');
                 $komboHtml = "<ul>{$itemsKombo}</ul>";
@@ -228,7 +234,7 @@ Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat
                 </div>
 
                 <h3>Rangkuman Eksekutif Finansial</h3>
-                <p>Berdasarkan performa 30 hari terakhir, <strong>".(auth()->user()->tenant->name ?? 'Toko Anda').'</strong> berhasil membukukan total omset sebesar <strong>Rp '.number_format($totalOmset, 0, ',', '.').'</strong> dari <strong>'.$totalTransaksi.' kali transaksi</strong>.</p>
+                <p>Berdasarkan performa 30 hari terakhir, <strong>".e(auth()->user()->tenant->name ?? 'Toko Anda').'</strong> berhasil membukukan total omset sebesar <strong>Rp '.number_format($totalOmset, 0, ',', '.').'</strong> dari <strong>'.$totalTransaksi.' kali transaksi</strong>.</p>
 
                 <table>
                     <thead>
@@ -275,6 +281,8 @@ Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat
         $kamusHari = ['Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu'];
         $hariTeramaiIndo = $kamusHari[$hariTeramai] ?? $hariTeramai;
         $produkJuara = $topProducts->first()->product_name ?? 'Belum Ada';
+
+        $aiAnalysis = app(SafeReportHtml::class)->clean($aiAnalysis);
 
         return view('reports.ai-analysis', compact(
             'aiAnalysis',
@@ -333,13 +341,13 @@ Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat
         $userMessage = $request->input('message');
         $history = $request->input('history', []);
 
-        $totalOmsetHariIni = Order::where('tenant_id', $tenantId)
-            ->whereDate('created_at', today())
+        $totalOmsetHariIni = app(SalesDataset::class)->orders($tenantId)
+            ->whereBetween(DB::raw('COALESCE(sold_at, created_at)'), [today(), today()->endOfDay()])
             ->where('payment_status', 'paid')
             ->sum('grand_total');
 
-        $totalNotaHariIni = Order::where('tenant_id', $tenantId)
-            ->whereDate('created_at', today())
+        $totalNotaHariIni = app(SalesDataset::class)->orders($tenantId)
+            ->whereBetween(DB::raw('COALESCE(sold_at, created_at)'), [today(), today()->endOfDay()])
             ->where('payment_status', 'paid')
             ->count();
 
@@ -347,7 +355,8 @@ Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat
             ->join('products', 'order_items.product_id', '=', 'products.id')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->where('orders.tenant_id', $tenantId)
-            ->where('orders.created_at', '>=', now()->subDays(30))
+            ->where('orders.payment_status', 'paid')->where('orders.order_status', 'completed')
+            ->whereRaw('COALESCE(orders.sold_at, orders.created_at) >= ?', [now()->subDays(30)])
             ->select('products.product_name', DB::raw('SUM(order_items.quantity) as qty'))
             ->groupBy('products.product_name')
             ->orderBy('qty', 'desc')
@@ -359,7 +368,8 @@ Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat
             ->join('products', 'order_items.product_id', '=', 'products.id')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->where('orders.tenant_id', $tenantId)
-            ->where('orders.created_at', '>=', now()->subDays(30))
+            ->where('orders.payment_status', 'paid')->where('orders.order_status', 'completed')
+            ->whereRaw('COALESCE(orders.sold_at, orders.created_at) >= ?', [now()->subDays(30)])
             ->select('products.product_name', DB::raw('SUM(order_items.quantity) as qty'))
             ->groupBy('products.product_name')
             ->orderBy('qty', 'asc')
@@ -492,10 +502,10 @@ Petunjuk Jawab:
                         return $text;
                     }
                 } else {
-                    Log::error("Gemini API {$model} Error Status: {$response->status()} Body: ".$response->body());
+                    Log::error('Gemini API request failed.', ['model' => $model, 'status' => $response->status()]);
                 }
             } catch (\Exception $e) {
-                Log::error("Gemini API {$model} Exception: ".$e->getMessage());
+                Log::error('Gemini API connection failed.', ['model' => $model, 'exception' => $e::class]);
             }
         }
 

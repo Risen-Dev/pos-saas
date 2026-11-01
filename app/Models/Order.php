@@ -13,8 +13,9 @@ class Order extends Model
     use BelongsToTenant, HasFactory;
 
     protected $fillable = [
+        'payment_reference', 'payment_verified_at', 'payment_verified_by',
         'payment_attention', 'service_due_at',
-        'points_awarded', 'cash_tracked', 'cancellation_reason', 'cancelled_by', 'cancelled_at',
+        'points_awarded', 'points_redeemed', 'loyalty_discount', 'cash_tracked', 'cancellation_reason', 'cancelled_by', 'cancelled_at',
         'tenant_id',
         'shift_id',
         'checkout_key', 'request_hash', 'qr_url', 'kitchen_status', 'sold_at',

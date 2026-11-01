@@ -10,6 +10,7 @@ class Invoice extends Model
     use HasFactory;
 
     protected $fillable = [
+        'activation_applied_at', 'duration_days',
         'tenant_id',
         'subscription_id',
         'plan_id',
@@ -21,6 +22,8 @@ class Invoice extends Model
         'paid_at',
         'due_date',
     ];
+
+    protected $casts = ['activation_applied_at' => 'datetime', 'paid_at' => 'datetime', 'duration_days' => 'integer'];
 
     /**
      * Relasi ke Plan / Paket yang dibeli

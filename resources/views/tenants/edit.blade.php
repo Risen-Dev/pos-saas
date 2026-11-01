@@ -60,20 +60,20 @@
 
                     <!-- Nama Toko Field (Height 44px, Radius-sm = 6px) -->
                     <div>
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                        <label for="field-name" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
                             Nama Bisnis / Outlet <span class="text-semantic-danger">*</span>
                         </label>
-                        <input type="text" name="name" value="{{ old('name', $tenant->name) }}"
+                        <input id="field-name" type="text" name="name" value="{{ old('name', $tenant->name) }}"
                             class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100"
                             required />
                     </div>
 
                     <!-- Tipe Bisnis Field -->
                     <div>
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                        <label for="field-business_type" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
                             Kategori / Jenis Bisnis <span class="text-semantic-danger">*</span>
                         </label>
-                        <select name="business_type" required
+                        <select id="field-business_type" name="business_type" required
                             class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
                             @foreach(\App\Support\BusinessProfile::TYPES as $value => $label)
 <option value="{{ $value }}" @selected(old('business_type', $tenant->businessType()) === $value)>{{ $label }}</option>
@@ -84,19 +84,19 @@
                     <!-- Email & Phone Grid -->
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
-                            <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                            <label for="field-email" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
                                 Email Bisnis <span class="text-semantic-danger">*</span>
                             </label>
-                            <input type="email" name="email" value="{{ old('email', $tenant->email) }}"
+                            <input id="field-email" type="email" name="email" value="{{ old('email', $tenant->email) }}"
                                 class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100"
                                 required />
                         </div>
 
                         <div>
-                            <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                            <label for="field-phone" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
                                 Nomor WhatsApp <span class="text-semantic-danger">*</span>
                             </label>
-                            <input type="text" name="phone" value="{{ old('phone', $tenant->phone) }}"
+                            <input id="field-phone" type="text" name="phone" value="{{ old('phone', $tenant->phone) }}"
                                 class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100"
                                 required />
                         </div>
@@ -104,10 +104,10 @@
 
                     <!-- Alamat Outlet -->
                     <div>
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                        <label for="field-address" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
                             Alamat Operasional Outlet <span class="text-semantic-danger">*</span>
                         </label>
-                        <textarea name="address" rows="3" required
+                        <textarea id="field-address" name="address" rows="3" required
                             class="w-full p-3 text-xs transition-all border rounded-sm outline-none font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100"
                             placeholder="Alamat lengkap outlet bisnis Anda...">{{ old('address', $tenant->address) }}</textarea>
                     </div>

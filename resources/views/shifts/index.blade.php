@@ -141,7 +141,7 @@
                 <div>
                     <p
                         class="font-mono text-xl md:text-2xl font-semibold {{ $totalDifference < 0 ? 'text-semantic-danger' : ($totalDifference > 0 ? 'text-accent-700' : 'text-ink-900') }}">
-                        {{ $totalDifference > 0 ? '+' : '' }}Rp {{ number_format($totalDifference, 0, ',', '.') }}
+                        {{ $totalDifference < 0 ? '-Rp ' . number_format(abs($totalDifference), 0, ',', '.') : '+Rp ' . number_format($totalDifference, 0, ',', '.') }}
                     </p>
                     <p class="font-body text-[11px] text-ink-400 mt-1">Kecocokan fisik vs sistem</p>
                 </div>
@@ -301,7 +301,7 @@
                                             shift</p>
                                         <p class="font-body text-xs text-ink-700 mt-0.5 max-w-xs">
                                             Sesi operasional kasir baru akan dicatat setiap kali staf membuka shift di
-                                            POS Terminal.
+                                            Kasir.
                                         </p>
                                     </div>
                                 </td>

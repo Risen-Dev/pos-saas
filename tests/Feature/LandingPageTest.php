@@ -14,7 +14,7 @@ class LandingPageTest extends TestCase
 
     public function test_public_content_is_rendered_without_waiting_for_javascript(): void
     {
-        $response = $this->get('/')->assertOk()->assertSee('Jual barang.')->assertSee('Paket belum tersedia.');
+        $response = $this->get('/')->assertOk()->assertSee('Bisnis jalan.')->assertSee('Paket belum tersedia.');
         $dom = new DOMDocument;
         @$dom->loadHTML($response->getContent());
         $xpath = new DOMXPath($dom);

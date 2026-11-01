@@ -1,0 +1,442 @@
+[
+  {
+    "headings": [
+      "Daftar Produk & Stok"
+    ],
+    "mainText": "Kuota Katalog Produk (Paket Growth)\n\nTerpakai 4 dari maksimal 1000 produk terdaftar.\n\nDaftar Produk & Stok\n\nKelola item jualan, harga, varian produk, dan ketersediaan stok fisik di kasir.\n\nTambah Produk Baru\nTOTAL ITEM PRODUK\n\n4\n\nSTOK AMAN / UNLIMITED\n\n4\n\nSTOK MENIPIS / HABIS\n\n0\n\nDETAIL PRODUK & SKU\tKATEGORI\tHARGA JUAL\tSTATUS STOK\tAKSI\n\nAI\nAir Mineral QA\nSKU: QA-AIR-001\n\tBarang QA\tRp 5.000\t100 Unit\t\n\n\nBE\nBeras Premium QA\nSKU: QA-BERAS-001\n\tSembako QA\tRp 15.000\t18,5 Unit\t\n\n\nKO\nKopi Sachet QA\nSKU: QA-KOPI-001\n\tBarang QA\tRp 2.500\t200 Unit\t\n\n\nJA\nJasa Cuci Sepatu QA\nSKU: QA-JASA-001\n\tJasa QA\tRp 35.000\tLayanan / Jasa\t",
+    "path": "/products",
+    "title": "GrowPOS - Inventaris Produk",
+    "visibleInputs": []
+  },
+  {
+    "headings": [
+      "Tambah Produk Baru",
+      "Satuan, kemasan & harga grosir"
+    ],
+    "mainText": "Kembali ke Inventaris Produk\nTambah Produk Baru\n\nLengkapi rincian informasi barang, SKU, harga modal & jual, serta pengaturan stok.\n\n01\nInformasi Utama Produk\nFoto Produk (Opsional)\n\nKlik atau drag foto produk ke sini\n\nFormat PNG, JPG max 2MB\n\nNama Produk *\nKategori *\nPilih Kategori\nBarang QA\nJasa QA\nSembako QA\nTipe Produk\nBarang Fisik (Stok Dihitung)\nJasa / Layanan (Non-Stok)\nBarcode barang (opsional, terpisah dari SKU)\nKode SKU\nGenerate\n02\nHarga & Inventaris Stok\nHarga Modal (HPP)\nHarga Jual *\nLacak Ketersediaan Stok\n\nNonaktifkan jika barang diproduksi langsung saat ada pesanan.\n\nJumlah Stok Awal\nBatas Minimum Warning\nSatuan, kemasan & harg",
+    "path": "/products/create",
+    "title": "GrowPOS - Tambah Produk Baru",
+    "visibleInputs": [
+      {
+        "aria": null,
+        "label": 0,
+        "name": "product_name",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 0,
+        "name": "category_id",
+        "type": "select-one"
+      },
+      {
+        "aria": null,
+        "label": 0,
+        "name": "type",
+        "type": "select-one"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "barcode",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 0,
+        "name": "sku",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 0,
+        "name": "",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 0,
+        "name": "",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "manage_stock",
+        "type": "checkbox"
+      },
+      {
+        "aria": null,
+        "label": 0,
+        "name": "stock",
+        "type": "number"
+      },
+      {
+        "aria": null,
+        "label": 0,
+        "name": "min_stock",
+        "type": "number"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "base_unit",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "allow_fraction",
+        "type": "checkbox"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "is_active",
+        "type": "checkbox"
+      }
+    ]
+  },
+  {
+    "headings": [
+      "Manajemen Pelanggan / CRM"
+    ],
+    "mainText": "Manajemen Pelanggan / CRM\n\nKelola basis data pelanggan, program poin loyalty, dan catatan piutang (bon) usaha Anda.\n\nRegistrasi Pelanggan\nTOTAL PELANGGAN TERDAFTAR\n\n1\n\nTOTAL PIUTANG PELANGGAN (BON)\n\nRp 0\n\nPELANGGAN & WHATSAPP\tTIER STATUS\tPOIN LOYALTY\tTOTAL HUTANG / BON\tAKSI\n\nC\nCustomer Testing QA\n 081299999999\n\t\nMember\t100 pts\tRp 0\t",
+    "path": "/customers",
+    "title": "GrowPOS - Manajemen Pelanggan & CRM",
+    "visibleInputs": []
+  },
+  {
+    "headings": [
+      "Laporan Operasional",
+      "Arus Kas Tunai Periode Ini"
+    ],
+    "mainText": "Laporan Operasional\n\nPantau seluruh performa omzet penjualan, HPP, estimasi laba sebelum retur/biaya, komisi platform, dan audit laci kasir secara langsung.\n\nS/D\nFilter\nLaci Unduhan\nExport Excel\nArus Kas Tunai Periode Ini\n\nPencatatan aktual berdasarkan waktu penerimaan & pengeluaran uang.\n\nPeriksa Buku Kas\nPenerimaan\nRp 22.500\nRefund\nRp 0\nPengeluaran\nRp 0\nPerubahan Kas\nRp 22.500\n\nPenjualan lunas di atas mengikuti tanggal transaksi dan belum dikurangi retur. Bon, pajak, refund, dan biaya operasional harus diverifikasi sebelum menyimpulkan laba bersih.\n\nPENDAPATAN OMZET\n\nRp 22.500\n\nPenjualan lunas termasuk pajak, setelah estimasi komisi; sebelu",
+    "path": "/reports",
+    "title": "GrowPOS - Laporan Operasional Toko",
+    "visibleInputs": [
+      {
+        "aria": null,
+        "label": 0,
+        "name": "start_date",
+        "type": "date"
+      },
+      {
+        "aria": null,
+        "label": 0,
+        "name": "end_date",
+        "type": "date"
+      }
+    ]
+  },
+  {
+    "headings": [
+      "Buat Purchase Order"
+    ],
+    "mainText": "Buat Purchase Order\n\nHarga beli akan dipakai untuk memperbarui HPP rata-rata saat barang diterima.\n\nSupplier\nPilih supplier\nPerkiraan tiba\nPilih produk\nAir Mineral QA · pcs\nBeras Premium QA · kg\nKopi Sachet QA · pcs\n×\n+ Tambah baris\nSimpan Purchase Order",
+    "path": "/purchases/create",
+    "title": "GrowPOS - SaaS POS UMKM",
+    "visibleInputs": [
+      {
+        "aria": null,
+        "label": 1,
+        "name": "supplier_id",
+        "type": "select-one"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "expected_at",
+        "type": "date"
+      },
+      {
+        "aria": null,
+        "label": 0,
+        "name": "items[0][product_id]",
+        "type": "select-one"
+      },
+      {
+        "aria": null,
+        "label": 0,
+        "name": "items[0][quantity]",
+        "type": "number"
+      },
+      {
+        "aria": null,
+        "label": 0,
+        "name": "items[0][unit_cost]",
+        "type": "number"
+      },
+      {
+        "aria": null,
+        "label": 0,
+        "name": "note",
+        "type": "textarea"
+      }
+    ]
+  },
+  {
+    "headings": [
+      "Stock Opname"
+    ],
+    "mainText": "Stock Opname\n\nBandingkan stok sistem dengan hitung fisik.\n\nMulai Stock Opname\nNomor\tStatus\tSelesai\nBelum ada stock opname.",
+    "path": "/stocktakes",
+    "title": "GrowPOS - SaaS POS UMKM",
+    "visibleInputs": []
+  },
+  {
+    "headings": [
+      "Pilihan produk dan layanan.",
+      "Varian / ukuran",
+      "Topping / tambahan",
+      "Varian / ukuran",
+      "Topping / tambahan",
+      "Varian / ukuran",
+      "Topping / tambahan",
+      "Varian / ukuran",
+      "Topping / tambahan"
+    ],
+    "mainText": "PENGATURAN KATALOG\nPilihan produk dan layanan.\n\nVarian memakai harga dan stoknya sendiri. Topping menambah harga. Resep dasar dipakai untuk setiap porsi, termasuk varian; gunakan satuan kecil seperti gram atau ml.\n\nTambah item\nImpor / ekspor item\nCari item\nCari\nAir Mineral QARp 5.000 · 0 varian · 0 topping\nBeras Premium QARp 15.000 · 0 varian · 0 topping\nJasa Cuci Sepatu QARp 35.000 · 0 varian · 0 topping\nKopi Sachet QARp 2.500 · 0 varian · 0 topping",
+    "path": "/menu/configure",
+    "title": "GrowPOS - Varian & pilihan",
+    "visibleInputs": [
+      {
+        "aria": null,
+        "label": 1,
+        "name": "search",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "name",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "price",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "stock",
+        "type": "number"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "name",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "price",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "cost",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "name",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "price",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "stock",
+        "type": "number"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "name",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "price",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "cost",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "name",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "price",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "stock",
+        "type": "number"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "name",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "price",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "cost",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "name",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "price",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "stock",
+        "type": "number"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "name",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "price",
+        "type": "text"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "cost",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "headings": [
+      "Manajemen Pegawai & Akses"
+    ],
+    "mainText": "Kuota Pegawai & Kasir (Paket Growth)\n\nMendaftarkan 3 dari maksimal 5 pengguna/kasir toko.\n\nManajemen Pegawai & Akses\n\nKelola akun tim operasional toko, pendaftaran kasir baru, dan kewenangan akses manajer.\n\nTambah Pegawai Baru\nTOTAL ANGGOTA TIM\n\n3\n\nKASIR OPERASIONAL\n\n1\n\nMANAJER & ADMIN\n\n2\n\nNAMA LENGKAP\tEMAIL LOGIN\tHAK AKSES (ROLE)\tTANGGAL BERGABUNG\tAKSI\n\nOw\nOwner QA GrowPOS\nSesi Anda\n\tqa.owner@growpos.test\tOwner / Admin\t25 Oct 2026\t—\n\nKa\nKasir QA GrowPOS\n\tqa.cashier@growpos.test\tKasir Store\t25 Oct 2026\t\nHapus Akses\n\n\nJu\nJustyn O'Hara PhD\n\tqa.manager@growpos.test\tManager\t25 Oct 2026\t\nHapus Akses",
+    "path": "/employees",
+    "title": "GrowPOS - Manajemen Pegawai & Akses",
+    "visibleInputs": []
+  },
+  {
+    "headings": [
+      "Sistem Pengaturan Toko"
+    ],
+    "mainText": "Sistem Pengaturan Toko\n\nAtur konfigurasi Pajak Restoran (PB1/PPN), kalkulasi poin loyalitas pelanggan, dan kebijakan operasional outlet.\n\nKonfigurasi Pajak Restoran / PPN\nAktifkan Pajak Otomatis\n\nJika diaktifkan, kalkulasi total belanja di POS Terminal otomatis menambahkan tarif pajak.\n\nTarif Persentase Pajak (%)\n%\nKonfigurasi Poin Loyalitas Pelanggan (CRM)\nSkema Perhitungan Poin\nNonaktifkan Poin Loyalitas\nKelipatan Total Belanja (Rekomendasi)\nPoin Tetap Per Transaksi Nota\nPersentase dari Total Belanja\nNilai Aturan Poin\n\nPoin loyalitas pelanggan saat ini dalam posisi nonaktif.\n\nHanya berikan poin transaksi kepada pelanggan berstatus \"Member A",
+    "path": "/settings",
+    "title": "GrowPOS - Sistem Pengaturan",
+    "visibleInputs": [
+      {
+        "aria": null,
+        "label": 1,
+        "name": "tax_active",
+        "type": "checkbox"
+      },
+      {
+        "aria": null,
+        "label": 0,
+        "name": "tax_percentage",
+        "type": "number"
+      },
+      {
+        "aria": null,
+        "label": 0,
+        "name": "point_mode",
+        "type": "select-one"
+      },
+      {
+        "aria": null,
+        "label": 0,
+        "name": "point_rule_value",
+        "type": "number"
+      },
+      {
+        "aria": null,
+        "label": 1,
+        "name": "point_member_only",
+        "type": "checkbox"
+      }
+    ]
+  },
+  {
+    "headings": [
+      "Langganan & Penagihan",
+      "Status Berlangganan Toko Saat Ini",
+      "Pilih Paket Pertumbuhan Bisnis"
+    ],
+    "mainText": "Langganan & Penagihan\n\nKelola paket berlangganan toko Anda untuk menikmati seluruh fitur operasional GrowPOS.\n\nStatus Berlangganan Toko Saat Ini\nPAKET AKTIF\n\nGrowth\n\nSTATUS LAYANAN\nAktif Berjalan\nBERLAKU SAMPAI\n\n25 October 2027 (00:00)\n(Sisa 364 Hari)\n\nPilih Paket Pertumbuhan Bisnis\n\nKlik paket di bawah untuk melihat rincian limit & mengaktifkan layanan.\n\nStarter\n\nCocok untuk pedagang kaki lima & UMKM baru.\n\nRp 0\n/ 30 Hari\nMaksimal 1 Kasir / Karyawan\nMaksimal 100 SKU Produk\nMaksimal 1 Outlet Toko\nLihat Detail Paket\n PAKET ANDA SAAT INI\nGrowth\n\nUntuk toko yang mulai berkembang pesat.\n\nRp 149.000\n/ 30 Hari\nMaksimal 5 Kasir / Karyawan\nMaksimal 1",
+    "path": "/billing",
+    "title": "GrowPOS - Langganan & Penagihan",
+    "visibleInputs": []
+  },
+  {
+    "headings": [
+      "Pengerjaan Jasa"
+    ],
+    "mainText": "LAYANAN PELANGGAN\nPengerjaan Jasa\n\nTetapkan petugas, estimasi selesai, dan progres setiap order jasa. Status pengerjaan tidak mengubah status pembayaran.\n\nTransaksi Baru\nMenunggu\nDikerjakan\nSiap Diserahkan\nSelesai\n\nBelum ada pekerjaan menunggu\n\nOrder jasa dengan status ini akan muncul di sini.",
+    "path": "/services",
+    "title": "GrowPOS - Pengerjaan Jasa",
+    "visibleInputs": []
+  },
+  {
+    "headings": [
+      "Manajemen Stok"
+    ],
+    "mainText": "Manajemen Stok\n\nPantau ketersediaan barang di gudang Anda.\n\nRiwayat Mutasi\nPRODUK\tSTOK SAAT INI\tSTATUS\tAKSI\n\n\nAir Mineral QA\n\nSKU: QA-AIR-001\n\n\t100\tAMAN\tUpdate Stok\n\n\nBeras Premium QA\n\nSKU: QA-BERAS-001\n\n\t18,5\tAMAN\tUpdate Stok\n\n\nKopi Sachet QA\n\nSKU: QA-KOPI-001\n\n\t200\tAMAN\tUpdate Stok",
+    "path": "/inventory",
+    "title": "GrowPOS - SaaS POS UMKM",
+    "visibleInputs": []
+  },
+  {
+    "headings": [
+      "Bahan Baku & Inventori"
+    ],
+    "mainText": "Bahan Baku & Inventori\n\nKelola ketersediaan stok bahan mentah, resep porsi, perlengkapan toko, dan mutasi dari supplier.\n\nTambah Bahan Baku\nTOTAL JENIS BAHAN\n\n0\n\nSTOK AMAN OPERASIONAL\n\n0\n\nSTOK KRITIS / PERLU BELANJA\n\n0\n\nBAHAN BAKU & SKU\tSTOK FISIK SAAT INI\tMIN. STOK WARNING\tSTATUS KEAMANAN\tAKSI MANAJEMEN\n\n\nBelum ada bahan baku terdaftar\n\nDaftarkan inventori bahan baku untuk mengontrol penggunaan stok dan porsi resep outlet.",
+    "path": "/materials",
+    "title": "GrowPOS - Bahan Baku & Inventori",
+    "visibleInputs": []
+  }
+]

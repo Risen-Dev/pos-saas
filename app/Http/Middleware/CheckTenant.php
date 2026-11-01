@@ -25,7 +25,7 @@ class CheckTenant
             }
 
             // 2. Jika email SUDAH diverifikasi tapi belum punya tenant
-            if (auth()->user()->tenant_id === null) {
+            if (auth()->user()->tenant_id === null || ! auth()->user()->tenant) {
                 if (! $request->routeIs('tenants.*') && ! $request->is('logout')) {
                     return redirect()->route('tenants.create');
                 }

@@ -1,0 +1,32 @@
+
+> test
+> node --test tests/js/*.test.js
+
+✔ currency helpers import without a browser and keep numeric payloads (12.868791ms)
+✔ late module initialization does not miss DOM readiness (0.88325ms)
+✔ early module waits for DOM readiness with a one-time listener (0.108167ms)
+✔ network failure preserves the original payload and stops automatic sync (0.955208ms)
+✔ stock conflict stays visible while other cash orders sync; QR is never charged in background (0.485792ms)
+✔ paid QR replay opens receipt, pending QR remains recoverable without duplicates (0.120417ms)
+✔ payment confirmation removes recovered QR from waiting list (0.139708ms)
+✔ barcode scan selects an exact item and refuses ambiguous codes (0.187584ms)
+✔ cashier filters goods and services without changing the catalog (0.130084ms)
+✔ unconfirmed QR without an image never opens the paid receipt (0.084042ms)
+✔ wholesale savings compare the same addons on normal and bulk prices (0.236292ms)
+✔ credit sale records debt without collecting cash and retains its checkout reference (3.048875ms)
+✔ credit sale requires a customer and CRM entitlement before any request (0.303167ms)
+✔ customer lookup ignores stale responses and keeps current selection in query (0.224708ms)
+✔ same checkout reference is queued only once (0.588875ms)
+✔ variant price and addons use catalog prices (0.537625ms)
+✔ pending payload survives persistence without changing reference (0.776042ms)
+✔ package unit converts stock factor while keeping package price (0.217083ms)
+✔ highest matching wholesale tier is selected (0.245417ms)
+✔ fractional quantity totals are rounded to whole rupiah (0.142125ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 65.663125

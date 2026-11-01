@@ -5,16 +5,18 @@
     "scripts": {
         "build": "vite build && npm run build:mail",
         "dev": "vite",
-        "format": "prettier --write \"resources/js/**/*.js\" \"resources/css/**/*.css\" \"tests/js/**/*.js\"",
-        "format:check": "prettier --check \"resources/js/**/*.js\" \"resources/css/**/*.css\" \"tests/js/**/*.js\"",
+        "format": "prettier --write \"resources/js/**/*.js\" \"resources/css/**/*.css\" \"tests/js/**/*.js\" \"tests/e2e/**/*.js\" \"playwright.config.js\"",
+        "format:check": "prettier --check \"resources/js/**/*.js\" \"resources/css/**/*.css\" \"tests/js/**/*.js\" \"tests/e2e/**/*.js\" \"playwright.config.js\"",
         "test": "node --test tests/js/*.test.js",
         "build:mail": "tailwindcss -c tailwind.mail.config.js -i resources/css/mail.css -o public/build/mail.css --minify",
-        "build:icons": "node scripts/build-icons.mjs"
+        "build:icons": "node scripts/build-icons.mjs",
+        "test:e2e": "playwright test"
     },
     "devDependencies": {
         "@fortawesome/free-brands-svg-icons": "^6.5.1",
         "@fortawesome/free-regular-svg-icons": "^6.5.1",
         "@fortawesome/free-solid-svg-icons": "^6.5.1",
+        "@playwright/test": "^1.64.1",
         "@tailwindcss/forms": "^0.5.2",
         "alpinejs": "^3.15.12",
         "autoprefixer": "^10.4.2",
@@ -26,6 +28,10 @@
         "vite": "^8.0.0"
     },
     "dependencies": {
-        "axios": "^1.16.0"
+        "axios": "^1.16.0",
+        "chart.js": "^4.5.1"
+    },
+    "overrides": {
+        "postcss-selector-parser": "^7.1.6"
     }
 }

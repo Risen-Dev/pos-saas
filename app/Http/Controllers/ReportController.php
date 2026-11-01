@@ -6,9 +6,11 @@ use App\Jobs\ExportReportJob;
 use App\Models\Order;
 use App\Models\ReportExport;
 use App\Models\Shift;
+use App\Services\BusinessOverview;
 use App\Services\CashPeriodSummary;
 use App\Services\GeminiService;
 // Tambahkan import service AI Anda
+use App\Services\SalesDataset;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -32,14 +34,12 @@ class ReportController extends Controller
         $endDate = $request->end_date ?? now()->endOfMonth()->toDateString();
 
         // 1. Query Dasar Order Lunas
-        $ordersQuery = Order::where('tenant_id', $tenantId)
-            ->where('payment_status', 'paid')->where('order_status', 'completed')
-            ->whereBetween(DB::raw('COALESCE(sold_at, created_at)'), [$startDate.' 00:00:00', $endDate.' 23:59:59']);
+        $ordersQuery = app(SalesDataset::class)->between($tenantId, $startDate.' 00:00:00', $endDate.' 23:59:59');
 
         // 2. Sales Summary (Total Transaksi, Net Sales, Diskon, Pajak)
         $salesSummary = (object) [
             'total_gross' => (float) $ordersQuery->sum('subtotal'),
-            'total_discount' => (float) $ordersQuery->sum('discount'),
+            'total_discount' => (float) (clone $ordersQuery)->selectRaw('SUM(discount + loyalty_discount) as total')->value('total'),
             'total_tax' => (float) $ordersQuery->sum('tax'),
             'total_net' => (float) $ordersQuery->sum('grand_total'),
             'total_transactions' => $ordersQuery->count(),
@@ -55,7 +55,8 @@ class ReportController extends Controller
             ->get();
 
         // Unknown historic costs stay unknown; current catalog prices never rewrite history.
-        $costItems = DB::table('order_items')->whereIn('order_id', (clone $ordersQuery)->select('id'));
+        $costOrderIds = app(SalesDataset::class)->between($tenantId, $startDate.' 00:00:00', $endDate.' 23:59:59')->select('id');
+        $costItems = DB::table('order_items')->whereIn('order_id', $costOrderIds);
         $missingCosts = (clone $costItems)->whereNull('unit_cost')->count();
         $totalHpp = $missingCosts ? null : (float) (clone $costItems)->selectRaw('SUM(quantity * unit_cost) as cost')->value('cost');
         $totalPlatformFee = (float) $paymentMethods->sum('platform_fee');
@@ -99,7 +100,9 @@ class ReportController extends Controller
 
         $cashSummary = app(CashPeriodSummary::class)->forTenant($tenantId, Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay());
 
-        return view('reports.index', compact(
+        $overview = app(BusinessOverview::class)->forTenant($tenantId, Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay());
+
+        return view('reports.index', compact('overview',
             'cashSummary', 'missingCosts', 'totalPlatformFee', 'storeNetSales', 'revenueBeforeTax',
             'startDate',
             'endDate',

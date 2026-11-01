@@ -9,7 +9,7 @@
                 Kategori Produk
             </h1>
             <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
-                Kelola pengelompokan menu & item barang untuk mempercepat navigasi pencarian di POS Terminal.
+                Kelola pengelompokan menu & item barang untuk mempercepat navigasi pencarian di Kasir.
             </p>
         </div>
 
@@ -30,10 +30,10 @@
                     <form action="{{ route('categories.store') }}" method="POST" class="space-y-4">
                         @csrf
                         <div>
-                            <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                            <label for="field-name" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
                                 Nama Kategori <span class="text-semantic-danger">*</span>
                             </label>
-                            <input type="text" name="name" placeholder="Contoh: Minuman Dingin, Espresso" required
+                            <input id="field-name" type="text" name="name" placeholder="Contoh: Minuman Dingin, Espresso" required
                                 class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
                         </div>
 
@@ -135,7 +135,7 @@
         </div>
 
         <!-- Modal Confirm Hapus Kategori -->
-        <div x-show="showDeleteModal" x-cloak x-transition:enter="transition ease-out duration-200"
+        <div data-dialog x-show="showDeleteModal" x-cloak x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"

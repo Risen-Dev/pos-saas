@@ -11,7 +11,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Str;
-use Maatwebsite\Excel\Facades\Excel;
 
 class ExportReportJob implements ShouldQueue
 {
@@ -48,7 +47,7 @@ class ExportReportJob implements ShouldQueue
         // The tenant is captured when requested, never inferred from a user's current outlet.
         $fileName = 'exports/'.$reportExport->tenant_id.'/'.Str::uuid().'.xlsx';
         $description = 'Ringkasan berdasarkan transaksi lunas. Analisis AI tidak dijalankan otomatis.';
-        Excel::store(new OrdersReportExport($this->startDate, $this->endDate, $description, $reportExport->tenant_id), $fileName, 'local');
+        (new OrdersReportExport($this->startDate, $this->endDate, $description, $reportExport->tenant_id))->store($fileName);
 
         // 5. Perbarui status menjadi completed dan pasang path file untuk diunduh
         $reportExport->update([

@@ -4,10 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Invoice;
 use App\Models\Order;
-use App\Models\Subscription;
+use App\Services\BillingPaymentService;
 use App\Services\OrderPaymentService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
@@ -31,7 +30,6 @@ class PaymentCallbackController extends Controller
             $statusCode = $request->input('status_code');
             $grossAmount = $request->input('gross_amount');
             $inputSignature = $request->input('signature_key');
-            $paymentType = $request->input('payment_type');
 
             Log::info("Webhook Masuk - Order ID: {$orderId} | Status: {$transactionStatus} | Code: {$statusCode}");
 
@@ -52,78 +50,21 @@ class PaymentCallbackController extends Controller
                 ], 403);
             }
 
-            // 4. BUNGKUS TRANSAKSI DATABASE (Cegah Race Condition)
-            $response = DB::transaction(function () use ($orderId, $transactionStatus, $grossAmount, $paymentType, $request) {
+            // Services acquire locks in the same tenant-first order as checkout.
+            $order = Order::withoutGlobalScopes()->where('invoice_number', $orderId)->first();
+            if ($order) {
+                app(OrderPaymentService::class)->apply($order->id, $request->all());
 
-                // -------------------------------------------------------------------------
-                // A. SKENARIO 1: PEMBAYARAN ORDER TRANSAKSI POS KASIR
-                // -------------------------------------------------------------------------
-                $order = Order::withoutGlobalScopes()->where('invoice_number', $orderId)->lockForUpdate()->first();
+                return response()->json(['status' => 'success', 'message' => 'Callback POS diproses']);
+            }
+            $invoice = Invoice::where('invoice_number', $orderId)->first();
+            if ($invoice) {
+                app(BillingPaymentService::class)->apply($invoice->id, $request->all());
 
-                if ($order) {
-                    app(OrderPaymentService::class)->apply($order->id, $request->all());
+                return response()->json(['status' => 'success', 'message' => 'Callback billing diproses']);
+            }
 
-                    return response()->json(['status' => 'success', 'message' => 'Callback POS Order diproses'], 200);
-                }
-
-                // -------------------------------------------------------------------------
-                // B. SKENARIO 2: PEMBAYARAN INVOICE BILLING SAAS (LANGGANAN TENANT)
-                // -------------------------------------------------------------------------
-                $invoice = Invoice::withoutGlobalScopes()->where('invoice_number', $orderId)->lockForUpdate()->first();
-
-                if ($invoice) {
-                    if (! is_numeric($grossAmount) || round((float) $grossAmount, 2) !== round((float) $invoice->amount, 2)) {
-                        throw ValidationException::withMessages(['payment' => 'Nominal invoice tidak sesuai.']);
-                    }
-                    if ($transactionStatus === 'settlement' || ($transactionStatus === 'capture' && $request->input('fraud_status') === 'accept')) {
-                        if ($invoice->status !== 'paid') {
-                            $invoice->update([
-                                'status' => 'paid',
-                                'paid_at' => now(),
-                                'payment_method' => $paymentType,
-                            ]);
-
-                            // Aktifkan / Perpanjang Subscription Tenant
-                            $subscription = Subscription::withoutGlobalScopes()->where('id', $invoice->subscription_id)->first();
-                            if ($subscription) {
-                                $plan = $subscription->plan;
-                                $startDate = now();
-                                $endDate = now()->addDays($plan->duration_days ?? 30);
-
-                                $subscription->update([
-                                    'status' => 'active',
-                                    'start_date' => $startDate,
-                                    'end_date' => $endDate,
-                                ]);
-
-                                // Aktifkan tenant
-                                if ($subscription->tenant) {
-                                    $subscription->tenant->update(['status' => 'active']);
-                                }
-                            }
-
-                            Log::info("Invoice SaaS Billing {$orderId} BERHASIL LUNAS. Langganan aktif hingga ".($endDate ?? ''));
-                        }
-                    } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
-                        if ($invoice->status !== 'paid') {
-                            $invoice->update(['status' => 'failed']);
-                            Log::info("Invoice SaaS Billing {$orderId} dibatalkan/expired.");
-                        }
-                    }
-
-                    return response()->json(['status' => 'success', 'message' => 'Callback SaaS Billing diproses'], 200);
-                }
-
-                // Jika Invoice tidak ditemukan baik di tabel Order maupun Invoice
-                Log::warning("Invoice {$orderId} tidak ditemukan di tabel Order maupun Invoice Billing.");
-
-                return response()->json([
-                    'status' => 'retry',
-                    'message' => 'Order/Invoice belum tersedia. Kirim ulang notifikasi.',
-                ], 503);
-            }, 3);
-
-            return $response;
+            return response()->json(['status' => 'retry', 'message' => 'Invoice belum tersedia. Kirim ulang notifikasi.'], 503);
         } catch (ValidationException $e) {
             return response()->json(['status' => 'error', 'message' => 'Data pembayaran tidak sesuai.'], 422);
         } catch (\Throwable $e) {

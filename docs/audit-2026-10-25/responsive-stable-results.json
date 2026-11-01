@@ -1,0 +1,135 @@
+[
+  {
+    "mainScrollWidth": 327,
+    "mainWidth": 314,
+    "page": "/reports",
+    "scrollWidth": 320,
+    "width": 320
+  },
+  {
+    "mainScrollWidth": 369,
+    "mainWidth": 369,
+    "page": "/reports",
+    "scrollWidth": 375,
+    "width": 375
+  },
+  {
+    "mainScrollWidth": 384,
+    "mainWidth": 384,
+    "page": "/reports",
+    "scrollWidth": 390,
+    "width": 390
+  },
+  {
+    "mainScrollWidth": 762,
+    "mainWidth": 762,
+    "page": "/reports",
+    "scrollWidth": 768,
+    "width": 768
+  },
+  {
+    "mainScrollWidth": 758,
+    "mainWidth": 758,
+    "page": "/reports",
+    "scrollWidth": 1024,
+    "width": 1024
+  },
+  {
+    "mainScrollWidth": 1174,
+    "mainWidth": 1174,
+    "page": "/reports",
+    "scrollWidth": 1440,
+    "width": 1440
+  },
+  {
+    "mainScrollWidth": 1654,
+    "mainWidth": 1654,
+    "page": "/reports",
+    "scrollWidth": 1920,
+    "width": 1920
+  },
+  {
+    "lang": "en",
+    "page": "/",
+    "scrollWidth": 320,
+    "width": 320
+  },
+  {
+    "lang": "en",
+    "page": "/",
+    "scrollWidth": 375,
+    "width": 375
+  },
+  {
+    "lang": "en",
+    "page": "/",
+    "scrollWidth": 390,
+    "width": 390
+  },
+  {
+    "lang": "en",
+    "page": "/",
+    "scrollWidth": 768,
+    "width": 768
+  },
+  {
+    "lang": "en",
+    "page": "/",
+    "scrollWidth": 1024,
+    "width": 1024
+  },
+  {
+    "lang": "en",
+    "page": "/",
+    "scrollWidth": 1440,
+    "width": 1440
+  },
+  {
+    "lang": "en",
+    "page": "/",
+    "scrollWidth": 1920,
+    "width": 1920
+  },
+  {
+    "lang": "en",
+    "page": "/login",
+    "scrollWidth": 320,
+    "width": 320
+  },
+  {
+    "lang": "en",
+    "page": "/login",
+    "scrollWidth": 375,
+    "width": 375
+  },
+  {
+    "lang": "en",
+    "page": "/login",
+    "scrollWidth": 390,
+    "width": 390
+  },
+  {
+    "lang": "en",
+    "page": "/login",
+    "scrollWidth": 768,
+    "width": 768
+  },
+  {
+    "lang": "en",
+    "page": "/login",
+    "scrollWidth": 1024,
+    "width": 1024
+  },
+  {
+    "lang": "en",
+    "page": "/login",
+    "scrollWidth": 1440,
+    "width": 1440
+  },
+  {
+    "lang": "en",
+    "page": "/login",
+    "scrollWidth": 1920,
+    "width": 1920
+  }
+]

@@ -79,11 +79,11 @@
                             <tr>
                                 <td class="p-4">
                                     <p class="text-sm font-bold text-primary-900">
-                                        Langganan GrowPOS — {{ $invoice->subscription->plan->name ?? 'Paket SaaS' }}
+                                        Langganan GrowPOS — {{ $invoice->plan?->name ?? $invoice->subscription?->plan?->name ?? 'Paket SaaS' }}
                                     </p>
                                 </td>
                                 <td class="p-4 font-semibold text-center">
-                                    {{ $invoice->subscription->plan->duration_days ?? 30 }} Hari
+                                    {{ $invoice->duration_days ?? $invoice->plan?->duration_days ?? 30 }} Hari
                                 </td>
                                 <td class="p-4 text-sm font-bold text-right">
                                     Rp {{ number_format($invoice->amount, 0, ',', '.') }}
@@ -112,7 +112,7 @@
                                 Gagal memuat metode pembayaran. Silakan refresh halaman.
                             </div>
                         @endif
-                    @else
+                    @elseif ($invoice->status === 'paid' && $invoice->subscription_id)
                         <div class="w-full p-4 border bg-emerald-50 text-emerald-800 rounded-xl border-emerald-200">
                             <x-icon class="mb-2 text-3xl fa-solid fa-circle-check text-emerald-600" />
                             <p class="text-sm font-bold">Pembayaran Berhasil / Lunas</p>
@@ -121,6 +121,10 @@
                                 Kembali ke Dashboard
                             </a>
                         </div>
+                    @elseif ($invoice->status === 'paid')
+                        <div role="status" class="w-full p-4 border rounded-xl bg-amber-50 border-amber-200 text-amber-900">Pembayaran diterima. Aktivasi paket sedang diperiksa; jangan membayar ulang. <button id="btnCheckStatus" onclick="checkInvoiceStatus()" class="block mt-3 font-semibold underline">Periksa aktivasi</button></div>
+                    @else
+                        <div role="status" class="w-full p-4 border rounded-xl bg-red-50 border-red-200 text-red-800">Tagihan {{ $invoice->status === 'expired' ? 'kedaluwarsa' : 'dibatalkan atau gagal' }}. Jika saldo sudah terpotong, periksa status sebelum membuat tagihan baru. <button id="btnCheckStatus" onclick="checkInvoiceStatus()" class="block mt-3 font-semibold underline">Periksa pembayaran</button></div>
                     @endif
                 </div>
 
@@ -132,7 +136,7 @@
         <script
             src="{{ config('services.midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
             data-client-key="{{ config('services.midtrans.client_key') }}"></script>
-
+    @endif
         <script>
             const snapToken = @json($invoice->snap_token);
             let pollInterval = null;
@@ -171,9 +175,13 @@
                 }
 
                 try {
-                    const response = await fetch("{{ route('billing.check-status', $invoice->id) }}");
+                    const response = await fetch("{{ route('billing.check-status', $invoice->id) }}", {headers: {Accept: 'application/json'}});
                     const data = await response.json();
 
+                    if (!response.ok) {
+                        if (!isAuto) alert(data.message || 'Status belum dapat diperiksa. Jangan membayar ulang.');
+                        return;
+                    }
                     if (data.status === 'paid') {
                         if (pollInterval) clearInterval(pollInterval);
                         window.location.href = "{{ route('billing.index') }}?status=success";
@@ -181,7 +189,7 @@
                         alert('Pembayaran belum terdeteksi. Silakan selesaikan pembayaran terlebih dahulu.');
                     }
                 } catch (e) {
-                    console.error('Check status error:', e);
+                    if (!isAuto) alert('Koneksi terputus. Coba periksa lagi sebelum membayar ulang.');
                 } finally {
                     if (!isAuto && btn) {
                         btn.disabled = false;
@@ -190,5 +198,4 @@
                 }
             }
         </script>
-    @endif
 </x-app-layout>

@@ -3,13 +3,8 @@
 namespace App\Exports\Sheets;
 
 use Illuminate\Support\Facades\DB;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithTitle;
 
-class TopProductsSheet implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithTitle
+class TopProductsSheet
 {
     protected int $tenantId;
 
@@ -37,10 +32,10 @@ class TopProductsSheet implements FromCollection, ShouldAutoSize, WithHeadings, 
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->where('orders.tenant_id', $this->tenantId)->whereBetween(DB::raw('COALESCE(orders.sold_at, orders.created_at)'), [$this->startDate.' 00:00:00', $this->endDate.' 23:59:59'])
             ->where('orders.payment_status', 'paid')->where('orders.order_status', 'completed')
-            ->groupBy('products.id', 'products.product_name')
+            ->groupBy('order_items.product_name')
             ->orderBy('total_qty', 'desc')
             ->select(
-                'products.product_name',
+                'order_items.product_name',
                 DB::raw('SUM(order_items.quantity) as total_qty'),
                 DB::raw('SUM(order_items.subtotal) as total_sales')
             )

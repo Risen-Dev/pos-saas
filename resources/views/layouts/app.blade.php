@@ -20,6 +20,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@600&family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -38,6 +41,8 @@
 
         @if (auth()->user()->role !== 'kasir')
             <!-- Back-office navigation is never rendered for cashier accounts. -->
+            <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false"
+                class="fixed inset-0 z-40 bg-black/30 lg:hidden" aria-hidden="true"></div>
             @include('layouts.sidebar')
         @endif
 
@@ -86,13 +91,33 @@
                 class="flex-1 overflow-y-auto scroll-smooth focus:outline-none bg-surface-100 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
                 <div class="h-full">
 
+                    @if (request()->routeIs('products.*', 'categories.*', 'menu.configure'))
+                        <x-workspace-tabs section="catalog" />
+                    @elseif(request()->routeIs('inventory.*', 'materials.*', 'suppliers.*', 'purchases.*', 'stocktakes.*', 'stock-movements.*'))
+                        <x-workspace-tabs section="stock" />
+                    @elseif(request()->routeIs('orders.*', 'customers.*', 'discounts.*', 'shifts.*', 'payments.review'))
+                        <x-workspace-tabs section="transactions" />
+                    @elseif(request()->routeIs('reports.*', 'cash.*', 'finance.*'))
+                        <x-workspace-tabs section="reports" />
+                    @endif
+                    @if ($errors->any())
+                        <div role="alert" class="p-4 m-4 border border-red-200 rounded-lg bg-red-50">
+                            <p class="font-semibold">Periksa kembali isian berikut.</p>
+                            <ul class="list-disc list-inside">
+                                @foreach ($errors->getMessages() as $field => $messages)
+                                    <li id="error-{{ str_replace('.', '-', $field) }}"
+                                        data-field-error="{{ $field }}">{{ implode(' ', $messages) }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     <!-- Floating Toast Notification System -->
-                    <div class="fixed top-20 right-5 z-[100] flex flex-col gap-3 w-full max-w-sm pointer-events-none">
+                    <div data-toast-region class="fixed top-20 right-5 z-[100] flex flex-col gap-3 w-full max-w-sm pointer-events-none">
 
                         {{-- Pesan Sukses --}}
                         @if (session('success'))
                             <!-- 2. PERBAIKAN: Ditambahkan x-cloak -->
-                            <div x-data="{ show: true }" x-show="show" x-cloak x-init="setTimeout(() => show = false, 4000)"
+                            <div x-data="{ show: true }" x-show="show" x-cloak role="status" x-init="setTimeout(() => show = false, 4000)"
                                 x-transition:enter="transform transition ease-out duration-300"
                                 x-transition:enter-start="translate-x-full opacity-0"
                                 x-transition:enter-end="translate-x-0 opacity-100"
@@ -102,7 +127,8 @@
                                 class="[&[x-cloak]]:!hidden pointer-events-auto flex items-center gap-3 px-4 py-3.5 bg-surface-0 border-l-4 border-primary-600 rounded-lg shadow-md text-ink-900 text-sm font-medium">
                                 <x-icon class="text-lg fa-solid fa-circle-check text-primary-600" />
                                 <div class="flex-1">{{ session('success') }}</div>
-                                <button @click="show = false" class="text-ink-400 hover:text-ink-700">
+                                <button aria-label="Tutup pemberitahuan" @click="show = false"
+                                    class="text-ink-400 hover:text-ink-700">
                                     <x-icon class="fa-solid fa-xmark" />
                                 </button>
                             </div>
@@ -121,7 +147,8 @@
                                 class="[&[x-cloak]]:!hidden pointer-events-auto flex items-center gap-3 px-4 py-3.5 bg-surface-0 border-l-4 border-semantic-danger rounded-lg shadow-md text-ink-900 text-sm font-medium">
                                 <x-icon class="text-lg fa-solid fa-circle-exclamation text-semantic-danger" />
                                 <div class="flex-1">{{ session('error') }}</div>
-                                <button @click="show = false" class="text-ink-400 hover:text-ink-700">
+                                <button aria-label="Tutup pemberitahuan" @click="show = false"
+                                    class="text-ink-400 hover:text-ink-700">
                                     <x-icon class="fa-solid fa-xmark" />
                                 </button>
                             </div>
@@ -130,7 +157,7 @@
                         {{-- Pesan Error Validasi --}}
                         @if ($errors->any())
                             <!-- 2. PERBAIKAN: Ditambahkan x-cloak -->
-                            <div x-data="{ show: true }" x-show="show" x-cloak x-init="setTimeout(() => show = false, 6000)"
+                            <div x-data="{ show: true }" x-show="show" x-cloak role="alert"
                                 x-transition:enter="transform transition ease-out duration-300"
                                 x-transition:enter-start="translate-x-full opacity-0"
                                 x-transition:enter-end="translate-x-0 opacity-100"
@@ -140,7 +167,8 @@
                                 class="[&[x-cloak]]:!hidden p-4 text-sm border-l-4 rounded-lg shadow-md pointer-events-auto bg-surface-0 border-semantic-danger text-ink-900">
                                 <div class="flex items-center justify-between mb-1">
                                     <span class="font-semibold text-semantic-danger">Ada kendala input:</span>
-                                    <button @click="show = false" class="text-ink-400 hover:text-ink-700">
+                                    <button aria-label="Tutup pemberitahuan" @click="show = false"
+                                        class="text-ink-400 hover:text-ink-700">
                                         <x-icon class="fa-solid fa-xmark" />
                                     </button>
                                 </div>

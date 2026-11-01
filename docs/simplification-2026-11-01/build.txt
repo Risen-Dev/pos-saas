@@ -1,0 +1,19 @@
+
+> build
+> vite build && npm run build:mail
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 71 modules transformed.
+rendering chunks...
+computing gzip size...
+public/build/manifest.json              0.58 kB │ gzip:  0.24 kB
+public/build/assets/app-BsiDfmCl.css   96.85 kB │ gzip: 17.79 kB
+public/build/assets/app-C-qq0HUn.js   126.07 kB │ gzip: 44.28 kB
+public/build/assets/auto-D9sMYOGp.js  203.67 kB │ gzip: 69.78 kB
+
+✓ built in 649ms
+
+> build:mail
+> tailwindcss -c tailwind.mail.config.js -i resources/css/mail.css -o public/build/mail.css --minify
+

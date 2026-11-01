@@ -1,0 +1,29 @@
+{
+    "scope": "Synthetic SQLite single pass, includes in-process render; not production p95 or Core Web Vitals.",
+    "results": [
+        {
+            "sku_count": 100,
+            "status": 200,
+            "handler_ms": 36.26,
+            "queries": 21,
+            "html_bytes": 102121,
+            "process_peak_bytes": 46661632
+        },
+        {
+            "sku_count": 1000,
+            "status": 200,
+            "handler_ms": 80.78,
+            "queries": 20,
+            "html_bytes": 336124,
+            "process_peak_bytes": 55050240
+        },
+        {
+            "sku_count": 5000,
+            "status": 200,
+            "handler_ms": 420.47,
+            "queries": 20,
+            "html_bytes": 1388124,
+            "process_peak_bytes": 90701824
+        }
+    ]
+}

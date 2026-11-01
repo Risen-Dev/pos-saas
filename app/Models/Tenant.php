@@ -99,37 +99,17 @@ class Tenant extends Model
     public function currentPlan(): ?Plan
     {
         $activeSubscription = $this->subscriptions()
-            ->where('status', 'active')
-            ->where('end_date', '>=', now()->startOfDay())
+            ->where('status', 'active')->whereDate('start_date', '<=', today())
+            ->whereDate('end_date', '>=', today())
             ->latest()
             ->first();
 
         return $activeSubscription ? $activeSubscription->plan : null;
     }
 
-    /**
-     * Cek apakah tenant melebihi kuota transaksi bulanan (Khusus Paket Starter: Max 100)
-     */
+    /** Active packages allow daily operation without transaction quotas. */
     public function isTransactionLimitReached(): bool
     {
-        $plan = $this->currentPlan();
-
-        // Jika tidak memiliki paket aktif sama sekali, anggap terblokir
-        if (! $plan) {
-            return true;
-        }
-
-        // Pembatasan Khusus Paket Starter (Maksimal 100 Transaksi / Bulan)
-        if ($plan->slug === 'starter') {
-            $monthlyOrdersCount = $this->orders()
-                ->whereMonth('created_at', now()->month)
-                ->whereYear('created_at', now()->year)
-                ->count();
-
-            return $monthlyOrdersCount >= 100;
-        }
-
-        // Paket Growth & Scale = Unlimited Transaction
-        return false;
+        return $this->currentPlan() === null;
     }
 }

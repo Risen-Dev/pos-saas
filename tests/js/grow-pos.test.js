@@ -76,6 +76,24 @@ test("payment confirmation removes recovered QR from waiting list", async () => 
     assert.deepEqual(pos.pendingPayments, [{ order_id: 4 }]);
 });
 
+test("loyalty redemption is unavailable while the POS is offline", () => {
+    const pos = terminal();
+    pos.config = {
+        loyaltyProgramEnabled: true,
+        pointRedemptionPoints: 100,
+        pointRedemptionValue: 10000,
+    };
+    pos.customer = "1";
+    pos.customerOptions = [{ id: 1, is_member: true, points: 100 }];
+    pos.cart = [{ quantity: 1, price: 30000, discount: 0 }];
+    pos.pointsToRedeem = 100;
+    assert.equal(pos.canUsePoints, true);
+    assert.equal(pos.amounts.total, 20000);
+    pos.online = false;
+    assert.equal(pos.canUsePoints, false);
+    assert.equal(pos.amounts.total, 30000);
+});
+
 test("barcode scan selects an exact item and refuses ambiguous codes", () => {
     const pos = terminal();
     pos.products = [
@@ -145,4 +163,138 @@ test("wholesale savings compare the same addons on normal and bulk prices", () =
     assert.equal(pos.wholesaleSaving, 20000);
     pos.itemQuantity = 1;
     assert.equal(pos.wholesaleSaving, 0);
+});
+
+test("credit sale records debt without collecting cash and retains its checkout reference", async () => {
+    const pos = terminal();
+    pos.config.canCredit = true;
+    pos.shift = { id: 7 };
+    pos.cart = [
+        { id: 1, quantity: 1, price: 10000, discount: 0, addon_ids: [] },
+    ];
+    pos.customer = "9";
+    pos.method = "credit";
+    let payload;
+    pos.request = async (url, method, body) => {
+        payload = body;
+        return {
+            payment_method: "cash",
+            payment_status: "unpaid",
+            order_status: "pending",
+            order_id: 1,
+        };
+    };
+    await pos.submit();
+    assert.equal(payload.payment_method, "cash");
+    assert.equal(payload.payment_status, "unpaid");
+    assert.equal(payload.paid_amount, 0);
+    assert.equal(payload.customer_id, 9);
+    assert.match(payload.checkout_key, /^[0-9a-f-]{36}$/);
+    assert.equal(pos.queue.length, 0);
+    assert.equal(pos.modal, "receipt");
+});
+
+test("credit sale requires a customer and CRM entitlement before any request", async () => {
+    const pos = terminal();
+    pos.shift = { id: 1 };
+    pos.cart = [{ id: 1, quantity: 1, price: 10000, discount: 0 }];
+    pos.method = "credit";
+    pos.config.canCredit = true;
+    pos.request = () =>
+        assert.fail("A credit sale without a customer must not be sent");
+    await pos.submit();
+    assert.match(pos.error, /Pilih pelanggan/);
+    pos.customer = "9";
+    pos.config.canCredit = false;
+    await pos.submit();
+    assert.match(pos.error, /Pilih pelanggan/);
+});
+
+test("customer lookup ignores stale responses and keeps current selection in query", async () => {
+    const pos = terminal();
+    pos.config.customerLookup = "/pos/customers/lookup";
+    pos.customer = "55";
+    const pending = [];
+    const urls = [];
+    pos.request = (url) => {
+        urls.push(url);
+        return new Promise((resolve) => pending.push(resolve));
+    };
+    pos.customerSearch = "Old";
+    const oldRequest = pos.lookupCustomers();
+    pos.customerSearch = "New";
+    const newRequest = pos.lookupCustomers();
+    pending[1]({ customers: [{ id: 55, name: "New" }] });
+    await newRequest;
+    pending[0]({ customers: [{ id: 1, name: "Old" }] });
+    await oldRequest;
+    assert.equal(pos.customerOptions[0].name, "New");
+    assert.ok(urls.every((url) => url.includes("selected=55")));
+});
+
+test("manual payment requires online confirmation and records the exact amount without cash", async () => {
+    const pos = terminal();
+    pos.method = "transfer";
+    pos.shift = { id: 1 };
+    pos.cart = [
+        { id: 1, quantity: 1, price: 10000, discount: 0, addon_ids: [] },
+    ];
+    let payload;
+    pos.request = async (url, method, data) => {
+        payload = data;
+        return {
+            order_id: 1,
+            payment_method: "transfer",
+            payment_status: "paid",
+        };
+    };
+    await pos.submit();
+    assert.equal(payload, undefined);
+    assert.match(pos.error, /Periksa dana/);
+    pos.manualConfirmed = true;
+    navigator.onLine = false;
+    await pos.submit();
+    assert.equal(payload, undefined);
+    navigator.onLine = true;
+    pos.paymentReference = "BANK-123";
+    await pos.submit();
+    assert.equal(payload.paid_amount, 10000);
+    assert.equal(payload.manual_confirmed, true);
+    assert.equal(payload.payment_reference, "BANK-123");
+    assert.equal(pos.modal, "receipt");
+    assert.equal(pos.manualConfirmed, false);
+    assert.equal(pos.queue.length, 0);
+});
+
+test("manual payment network failure keeps verified payload for explicit retry only", async () => {
+    const pos = terminal();
+    pos.method = "qris_manual";
+    pos.manualConfirmed = true;
+    pos.shift = { id: 1 };
+    pos.cart = [
+        { id: 1, quantity: 1, price: 10000, discount: 0, addon_ids: [] },
+    ];
+    let attempts = 0;
+    pos.request = async () => {
+        attempts++;
+        throw new Error("Network failed");
+    };
+    await pos.submit();
+    assert.equal(pos.queue.length, 1);
+    const payload = pos.queue[0].payload;
+    assert.equal(payload.manual_confirmed, true);
+    await pos.syncQueue();
+    assert.equal(attempts, 1);
+    assert.equal(pos.queue[0].payload, payload);
+    pos.request = async (url, method, data) => {
+        assert.equal(data, payload);
+        return {
+            order_id: 2,
+            payment_method: "qris_manual",
+            payment_status: "paid",
+        };
+    };
+    await pos.retry(pos.queue[0]);
+    assert.equal(pos.queue.length, 0);
+    assert.equal(pos.modal, "receipt");
 });

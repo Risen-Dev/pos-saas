@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('title', 'Manajemen Pelanggan & CRM')
+    @section('title', 'Pelanggan & Bon')
 
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop" x-data="{ showDeleteModal: false, deleteUrl: '', customerName: '' }">
 
@@ -8,7 +8,7 @@
             class="flex flex-col justify-between gap-4 pb-6 mb-8 border-b sm:flex-row sm:items-center border-border-200">
             <div>
                 <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
-                    Manajemen Pelanggan / CRM
+                    Manajemen Pelanggan
                 </h1>
                 <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
                     Kelola basis data pelanggan, program poin loyalty, dan catatan piutang (bon) usaha Anda.
@@ -48,7 +48,7 @@
                     <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Total Piutang
                         Pelanggan (Bon)</span>
                     <p class="mt-2 font-mono text-2xl font-semibold md:text-3xl text-semantic-danger">
-                        Rp {{ number_format($customers->sum('total_debt'), 0, ',', '.') }}
+                        Rp {{ number_format($totalDebt, 0, ',', '.') }}
                     </p>
                 </div>
                 <div
@@ -66,8 +66,10 @@
                         <tr
                             class="h-12 text-xs font-semibold tracking-wider uppercase border-b bg-surface-100 border-border-200 font-heading text-ink-700">
                             <th class="px-5 py-3">Pelanggan & WhatsApp</th>
-                            <th class="px-5 py-3 text-center">Tier Status</th>
-                            <th class="px-5 py-3 text-center">Poin Loyalty</th>
+                            @can('feature-loyalty')
+                            <th class="px-5 py-3 text-center">Keanggotaan</th>
+                            <th class="px-5 py-3 text-center">Poin loyalitas</th>
+                            @endcan
                             <th class="px-5 py-3 text-right">Total Hutang / Bon</th>
                             <th class="px-5 py-3 text-center">Aksi</th>
                         </tr>
@@ -85,7 +87,7 @@
                                         </div>
                                         <div class="min-w-0">
                                             <span
-                                                class="block font-semibold leading-tight truncate text-ink-900">{{ $c->name }}</span>
+                                                class="block font-semibold leading-tight truncate text-ink-900"><a class="font-semibold underline" href="{{ route('customers.show', $c) }}">{{ $c->name }}</a></span>
                                             <span
                                                 class="font-mono text-[11px] font-normal text-ink-400 mt-0.5 block truncate">
                                                 <x-icon
@@ -96,6 +98,7 @@
                                     </div>
                                 </td>
 
+                                @can('feature-loyalty')
                                 <!-- Status Tier Loyalty Badge (Pill Shape: radius-full) -->
                                 <td class="px-5 py-3 text-center">
                                     @if ($c->is_member)
@@ -118,6 +121,7 @@
                                         class="font-mono font-semibold text-ink-900">{{ number_format($c->points, 0, ',', '.') }}</span>
                                     <span class="text-[11px] text-ink-400 ml-0.5">pts</span>
                                 </td>
+                                @endcan
 
                                 <!-- Total Debt / Bon -->
                                 <td class="px-5 py-3 text-right">
@@ -180,7 +184,7 @@
         </div>
 
         <!-- Modal Registrasi Pelanggan Baru (Max-Width 480px / max-w-modal-sm, Backdrop Blur 2px) -->
-        <div id="addCustomerModal"
+        <div data-dialog id="addCustomerModal"
             class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-ink-900/40 backdrop-blur-[2px]">
             <div class="w-full p-6 border rounded-lg shadow-lg bg-surface-0 max-w-modal-sm border-border-200">
 
@@ -196,31 +200,33 @@
                     @csrf
                     <!-- Nama Lengkap Field (Height 44px, Radius-sm = 6px) -->
                     <div>
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                        <label for="field-name" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
                             Nama Lengkap <span class="text-semantic-danger">*</span>
                         </label>
-                        <input type="text" name="name" required placeholder="Contoh: Budi Santoso"
+                        <input id="field-name" type="text" name="name" required placeholder="Contoh: Budi Santoso"
                             class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
                     </div>
 
                     <!-- Nomor WhatsApp Field -->
                     <div>
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                        <label for="field-phone" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
                             No. WhatsApp (Untuk Struk Digital)
                         </label>
-                        <input type="text" name="phone" placeholder="0812xxxx"
+                        <input id="field-phone" type="text" name="phone" placeholder="0812xxxx"
                             class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
                     </div>
 
                     <!-- Option Active Member Toggle -->
+                    @can('feature-loyalty')
                     <div class="flex items-center gap-3 p-3 border rounded-md bg-primary-50 border-primary-100">
                         <input type="checkbox" name="is_member" id="is_member_check" value="1"
                             class="w-4 h-4 rounded text-primary-600 border-border-200 focus:ring-primary-600">
                         <label for="is_member_check"
                             class="text-xs font-semibold cursor-pointer font-body text-primary-700">
-                            Daftarkan sebagai Member Aktif (Loyalty Points)
+                            Daftarkan sebagai anggota loyalitas
                         </label>
                     </div>
+                    @endcan
 
                     <!-- Action Buttons -->
                     <div class="flex items-center gap-3 pt-3">
@@ -239,7 +245,7 @@
         </div>
 
         <!-- Modal Confirm Delete Pelanggan -->
-        <div x-show="showDeleteModal" x-transition:enter="transition ease-out duration-200"
+        <div data-dialog x-show="showDeleteModal" x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"

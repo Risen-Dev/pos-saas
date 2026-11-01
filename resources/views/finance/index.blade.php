@@ -167,7 +167,7 @@
     </div>
 
     <!-- Modal 1: Form Penarikan Dana (Max-Width 480px / max-w-modal-sm) -->
-    <div id="withdrawModal"
+    <div data-dialog id="withdrawModal"
         class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-ink-900/40 backdrop-blur-[2px]">
         <div class="w-full p-6 border rounded-lg shadow-lg bg-surface-0 max-w-modal-sm border-border-200">
 
@@ -215,12 +215,15 @@
                     </div>
 
                     <div>
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
-                            Jumlah Penarikan (Rp) <span class="text-semantic-danger">*</span>
+                        <label for="inputAmount" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                            Jumlah Penarikan <span class="text-semantic-danger">*</span>
                         </label>
-                        <input type="text" id="inputAmount" onkeyup="formatCurrency(this)" required
-                            placeholder="Contoh: 50.000"
-                            class="w-full px-3 font-mono text-base font-bold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
+                        <div class="relative">
+                            <span class="absolute font-mono text-base font-semibold -translate-y-1/2 left-3 top-1/2 text-ink-400">Rp</span>
+                            <input type="text" id="inputAmount" oninput="formatCurrency(this)" required
+                                placeholder="50.000"
+                                class="w-full pl-10 pr-3 font-mono text-base font-bold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
+                        </div>
                     </div>
 
                     <div class="flex items-center gap-3 pt-3">
@@ -239,7 +242,7 @@
     </div>
 
     <!-- Modal 2: Pengaturan Rekening Bank (Max-Width 480px / max-w-modal-sm) -->
-    <div id="bankSettingsModal"
+    <div data-dialog id="bankSettingsModal"
         class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-ink-900/40 backdrop-blur-[2px]">
         <div class="w-full p-6 border rounded-lg shadow-lg bg-surface-0 max-w-modal-sm border-border-200">
 
@@ -255,7 +258,7 @@
                 @csrf
 
                 <div>
-                    <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                    <label for="bank_name" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
                         Nama Bank <span class="text-semantic-danger">*</span>
                     </label>
                     <select id="bank_name" required
@@ -277,7 +280,7 @@
                 </div>
 
                 <div>
-                    <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                    <label for="account_number" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
                         Nomor Rekening <span class="text-semantic-danger">*</span>
                     </label>
                     <input type="text" id="account_number" required value="{{ $wallet->account_number ?? '' }}"
@@ -286,7 +289,7 @@
                 </div>
 
                 <div>
-                    <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                    <label for="account_name" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
                         Nama Pemilik Rekening <span class="text-semantic-danger">*</span>
                     </label>
                     <input type="text" id="account_name" required value="{{ $wallet->account_name ?? '' }}"
@@ -310,6 +313,9 @@
 
     <!-- Script Handling Modals & AJAX Actions -->
     <script>
+        const withdrawalStorageKey = 'growpos:withdrawal:{{ auth()->user()->tenant_id }}:{{ auth()->id() }}';
+        let withdrawalKey = sessionStorage.getItem(withdrawalStorageKey) || crypto.randomUUID();
+        sessionStorage.setItem(withdrawalStorageKey, withdrawalKey);
         function openWithdrawModal() {
             document.getElementById('withdrawModal').classList.remove('hidden');
         }
@@ -377,7 +383,7 @@
             document.getElementById('withdrawForm').onsubmit = async function(e) {
                 e.preventDefault();
                 const btn = document.getElementById('btnSubmitWithdraw');
-                const rawAmount = document.getElementById('inputAmount').value.replace(/\./g, "") || 0;
+                const rawAmount = document.getElementById('inputAmount').value.replace(/\D/g, "") || 0;
                 const amount = parseInt(rawAmount);
 
                 if (amount <= 0) return alert('Jumlah penarikan harus lebih dari Rp 0');
@@ -394,12 +400,15 @@
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify({
+                            idempotency_key: withdrawalKey,
                             amount: amount
                         })
                     });
 
                     const res = await response.json();
                     if (res.success) {
+                        withdrawalKey = crypto.randomUUID();
+                        sessionStorage.setItem(withdrawalStorageKey, withdrawalKey);
                         alert('Pengajuan penarikan dana berhasil dikirim!');
                         location.reload();
                     } else {

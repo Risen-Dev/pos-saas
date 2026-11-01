@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\CheckTenant;
+use App\Http\Middleware\EnsureAccountIsActive;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\EnsureUserIsManagerOrAdmin;
 use App\Http\Middleware\PreventBackHistory;
@@ -16,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web(append: [PreventBackHistory::class]);
+        $middleware->web(append: [EnsureAccountIsActive::class, PreventBackHistory::class]);
 
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,

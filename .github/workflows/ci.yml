@@ -1,0 +1,111 @@
+name: Application checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  application:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['8.3', '8.4']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, pdo_sqlite, gd, zip, intl
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: composer install --no-interaction --prefer-dist
+      - run: cp .env.example .env && php artisan key:generate
+      - run: npm ci --ignore-scripts
+      - run: php artisan test
+      - run: npm test && npm run format:check && npm run build
+      - run: composer audit --locked && npm audit
+  mysql-invariants:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: fixture-only
+          MYSQL_DATABASE: growpos_ci
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -pfixture-only"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+    env:
+      APP_ENV: testing
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: growpos_ci
+      DB_USERNAME: root
+      DB_PASSWORD: fixture-only
+      CACHE_STORE: array
+      QUEUE_CONNECTION: sync
+      MAIL_MAILER: array
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_mysql, gd, zip
+          tools: composer
+          coverage: none
+      - run: sudo apt-get update && sudo apt-get install -y mysql-client
+      - run: composer install --no-interaction --prefer-dist
+      - run: cp .env.example .env && php artisan key:generate && php artisan migrate --force
+      - run: php artisan growpos:verify-concurrency
+      - run: php artisan growpos:backup
+      - name: Restore the disposable CI backup
+        run: |
+          backup_file="$(find storage/app/private/backups -name '*.sql' -type f -print -quit)"
+          test -n "$backup_file"
+          php artisan growpos:verify-mysql-backup "$backup_file"
+
+  browser:
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: testing
+      APP_URL: http://127.0.0.1:8000
+      ASSET_URL: http://127.0.0.1:8000
+      DB_CONNECTION: sqlite
+      DB_URL: ''
+      CACHE_STORE: array
+      SESSION_DRIVER: file
+      SESSION_SECURE_COOKIE: 'false'
+      MAIL_MAILER: array
+      QUEUE_CONNECTION: sync
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_sqlite, gd, zip
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: composer install --no-interaction --prefer-dist
+      - run: cp .env.example .env && php artisan key:generate
+      - run: npm ci --ignore-scripts && npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Prepare isolated fixture and run browser regressions
+        run: |
+          export DB_DATABASE="$(mktemp /tmp/growpos-e2e-XXXXXX.sqlite)"
+          export GROWPOS_QA_PASSWORD="$(openssl rand -hex 20)"
+          php scripts/prepare-e2e.php
+          npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-failure-artifacts
+          path: test-results/
+          retention-days: 7

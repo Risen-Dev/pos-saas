@@ -19,6 +19,7 @@ use App\Http\Controllers\GettingStartedController;
 use App\Http\Controllers\InventoryController;
 // Inventory, Materials & Suppliers Controllers
 use App\Http\Controllers\KitchenController;
+use App\Http\Controllers\LoyaltyCardController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MenuConfigurationController;
 use App\Http\Controllers\OrderController;
@@ -60,6 +61,11 @@ Route::get('/', function () {
     return view('landing', compact('plans'));
 })->name('landing');
 
+Route::get('/loyalty/card/{token}', [LoyaltyCardController::class, 'show'])
+    ->where('token', '[A-Za-z0-9]{64}')
+    ->middleware('throttle:30,1')
+    ->name('loyalty.card');
+
 // Webhook Callback dari Midtrans
 Route::post('/midtrans/callback', [PaymentCallbackController::class, 'handleNotification'])
     ->name('midtrans.callback');
@@ -93,6 +99,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ==========================================
     Route::get('/setup-business', [TenantController::class, 'create'])->middleware('admin')->name('tenants.create');
     Route::post('/setup-business', [TenantController::class, 'store'])->middleware('admin')->name('tenants.store');
+    Route::get('/tenants/create', [TenantController::class, 'createAdditional'])->middleware('admin')->name('tenants.add');
+    Route::post('/tenants', [TenantController::class, 'store'])->middleware('admin')->name('tenants.store-additional');
 
     Route::get('/tenants', [TenantController::class, 'index'])->name('tenants.index')->middleware('admin');
     Route::get('/tenants/{tenant}/edit', [TenantController::class, 'edit'])->name('tenants.edit')->middleware('admin');
@@ -152,6 +160,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['check.tenant', EnsureSubscriptionIsActive::class])->group(function () {
 
         Route::view('/help', 'help.index')->name('help');
+        Route::view('/workspace/settings', 'workspace.settings')->middleware('manager')->name('workspace.settings');
         Route::get('/services', [ServiceJobController::class, 'index'])->name('services.index');
         Route::patch('/services/{order}', [ServiceJobController::class, 'update'])->name('services.update');
         Route::get('/kitchen', [KitchenController::class, 'index'])->name('kitchen.index');
@@ -175,6 +184,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::middleware(['admin'])->group(function () {
             Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
             Route::post('/employees', [EmployeeController::class, 'store'])->name('employees.store');
+            Route::patch('/employees/{id}/status', [EmployeeController::class, 'status'])->name('employees.status');
             Route::delete('/employees/{id}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
 
         });
@@ -197,6 +207,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // --- INVENTORY ADJUSTMENT & MUTASI STOK ---
         Route::get('/inventory', [InventoryController::class, 'index'])->middleware('manager')->name('inventory.index');
+        Route::post('/inventory/quick', [InventoryController::class, 'quick'])->middleware('manager')->name('inventory.quick');
         Route::post('/inventory/adjust', [InventoryController::class, 'adjust'])->middleware('manager')->name('inventory.adjust');
         Route::get('/inventory/history', [InventoryController::class, 'history'])->middleware('manager')->name('inventory.history');
         Route::resource('stock-movements', StockMovementController::class)->only(['index'])->middleware('manager');
@@ -215,6 +226,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // --- CRM & CUSTOMERS (TERPROTEKSI: Khusus Growth & Scale) ---
         Route::middleware('can:feature-crm')->group(function () {
             Route::resource('customers', CustomerController::class)->only(['index', 'store', 'show', 'destroy']);
+            Route::post('/customers/{customer}/loyalty/join', [CustomerController::class, 'joinLoyalty'])->name('customers.loyalty.join');
             Route::post('/customers/api', [CustomerController::class, 'storeApi'])->name('customers.storeApi');
         });
 
@@ -222,6 +234,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('discounts', DiscountController::class)->except('show')->middleware('manager');
 
         // --- KASIR & POS TERMINAL ---
+        Route::get('/pos/customers/lookup', [CustomerController::class, 'lookup'])->middleware('throttle:60,1')->name('pos.customers.lookup');
         Route::resource('pos', PosController::class)->only(['index', 'store']);
         Route::resource('orders', OrderController::class)->only(['index', 'show']);
         Route::resource('service-orders', ServiceOrderController::class)->only(['index', 'store', 'show', 'update', 'destroy'])->middleware('admin');

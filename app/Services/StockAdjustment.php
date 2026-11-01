@@ -31,9 +31,23 @@ class StockAdjustment
         return DB::transaction(function () use ($actor, $model, $key, $data) {
             // Match checkout's lock order: tenant, then inventory row.
             Tenant::whereKey($actor->tenant_id)->lockForUpdate()->firstOrFail();
+            $hash = hash('sha256', json_encode([$actor->id, $data]));
+            if (! empty($data['operation_key'])) {
+                $existing = StockMovement::where('tenant_id', $actor->tenant_id)->where('operation_key', $data['operation_key'])->first();
+                if ($existing) {
+                    if ($existing->request_hash !== $hash) {
+                        throw ValidationException::withMessages(['quantity' => 'Referensi tambah stok sudah digunakan dengan isi berbeda.']);
+                    }
+
+                    return $existing;
+                }
+            }
             $item = $model::where('tenant_id', $actor->tenant_id)->whereKey($data[$key])->lockForUpdate()->firstOrFail();
             if ($item instanceof Product && ($item->type !== 'product' || ! $item->manage_stock)) {
                 throw ValidationException::withMessages([$key => 'Aktifkan pelacakan stok barang terlebih dahulu.']);
+            }
+            if (! empty($data['operation_key']) && $item instanceof Product && $item->variants()->exists()) {
+                throw ValidationException::withMessages(['product_id' => 'Produk dengan varian perlu ditambah melalui penyesuaian stok per varian.']);
             }
             $productId = $item instanceof Product ? $item->id : null;
             if ($item instanceof Product) {
@@ -55,8 +69,14 @@ class StockAdjustment
             if ($after < 0 || $after > 1000000000) {
                 throw ValidationException::withMessages(['quantity' => 'Stok akhir harus antara 0 dan 1.000.000.000.']);
             }
-            $item->update(['stock' => $after]);
+            $changes = ['stock' => $after];
+            if ($item instanceof Product && $data['type'] === 'stock_in' && isset($data['purchase_price'])) {
+                $changes['cost_price'] = round((max(0, $before) * $item->cost_price + $quantity * $data['purchase_price']) / $after, 2);
+            }
+            $item->update($changes);
             $movement = StockMovement::create([
+                'operation_key' => $data['operation_key'] ?? null,
+                'request_hash' => ! empty($data['operation_key']) ? $hash : null,
                 'tenant_id' => $actor->tenant_id,
                 $key => $productId ?? $item->id,
                 'reference_type' => ! empty($data['variant_id']) ? 'product_variant' : null,

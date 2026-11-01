@@ -1,0 +1,23 @@
+<?php
+namespace Tests\Feature\Pos;
+class ExtendedAuditProbeTest extends PosTestCase
+{
+ public function test_products_beyond_page_one_have_no_pagination_or_search_control():void{
+  $user=$this->shop();foreach(range(1,11) as $n)$this->product($user,['product_name'=>'Audit Product '.$n]);
+  $res=$this->actingAs($user)->get('/products')->assertOk();
+  $this->assertSame(11,$res->viewData('products')->total());$this->assertSame(10,$res->viewData('products')->count());
+  $this->assertStringNotContainsString('page=2',$res->getContent());$this->assertStringNotContainsString('name="search"',$res->getContent());
+ }
+ public function test_withdrawal_replay_creates_two_requests_and_debits_twice():void{
+  $user=$this->shop();\Illuminate\Support\Facades\DB::table('tenant_wallets')->insert(['tenant_id'=>$user->tenant_id,'balance'=>100000,'bank_name'=>'Fixture bank','account_number'=>'0000','account_name'=>'Fixture']);
+  $key=(string)\Illuminate\Support\Str::uuid();$this->actingAs($user);
+  foreach(range(1,2) as $_)$this->postJson('/finance/withdraw',['amount'=>10000,'idempotency_key'=>$key])->assertOk();
+  $this->assertDatabaseCount('withdrawal_requests',2);$this->assertDatabaseHas('tenant_wallets',['tenant_id'=>$user->tenant_id,'balance'=>80000]);
+ }
+ public function test_catalog_edit_stale_stock_overwrites_a_sale():void{
+  $user=$this->shop();$product=$this->product($user,['manage_stock'=>true]);$this->shift($user);$this->actingAs($user);
+  $this->postJson('/pos',$this->checkout($product))->assertOk();$this->assertEquals(9,$product->fresh()->stock);
+  $this->put('/products/'.$product->id,['category_id'=>$product->category_id,'sku'=>$product->sku,'product_name'=>'Renamed','type'=>'product','sell_price'=>10000,'cost_price'=>5000,'stock'=>10,'min_stock'=>5,'manage_stock'=>1,'is_active'=>1])->assertRedirect();
+  $this->assertEquals(10,$product->fresh()->stock);
+ }
+}

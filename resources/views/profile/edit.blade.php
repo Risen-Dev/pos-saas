@@ -66,7 +66,7 @@
                                 <span>Upgrade Cabang</span>
                             </a>
                         @else
-                            <a href="{{ route('tenants.create') }}"
+                            <a href="{{ route('tenants.add') }}"
                                 class="inline-flex items-center justify-center gap-2 px-4 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body shrink-0">
                                 <x-icon class="text-xs fa-solid fa-plus" />
                                 <span>Tambah Tenant</span>
@@ -151,7 +151,7 @@
                                 <x-icon class="fa-solid fa-crown mr-1.5 text-[10px]" /> Upgrade Kuota Cabang
                             </a>
                         @else
-                            <a href="{{ route('tenants.create') }}"
+                            <a href="{{ route('tenants.add') }}"
                                 class="inline-flex items-center justify-center px-4 text-xs font-semibold transition-colors rounded-md h-9 bg-surface-0 hover:bg-surface-100 text-primary-600 font-body">
                                 + Tambah Cabang Baru
                             </a>

@@ -2,16 +2,12 @@
 
 namespace App\Exports\Sheets;
 
-use App\Models\Order;
+use App\Services\SalesDataset;
 use Illuminate\Support\Facades\DB;
-use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class FinancialSummarySheet implements FromArray, ShouldAutoSize, WithStyles, WithTitle
+class FinancialSummarySheet
 {
     protected int $tenantId;
 
@@ -37,12 +33,11 @@ class FinancialSummarySheet implements FromArray, ShouldAutoSize, WithStyles, Wi
     public function array(): array
     {
         // 1. Ambil data finansial dari database
-        $dataData = Order::withoutGlobalScopes()->where('tenant_id', $this->tenantId)->whereBetween(DB::raw('COALESCE(sold_at, created_at)'), [$this->startDate.' 00:00:00', $this->endDate.' 23:59:59'])
-            ->where('payment_status', 'paid')->where('order_status', 'completed')
+        $dataData = app(SalesDataset::class)->between($this->tenantId, $this->startDate.' 00:00:00', $this->endDate.' 23:59:59')
             ->select(
                 DB::raw('COUNT(id) as total_tx'),
                 DB::raw('SUM(subtotal) as total_gross'),
-                DB::raw('SUM(discount) as total_discount'),
+                DB::raw('SUM(discount + loyalty_discount) as total_discount'),
                 DB::raw('SUM(tax) as total_tax'),
                 DB::raw('SUM(grand_total) as total_net')
             )->first();
@@ -52,8 +47,8 @@ class FinancialSummarySheet implements FromArray, ShouldAutoSize, WithStyles, Wi
         // ==========================================
         // BAGIAN A: STRUKTUR NARASI SMART AI REPORT
         // ==========================================
-        $output[] = ['SMART AI BUSINESS ADVISOR REPORT'];
-        $output[] = ['Analisis strategi otomatis berbasis kecerdasan buatan untuk periode berjalan.'];
+        $output[] = ['RINGKASAN FINANSIAL'];
+        $output[] = ['Transaksi lunas sesuai periode, sebelum retur dan biaya operasional.'];
         $output[] = ['']; // Baris kosong
 
         $cleanText = str_replace(['**', '###', '`', '*'], '', $this->aiAnalysisText);

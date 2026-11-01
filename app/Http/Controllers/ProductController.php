@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProductRequest;
 use App\Models\Category;
 use App\Models\Product;
-use App\Models\StockMovement;
 use App\Models\Tenant;
 use App\Services\Code128Barcode;
 use App\Services\RetailCatalog;
@@ -13,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 // <--- PASTIKAN IMPORT INI ADA DI ATAS
 
@@ -20,19 +20,26 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $products = Product::with('category')
-            ->where('tenant_id', auth()->user()->tenant_id)
-            ->when($request->search, function ($query, $search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('product_name', 'like', "%{$search}%")
-                        ->orWhere('sku', 'like', "%{$search}%")
-                        ->orWhere('barcode', 'like', "%{$search}%");
-                });
+        $data = $request->validate(['search' => 'nullable|string|max:100', 'type' => 'nullable|in:product,service', 'status' => 'nullable|in:active,inactive,low']);
+        $base = Product::where('tenant_id', $request->user()->tenant_id);
+        $catalogTotal = (clone $base)->count();
+        $lowCount = (clone $base)->where('type', 'product')->where('manage_stock', true)->whereColumn('stock', '<=', 'min_stock')->count();
+        $safeCount = $catalogTotal - $lowCount;
+        $products = $base->with('category')
+            ->when($data['search'] ?? null, function ($query, $search) {
+                $query->where(fn ($query) => $query->where('product_name', 'like', "%{$search}%")
+                    ->orWhere('sku', 'like', "%{$search}%")->orWhere('barcode', 'like', "%{$search}%"));
             })
-            ->latest()
-            ->paginate(10);
+            ->when($data['type'] ?? null, fn ($query, $type) => $query->where('type', $type))
+            ->when($data['status'] ?? null, function ($query, $status) {
+                if ($status === 'low') {
+                    $query->where('type', 'product')->where('manage_stock', true)->whereColumn('stock', '<=', 'min_stock');
+                } else {
+                    $query->where('is_active', $status === 'active');
+                }
+            })->latest('id')->paginate(10)->withQueryString();
 
-        return view('products.index', compact('products'));
+        return view('products.index', compact('products', 'catalogTotal', 'lowCount', 'safeCount'));
     }
 
     public function create()
@@ -66,7 +73,12 @@ class ProductController extends Controller
         DB::transaction(function () use ($request, $tenant, $plan, $imagePath) {
             Tenant::whereKey($tenant->id)->lockForUpdate()->firstOrFail();
             abort_if(Product::where('tenant_id', $tenant->id)->count() >= $plan->max_products, 422, 'Batas produk paket tercapai.');
-            $product = Product::create(array_merge($request->catalogData(), ['tenant_id' => $tenant->id, 'image' => $imagePath]));
+            $catalog = $request->catalogData();
+            if ($request->filled('category_name') || empty($catalog['category_id'])) {
+                $category = Category::firstOrCreate(['tenant_id' => $tenant->id, 'name' => $request->input('category_name') ?: 'Umum'], ['slug' => 'kategori-'.Str::uuid()]);
+                $catalog['category_id'] = $category->id;
+            }
+            $product = Product::create(array_merge($catalog, ['tenant_id' => $tenant->id, 'image' => $imagePath]));
             app(RetailCatalog::class)->saveUnits($product, $request->validated('units', []));
         });
 
@@ -112,6 +124,11 @@ class ProductController extends Controller
         }
 
         $data = $request->catalogData();
+        if (empty($data['category_id'])) {
+            $data['category_id'] = $product->category_id;
+        }
+        // Stock is changed only through inventory operations, never a stale catalog form.
+        unset($data['stock']);
 
         if ($request->hasFile('image')) {
             // Hapus gambar lama dari storage jika ada produk mengunggah gambar baru
@@ -124,18 +141,11 @@ class ProductController extends Controller
         DB::transaction(function () use ($product, $data, $request) {
             Tenant::whereKey($product->tenant_id)->lockForUpdate()->firstOrFail();
             $locked = Product::whereKey($product->id)->lockForUpdate()->firstOrFail();
-            $before = (float) $locked->stock;
             $locked->update($data);
             if ($request->has('units_present')) {
                 app(RetailCatalog::class)->saveUnits($locked, $request->validated('units', []));
             }
-            if ($before !== (float) $locked->stock) {
-                StockMovement::create([
-                    'tenant_id' => $locked->tenant_id, 'product_id' => $locked->id, 'user_id' => auth()->id(),
-                    'type' => 'adjustment', 'quantity' => abs($locked->stock - $before),
-                    'before_stock' => $before, 'after_stock' => $locked->stock, 'note' => 'Penyesuaian melalui edit katalog',
-                ]);
-            }
+
         }, 3);
         Cache::forget("tenant_{$product->tenant_id}_products_pos");
 

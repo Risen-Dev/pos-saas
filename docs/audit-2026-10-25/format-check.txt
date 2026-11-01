@@ -1,0 +1,6 @@
+
+> format:check
+> prettier --check "resources/js/**/*.js" "resources/css/**/*.css" "tests/js/**/*.js"
+
+Checking formatting...
+All matched files use Prettier code style!

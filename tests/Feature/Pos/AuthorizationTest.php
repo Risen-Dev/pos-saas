@@ -5,6 +5,7 @@ namespace Tests\Feature\Pos;
 use App\Models\User;
 use App\Models\WithdrawlRequest;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class AuthorizationTest extends PosTestCase
 {
@@ -46,7 +47,7 @@ class AuthorizationTest extends PosTestCase
         $user = $this->shop();
         DB::table('tenant_wallets')->insert(['tenant_id' => $user->tenant_id, 'balance' => 20000]);
         $this->actingAs($user)->postJson('/finance/settings', ['bank_name' => 'Bank', 'account_number' => '123', 'account_name' => 'Owner'])->assertOk();
-        $this->postJson('/finance/withdraw', ['amount' => 10000])->assertOk();
+        $this->postJson('/finance/withdraw', ['amount' => 10000, 'idempotency_key' => (string) Str::uuid()])->assertOk();
         $this->assertDatabaseHas('tenant_wallets', ['tenant_id' => $user->tenant_id, 'balance' => 10000]);
         $this->assertDatabaseHas('withdrawal_requests', ['tenant_id' => $user->tenant_id, 'status' => 'pending', 'amount' => 10000]);
     }

@@ -1,0 +1,19 @@
+{
+  "result": "passed",
+  "tests": 5,
+  "browser": "Google Chrome via Playwright",
+  "duration_seconds": 11.4,
+  "widths": [
+    320,
+    390,
+    1440
+  ],
+  "database": "isolated temporary SQLite",
+  "flows": [
+    "catalog search/pagination and customer detail",
+    "fractional cash checkout to receipt",
+    "first setup vs additional business",
+    "minimal catalog and confirmed manual transfer to receipt",
+    "six workspaces with no document overflow or page errors"
+  ]
+}

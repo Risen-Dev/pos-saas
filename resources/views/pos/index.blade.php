@@ -58,6 +58,14 @@
         )
         ->values();
     $posConfig = [
+        'customers' => $customers,
+        'customerLookup' => route('pos.customers.lookup', absolute: false),
+        'canCredit' => \Illuminate\Support\Facades\Gate::allows('feature-crm'),
+        'canLoyalty' => \Illuminate\Support\Facades\Gate::allows('feature-loyalty'),
+        'loyaltyProgramEnabled' => \Illuminate\Support\Facades\Gate::allows('feature-loyalty') && ($settings['point_mode'] ?? 'disabled') !== 'disabled' && (float) ($settings['point_rule_value'] ?? 0) > 0,
+        'customerStore' => route('customers.storeApi', absolute: false),
+        'pointRedemptionPoints' => max(1, (int) ($settings['point_redemption_points'] ?? 100)),
+        'pointRedemptionValue' => max(1, (int) ($settings['point_redemption_value'] ?? 10000)),
         'food' => auth()->user()->tenant->hasBusinessModule('food'),
         'pendingPayments' => $pendingPayments,
         'tenant' => auth()->user()->tenant_id,
@@ -132,7 +140,7 @@
                         <span class="w-1.5 h-1.5 rounded-full" :class="online ? 'bg-emerald-500' : 'bg-amber-500'">
                         </span>
 
-                        <span x-text="online ? 'Terhubung' : 'Offline'"></span>
+                        <span x-text="!online ? 'Koneksi terputus' : syncing ? 'Mengirim transaksi…' : queue.length ? queue.length + ' transaksi perlu dikirim' : 'Jaringan tersedia'"></span>
 
                     </span>
 
@@ -152,6 +160,37 @@
                max-[900px]:justify-start
                max-[900px]:overflow-x-auto
                max-[900px]:pb-1">
+
+            {{-- SHIFT --}}
+            <button type="button" @click="shift ? prepareClose() : (modal='openShift')"
+                class="inline-flex items-center justify-center gap-2
+                   h-11 px-4
+                   shrink-0
+                   rounded-lg
+                   border
+                   text-[13px] font-semibold
+                   transition-colors
+                   focus-visible:outline-none
+                   focus-visible:ring-2
+                   focus-visible:ring-[#17694d]/20"
+                :class="shift
+                    ?
+                    'border-[#cfe2d5] bg-[#edf7f0] text-[#17694d] hover:bg-[#e2f1e7]' :
+                    'border-[#dae4dd] bg-white text-[#234a3b] hover:bg-[#f1f7f3]'">
+
+                <span class="w-2 h-2 rounded-full" :class="shift ? 'bg-emerald-500' : 'bg-slate-300'">
+                </span>
+
+                <span x-text="shift ? 'Sesi aktif' : 'Mulai jualan'">
+                </span>
+
+                <x-icon class="fa-solid fa-chevron-down
+                       text-[9px]
+                       opacity-60" />
+
+            </button>
+
+
 
             {{-- RIWAYAT TRANSAKSI: tetap di shell POS, tidak membawa kasir ke back-office --}}
             <button type="button" @click="modal='history'"
@@ -285,36 +324,6 @@
             </button>
 
 
-            {{-- SHIFT --}}
-            <button type="button" @click="shift ? prepareClose() : (modal='openShift')"
-                class="inline-flex items-center justify-center gap-2
-                   h-11 px-4
-                   shrink-0
-                   rounded-lg
-                   border
-                   text-[13px] font-semibold
-                   transition-colors
-                   focus-visible:outline-none
-                   focus-visible:ring-2
-                   focus-visible:ring-[#17694d]/20"
-                :class="shift
-                    ?
-                    'border-[#cfe2d5] bg-[#edf7f0] text-[#17694d] hover:bg-[#e2f1e7]' :
-                    'border-[#dae4dd] bg-white text-[#234a3b] hover:bg-[#f1f7f3]'">
-
-                <span class="w-2 h-2 rounded-full" :class="shift ? 'bg-emerald-500' : 'bg-slate-300'">
-                </span>
-
-                <span x-text="shift ? 'Shift aktif' : 'Buka shift'">
-                </span>
-
-                <x-icon class="fa-solid fa-chevron-down
-                       text-[9px]
-                       opacity-60" />
-
-            </button>
-
-
             {{-- BANTUAN --}}
             <a href="{{ route('help') }}"
                 class="inline-flex items-center justify-center
@@ -339,9 +348,10 @@
         </div>
 
     </header>
+    <p class="px-4 mt-2 text-xs text-ink-700 min-[901px]:hidden">Geser menu atas untuk melihat fitur kasir lainnya.</p>
     <div class="[&[x-cloak]]:!hidden mx-4 mt-4 [padding:13px_16px] rounded-md [background:#fff6df] [color:#81591c] [font-size:13px] [line-height:1.6]"
         x-show="!online" x-cloak>Offline. Transaksi tunai disimpan di perangkat ini dan diperiksa server saat tersambung
-        kembali. QRIS membutuhkan koneksi.</div>
+        kembali. QRIS otomatis dan pembayaran manual memerlukan koneksi.</div>
     <div class="[&[x-cloak]]:!hidden mx-4 mt-4 [padding:13px_16px] rounded-md [background:#fff6df] [color:#81591c] [font-size:13px] [line-height:1.6]"
         x-show="notice" x-cloak role="status"><span x-text="notice"></span><button class="float-right ml-4"
             @click="notice=''" aria-label="Tutup pemberitahuan">×</button></div>
@@ -395,7 +405,7 @@
                     </select></label></div>
             <div
                 class="grid [grid-template-columns:repeat(auto-fill,_minmax(155px,_1fr))] gap-3.5 max-[701px]:[grid-template-columns:repeat(2,_minmax(0,_1fr))] max-[701px]:gap-2.5">
-                <template x-for="p in filtered" :key="p.id">
+                <template x-for="p in visibleProducts" :key="p.id">
                     <article
                         class="bg-white [border:1px_solid_#e0e8df] [border-radius:14px] overflow-hidden relative [transition:transform_0.15s,_box-shadow_0.15s] hover:[transform:translateY(-2px)] hover:[box-shadow:0_7px_18px_#18372d0b]">
                         <button
@@ -405,7 +415,7 @@
                             :aria-pressed="favorites.includes(p.id)"
                             x-text="favorites.includes(p.id)?'★':'☆'"></button><button
                             class="block w-full text-left p-3.5 [min-height:173px] max-[701px]:p-3"
-                            @click="choose(p)">
+                            @click="pick(p)">
                             <div
                                 class="[height:66px] [border-radius:9px] [background:#f2eee4] flex items-center justify-center [font-size:28px] [color:#867450] font-bold mb-3 overflow-hidden [&_img]:w-full [&_img]:h-full [&_img]:object-cover">
                                 <template x-if="p.image"><img :src="p.image" alt=""
@@ -509,6 +519,7 @@
                         href="{{ route('getting-started') }}">Siapkan atau impor menu →</a>
                 @endif
             </div>
+            <div class="mt-5 text-sm text-ink-700" x-show="filtered.length > visibleLimit"><p x-text="'Menampilkan '+visibleProducts.length+' dari '+filtered.length+' item. Cari nama atau scan barcode untuk langsung memilih.'"></p><button type="button" @click="visibleLimit += 60" class="mt-3 min-h-11 px-4 font-semibold bg-white border rounded-md">Tampilkan 60 item berikutnya</button></div>
         </section>
         <aside
             class="bg-white [border:1px_solid_#e1e9e4] rounded-lg [padding:22px] [box-shadow:0_2px_5px_#17392c03] max-[701px]:[padding:18px] sticky [top:20px] [align-self:start] [max-height:calc(100vh_-_115px)] overflow-auto p-5 max-[701px]:relative max-[701px]:[max-height:none] max-[701px]:[margin-top:22px]"
@@ -619,16 +630,21 @@
 
                 </div>
             </template>
-            @can('feature-crm')<label
+            @can('feature-crm')
+            <label class="block mt-4 text-xs font-semibold text-ink-700">Cari pelanggan, nomor telepon, atau kode member
+                <input type="search" x-model="customerSearch" @input.debounce.300ms="lookupCustomers()" maxlength="100" class="block w-full mt-2 rounded-md border-border min-h-11" placeholder="Ketik nama, telepon, atau kode member">
+            </label>
+            <p class="mt-1 text-xs text-ink-500">Maksimal 50 hasil. Pelanggan terpilih tetap disertakan.</p>
+            <p x-show="customerSearchError" x-text="customerSearchError" role="alert" class="text-sm text-red-700"></p>
+            <label
                     class="block [font-size:12px] font-semibold [color:#536b5e] [&_input]:block [&_input]:w-full [&_input]:[margin-top:7px] [&_input]:[border:1px_solid_#dce5de] [&_input]:[border-radius:9px] [&_input]:[padding:11px] [&_input]:bg-white [&_input]:[font-size:14px] [&_input]:[color:#18372d] [&_input]:min-h-11 [&_select]:block [&_select]:w-full [&_select]:[margin-top:7px] [&_select]:[border:1px_solid_#dce5de] [&_select]:[border-radius:9px] [&_select]:[padding:11px] [&_select]:bg-white [&_select]:[font-size:14px] [&_select]:[color:#18372d] [&_select]:min-h-11 [&_textarea]:block [&_textarea]:w-full [&_textarea]:[margin-top:7px] [&_textarea]:[border:1px_solid_#dce5de] [&_textarea]:[border-radius:9px] [&_textarea]:[padding:11px] [&_textarea]:bg-white [&_textarea]:[font-size:14px] [&_textarea]:[color:#18372d] [&_textarea]:min-h-11 mt-4">Pelanggan
                     / member<select x-model="customer">
                         <option value="">Pelanggan umum</option>
-                        @foreach ($customers as $customer)
-                            <option value="{{ $customer->id }}">
-                                {{ $customer->name }}{{ $customer->is_member ? ' · Member' : '' }}</option>
-                        @endforeach
+                        <template x-for="person in customerOptions" :key="person.id"><option :value="person.id" x-text="person.name + (person.is_member ? ' · Member · ' + person.points + ' poin' : '')"></option></template>
                     </select>
-            </label>@endcan
+            </label>
+            <button type="button" @click="openCustomerForm()" class="min-h-11 mt-2 px-3 text-xs font-semibold border rounded-md border-border-200 text-primary-700">+ Tambah pelanggan / member</button>
+            @endcan
             <label
                 class="block [font-size:12px] font-semibold [color:#536b5e] [&_input]:block [&_input]:w-full [&_input]:[margin-top:7px] [&_input]:[border:1px_solid_#dce5de] [&_input]:[border-radius:9px] [&_input]:[padding:11px] [&_input]:bg-white [&_input]:[font-size:14px] [&_input]:[color:#18372d] [&_input]:min-h-11 [&_select]:block [&_select]:w-full [&_select]:[margin-top:7px] [&_select]:[border:1px_solid_#dce5de] [&_select]:[border-radius:9px] [&_select]:[padding:11px] [&_select]:bg-white [&_select]:[font-size:14px] [&_select]:[color:#18372d] [&_select]:min-h-11 [&_textarea]:block [&_textarea]:w-full [&_textarea]:[margin-top:7px] [&_textarea]:[border:1px_solid_#dce5de] [&_textarea]:[border-radius:9px] [&_textarea]:[padding:11px] [&_textarea]:bg-white [&_textarea]:[font-size:14px] [&_textarea]:[color:#18372d] [&_textarea]:min-h-11 mt-4">Catatan
                 pesanan<input x-model="orderNote" placeholder="Mis. bungkus terpisah" maxlength="300"></label>
@@ -640,6 +656,9 @@
                 <div class="flex flex-wrap items-center justify-between gap-3" x-show="amounts.discount"><span
                         class="[color:#65796f] [font-size:13px] [line-height:1.6]">Diskon menu</span><span
                         x-text="'-'+money(amounts.discount)"></span></div>
+                <div class="flex flex-wrap items-center justify-between gap-3" x-show="amounts.loyaltyDiscount"><span
+                        class="[color:#65796f] [font-size:13px] [line-height:1.6]">Potongan poin</span><span
+                        x-text="'-'+money(amounts.loyaltyDiscount)"></span></div>
                 <div class="flex flex-wrap items-center justify-between gap-3" x-show="amounts.tax"><span
                         class="[color:#65796f] [font-size:13px] [line-height:1.6]">Pajak</span><span
                         x-text="money(amounts.tax)"></span></div>
@@ -959,8 +978,28 @@
                             class="inline-flex items-center justify-center gap-2 min-h-11 [padding:10px_17px] [border:1px_solid_#dae4dd] rounded-md bg-white [color:#234a3b] [font-size:13px] font-semibold cursor-pointer hover:[background:#f1f7f3] disabled:[opacity:0.45] disabled:cursor-wait focus-visible:[outline:3px_solid_#90b9a5] focus-visible:[outline-offset:3px]"
                             :class="method === 'midtrans' &&
                                 '![background:#17694d] !text-white ![border-color:#17694d] hover:![background:#12523d]'"
-                            @click="method='midtrans'" :disabled="!online">QRIS</button>
+                            @click="method='midtrans'" :disabled="!online">QRIS otomatis</button>
                     @endcan
+                    @can('feature-crm')
+                        <button type="button" class="min-h-11 px-4 font-semibold border rounded-md" :aria-pressed="method==='credit'" @click="method='credit'">Catat bon</button>
+                    @endcan
+                </div>
+                <div class="flex flex-wrap gap-3 mt-3">
+                    <button type="button" class="min-h-11 px-4 border rounded-md" :class="method==='transfer' && 'bg-primary-50 text-primary-700'" :aria-pressed="method==='transfer'" @click="method='transfer'; manualConfirmed=false" :disabled="!online">Transfer bank</button>
+                    <button type="button" class="min-h-11 px-4 border rounded-md" :class="method==='qris_manual' && 'bg-primary-50 text-primary-700'" :aria-pressed="method==='qris_manual'" @click="method='qris_manual'; manualConfirmed=false" :disabled="!online">QRIS toko (manual)</button>
+                </div>
+                <div x-show="['transfer','qris_manual'].includes(method)" x-cloak class="p-4 mt-4 space-y-3 border rounded-md border-border-200">
+                    <p class="text-sm text-ink-700">Gunakan rekening atau QRIS milik toko. GrowPOS hanya mencatat pembayaran ini; tidak memeriksa saldo bank dan tidak menambah saldo pencairan GrowPOS.</p>
+                    <label class="block text-sm">Referensi pembayaran (opsional)<input x-model="paymentReference" maxlength="100" class="block w-full mt-2 border rounded-md border-border-200"></label>
+                    <label class="flex items-start gap-3 text-sm"><input type="checkbox" x-model="manualConfirmed" class="mt-1"> Saya sudah memeriksa dana masuk sebesar total tagihan di rekening/aplikasi toko.</label>
+                </div>
+                <p x-show="method==='credit'" class="mt-4 text-sm text-ink-700">Bon dicatat sebagai piutang tanpa penerimaan tunai. Pilih pelanggan pada pesanan sebelum konfirmasi.</p>
+                <div x-show="canUsePoints" x-cloak class="p-4 mt-4 border rounded-md border-border-200 bg-primary-50">
+                    <p class="text-sm font-semibold text-primary-900">Poin member: <span x-text="formatQuantity(selectedCustomer?.points || 0)"></span></p>
+                    <label class="block mt-3 text-xs font-semibold text-ink-900">Gunakan poin
+                        <input type="number" min="0" :step="config.pointRedemptionPoints" :max="maxRedeemablePoints" x-model.number="pointsToRedeem" class="block w-full mt-1 rounded-md border-border-200">
+                    </label>
+                    <p class="mt-2 text-xs text-ink-700" x-text="`Setiap ${formatQuantity(config.pointRedemptionPoints)} poin memberi potongan ${money(config.pointRedemptionValue)}. Maksimal saat ini ${formatQuantity(maxRedeemablePoints)} poin.`"></p>
                 </div>
                 <form @submit.prevent="submit()">
                     <div x-show="method==='cash'"><label
@@ -982,7 +1021,20 @@
                         Buat QR, lalu tunggu konfirmasi pembayaran dari server.</p><button
                         class="inline-flex items-center justify-center gap-2 min-h-11 [padding:10px_17px] [border:1px_solid_#dae4dd] rounded-md bg-white [color:#234a3b] [font-size:13px] font-semibold cursor-pointer hover:[background:#f1f7f3] disabled:[opacity:0.45] disabled:cursor-wait focus-visible:[outline:3px_solid_#90b9a5] focus-visible:[outline-offset:3px] ![background:#17694d] !text-white ![border-color:#17694d] hover:![background:#12523d] w-full mt-5"
                         :disabled="busy"
-                        x-text="busy?'Memproses…':(!online?'Simpan transaksi tunai di perangkat':'Konfirmasi pembayaran')"></button>
+                        x-text="busy?'Memproses…':(method==='credit'?'Konfirmasi bon':(!online?'Simpan transaksi tunai di perangkat':'Konfirmasi pembayaran'))"></button>
+                </form>
+            </section>
+            <section x-show="modal==='customer'" x-cloak>
+                <h2>Tambah pelanggan</h2>
+                <p class="mt-2 text-sm text-ink-700">Pelanggan dapat dipilih untuk nota ini.</p>
+                <form @submit.prevent="saveCustomer()" class="mt-4 space-y-3">
+                    <label class="block text-xs font-semibold">Nama pelanggan<input x-model.trim="newCustomerName" required maxlength="255" class="block w-full mt-1 rounded-md border-border-200"></label>
+                    <label class="block text-xs font-semibold">Nomor WhatsApp<input x-model.trim="newCustomerPhone" required maxlength="20" inputmode="tel" class="block w-full mt-1 rounded-md border-border-200"></label>
+                    @can('feature-loyalty')
+                        <label class="flex items-start gap-2 text-sm"><input type="checkbox" x-model="newCustomerMember" class="mt-1"><span>Daftarkan sebagai member dan bagikan kartu setelah transaksi</span></label>
+                    @endcan
+                    <p x-show="customerCreateError" x-text="customerCreateError" role="alert" class="text-sm text-red-700"></p>
+                    <button :disabled="busy" class="w-full min-h-11 px-4 text-sm font-semibold text-white rounded-md bg-primary-700">Simpan pelanggan</button>
                 </form>
             </section>
             <section x-show="modal==='drafts'">
@@ -1027,6 +1079,7 @@
                     href="{{ route('help') }}">Cara menangani antrean tertahan</a>
             </section>
             <section x-show="modal==='pendingPayments'">
+                <p class="mb-3 text-sm text-ink-700">Menampilkan maksimal 50 pembayaran terbaru. <a class="underline" href="{{ route('orders.index') }}">Lihat seluruh riwayat transaksi</a>.</p>
                 <h2>QRIS menunggu konfirmasi</h2>
                 <p class="[color:#65796f] [font-size:13px] [line-height:1.6] mt-2">Buka kembali pembayaran yang sudah
                     dibuat. Periksa status sebelum menerima pembayaran lain.</p><template
@@ -1068,7 +1121,18 @@
                         x-text="receipt.invoice_number"></p><a
                         class="inline-flex items-center justify-center gap-2 min-h-11 [padding:10px_17px] [border:1px_solid_#dae4dd] rounded-md bg-white [color:#234a3b] [font-size:13px] font-semibold cursor-pointer hover:[background:#f1f7f3] disabled:[opacity:0.45] disabled:cursor-wait focus-visible:[outline:3px_solid_#90b9a5] focus-visible:[outline-offset:3px] ![background:#17694d] !text-white ![border-color:#17694d] hover:![background:#12523d] w-full mt-5"
                         :href="'/orders/' + receipt.order_id + '/print'" target="_blank" rel="noopener">Cetak struk
-                        ↗</a><button
+                        ↗</a>
+                    <p x-show="receipt.loyalty_discount" class="mt-3 text-xs text-ink-700">Potongan poin: <strong x-text="money(receipt.loyalty_discount)"></strong> · <span x-text="formatQuantity(receipt.points_redeemed)"></span> poin digunakan</p>
+                    <div x-show="receipt.loyalty_card_url" x-cloak class="p-4 mt-4 text-left border rounded-lg border-border-200 bg-primary-50">
+                        <p class="text-sm font-semibold text-primary-900">Kartu loyalitas pelanggan</p>
+                        <p x-show="receipt.points_awarded" class="mt-1 text-xs text-primary-900">Poin didapat: <strong x-text="'+'+formatQuantity(receipt.points_awarded)"></strong> · Saldo <strong x-text="formatQuantity(receipt.points_balance)"></strong></p>
+                        <p class="mt-2 text-xs text-ink-700">Bagikan tautan kartu yang sama ke pelanggan. Admin meninjau pesan sebelum mengirimkannya.</p>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <a :href="receipt.whatsapp_share_url" target="_blank" rel="noopener noreferrer" class="inline-flex items-center min-h-10 px-3 text-xs font-semibold text-white rounded-md bg-primary-700">Bagikan lewat WhatsApp</a>
+                            <button type="button" @click="copyCardLink()" class="inline-flex items-center min-h-10 px-3 text-xs font-semibold border rounded-md border-border-200">Salin tautan kartu</button>
+                            <a :href="receipt.loyalty_card_url" target="_blank" rel="noopener noreferrer" class="inline-flex items-center min-h-10 px-3 text-xs font-semibold border rounded-md border-border-200">Lihat kartu</a>
+                        </div>
+                    </div><button
                         class="inline-flex items-center justify-center gap-2 min-h-11 [padding:10px_17px] [border:1px_solid_#dae4dd] rounded-md bg-white [color:#234a3b] [font-size:13px] font-semibold cursor-pointer hover:[background:#f1f7f3] disabled:[opacity:0.45] disabled:cursor-wait focus-visible:[outline:3px_solid_#90b9a5] focus-visible:[outline-offset:3px] w-full mt-2"
                         @click="location.reload()">Pesanan berikutnya</button>
                 </section>
@@ -1083,10 +1147,10 @@
                             @input="setCurrencyField('shiftCash', $event.target.value); $event.target.value=currencyInput(shiftCash)"
                             required></label><button
                         class="inline-flex items-center justify-center gap-2 min-h-11 [padding:10px_17px] [border:1px_solid_#dae4dd] rounded-md bg-white [color:#234a3b] [font-size:13px] font-semibold cursor-pointer hover:[background:#f1f7f3] disabled:[opacity:0.45] disabled:cursor-wait focus-visible:[outline:3px_solid_#90b9a5] focus-visible:[outline-offset:3px] ![background:#17694d] !text-white ![border-color:#17694d] hover:![background:#12523d] w-full mt-5"
-                        :disabled="busy">Buka shift</button></form>
+                        :disabled="busy">Mulai jualan</button></form>
             </section>
             <section x-show="modal==='closeShift'">
-                <h2>Tutup shift</h2>
+                <h2>Tutup penjualan</h2>
                 <p class="[color:#65796f] [font-size:13px] [line-height:1.6] mt-2">Pastikan antrean di perangkat lain
                     juga sudah tersinkron.</p>
                 <p class="[color:#65796f] [font-size:13px] [line-height:1.6] mt-5">Kas yang diharapkan</p>
@@ -1098,7 +1162,7 @@
                             @input="setCurrencyField('shiftCash', $event.target.value); $event.target.value=currencyInput(shiftCash)"
                             required></label><button
                         class="inline-flex items-center justify-center gap-2 min-h-11 [padding:10px_17px] [border:1px_solid_#dae4dd] rounded-md bg-white [color:#234a3b] [font-size:13px] font-semibold cursor-pointer hover:[background:#f1f7f3] disabled:[opacity:0.45] disabled:cursor-wait focus-visible:[outline:3px_solid_#90b9a5] focus-visible:[outline-offset:3px] ![background:#17694d] !text-white ![border-color:#17694d] hover:![background:#12523d] w-full mt-5"
-                        :disabled="busy">Simpan & tutup shift</button></form>
+                        :disabled="busy">Simpan & tutup penjualan</button></form>
             </section>
         </div>
     </div>

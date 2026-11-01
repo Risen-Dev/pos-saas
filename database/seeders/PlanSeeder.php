@@ -24,7 +24,9 @@ class PlanSeeder extends Seeder
                 'max_products' => 100,
                 'max_outlets' => 1,
                 'features' => [
-                    '100 Transaksi / Bulan' => true,
+                    'Transaksi Tanpa Batas' => true,
+                    'Pelanggan & Bon' => true,
+                    'Transfer & QRIS Manual' => true,
                     'Manajemen Stok Dasar' => true,
                     'Laporan Harian' => true,
                     'Analitik AI' => false,
@@ -48,7 +50,7 @@ class PlanSeeder extends Seeder
                 'features' => [
                     'Transaksi Tanpa Batas' => true,
                     'Manajemen Stok Lanjut' => true,
-                    'CRM & Loyalitas' => true,
+                    'Pelanggan, Bon & Loyalitas' => true,
                     'Panduan Operasional' => true,
                 ],
                 'is_active' => true,
@@ -61,7 +63,7 @@ class PlanSeeder extends Seeder
             ['slug' => 'scale'],
             [
                 'name' => 'Scale',
-                'description' => 'Solusi perusahaan untuk bisnis multi-cabang.',
+                'description' => 'Untuk UMKM dengan beberapa outlet dan tim lebih besar.',
                 'price' => 499000,
                 'duration_days' => 30,
                 'max_users' => 20,

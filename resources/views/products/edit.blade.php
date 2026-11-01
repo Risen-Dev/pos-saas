@@ -22,7 +22,7 @@
         <form action="{{ route('products.update', $product->id) }}" method="POST" enctype="multipart/form-data"
             class="space-y-6">
             @csrf
-            @include('products.partials.retail')
+            <details class="p-4 border rounded-lg border-border-200" @if($errors->any()) open @endif><summary class="font-semibold cursor-pointer">Satuan, kemasan & harga grosir</summary>@include('products.partials.retail')</details>
             @method('PUT')
 
             <!-- Section 1: Informasi Dasar -->
@@ -57,7 +57,7 @@
 
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div class="md:col-span-2">
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                        <label for="product_name" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
                             Nama Produk <span class="text-semantic-danger">*</span>
                         </label>
                         <input type="text" name="product_name" id="product_name"
@@ -66,7 +66,7 @@
                     </div>
 
                     <div>
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Kategori</label>
+                        <label for="category_id" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Kategori</label>
                         <select name="category_id" id="category_id" required
                             class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                             @foreach ($categories as $category)
@@ -79,7 +79,7 @@
                     </div>
 
                     <div>
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Tipe Produk</label>
+                        <label for="type_select" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Tipe Produk</label>
                         <select name="type" id="type_select"
                             class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                             <option value="product" {{ $product->type == 'product' ? 'selected' : '' }}>Barang Fisik
@@ -93,14 +93,14 @@
                         <input name="barcode" maxlength="100" value="{{ old('barcode', $product->barcode) }}" placeholder="Pindai barcode kemasan">
                     </label>
                     <div class="md:col-span-2">
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Kode SKU</label>
+                        <label for="sku_input" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Kode SKU</label>
                         <div class="relative">
                             <input type="text" name="sku" id="sku_input" value="{{ old('sku', $product->sku) }}"
                                 required
                                 class="w-full pl-3 pr-24 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                             <button type="button" onclick="generateSKU()"
                                 class="absolute right-1.5 top-1.5 h-8 px-3 text-[11px] font-body font-semibold text-primary-600 bg-primary-50 hover:bg-primary-100 rounded-sm transition-colors">
-                                Re-Generate
+                                Re-Buat otomatis
                             </button>
                         </div>
                     </div>
@@ -121,7 +121,7 @@
 
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Harga Modal
+                        <label for="display_cost_price" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Harga Modal
                             (HPP)</label>
                         <input type="text" id="display_cost_price"
                             value="Rp {{ number_format($product->cost_price, 0, ',', '.') }}"
@@ -130,7 +130,7 @@
                     </div>
 
                     <div>
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Harga Jual</label>
+                        <label for="display_sell_price" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Harga Jual</label>
                         <input type="text" id="display_sell_price"
                             value="Rp {{ number_format($product->sell_price, 0, ',', '.') }}" required
                             class="w-full px-3 font-mono text-xs font-bold text-right transition-all border rounded-sm outline-none h-11 text-primary-600 bg-primary-50/40 border-primary-200 focus:border-primary-600">
@@ -150,7 +150,7 @@
                                     by-order.</p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                                <input type="checkbox" name="manage_stock" id="manage_stock" value="1"
+                                <input aria-label="Lacak ketersediaan stok" type="checkbox" name="manage_stock" id="manage_stock" value="1"
                                     {{ $product->manage_stock ? 'checked' : '' }} class="sr-only peer">
                                 <div
                                     class="w-11 h-6 bg-border-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border-200 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600">
@@ -162,13 +162,14 @@
                     <!-- Inventory Stock Fields -->
                     <div id="inventory_fields" class="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
                         <div>
-                            <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Jumlah Stok Saat
+                            <label for="stock_input" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Jumlah Stok Saat
                                 Ini</label>
-                            <input type="number" name="stock" step="0.001" id="stock_input" value="{{ $product->stock }}"
+                            <input type="number" step="0.001" id="stock_input" readonly aria-describedby="stock-help" value="{{ $product->
+                            <p id="stock-help" class="mt-2 text-xs text-ink-700">Stok tidak berubah saat menyimpan katalog. <a class="font-semibold underline" href="{{ route('inventory.index') }}">Ubah stok melalui inventori</a>.</p>stock }}"
                                 class="w-full px-3 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                         </div>
                         <div>
-                            <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Batas Minimum
+                            <label for="min_stock_input" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Batas Minimum
                                 Warning</label>
                             <input type="number" name="min_stock" step="0.001" id="min_stock_input"
                                 value="{{ $product->min_stock }}"

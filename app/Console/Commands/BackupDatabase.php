@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\BackupArchive;
 use App\Services\OperationalHeartbeat;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -25,6 +26,7 @@ class BackupDatabase extends Command
         }
         $base = $directory.'/'.now()->format('Ymd-His').'-'.Str::uuid();
         $credentials = null;
+        $localComplete = false;
         $path = $base.($config['driver'] === 'sqlite' ? '.sqlite' : '.sql');
         try {
             if ($config['driver'] === 'sqlite') {
@@ -54,6 +56,8 @@ class BackupDatabase extends Command
             chmod($path, 0600);
             file_put_contents($path.'.sha256', hash_file('sha256', $path));
             chmod($path.'.sha256', 0600);
+            $localComplete = true;
+            app(BackupArchive::class)->replicate($path);
             if (Schema::hasTable('operational_heartbeats')) {
                 app(OperationalHeartbeat::class)->record('backup');
             }
@@ -62,10 +66,11 @@ class BackupDatabase extends Command
 
             return self::SUCCESS;
         } catch (\Throwable $exception) {
-            if (is_file($path)) {
+            if (! $localComplete && is_file($path)) {
                 unlink($path);
             }
-            $this->error('Backup tidak selesai. Database asli tidak diubah.');
+            report($exception);
+            $this->error($localComplete ? 'Backup lokal tersimpan, tetapi replikasi offsite belum terverifikasi. Periksa konfigurasi dan log operasional.' : 'Backup tidak selesai. Database asli tidak diubah.');
 
             return self::FAILURE;
         } finally {

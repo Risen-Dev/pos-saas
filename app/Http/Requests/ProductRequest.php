@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Services\RetailQuantity;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class ProductRequest extends FormRequest
@@ -26,7 +27,8 @@ class ProductRequest extends FormRequest
             'units.*.name' => 'required|string|max:30|distinct',
             'units.*.factor' => 'required|numeric|decimal:0,3|min:0.001|max:1000000',
             'units.*.price' => 'required|integer|min:0|max:100000000',
-            'category_id' => ['required', Rule::exists('categories', 'id')->where('tenant_id', $this->user()->tenant_id)],
+            'category_name' => 'nullable|string|max:100',
+            'category_id' => ['nullable', Rule::exists('categories', 'id')->where('tenant_id', $this->user()->tenant_id)],
             'sku' => ['required', 'string', 'max:255', Rule::unique('products', 'sku')->ignore($this->route('product'))],
             'barcode' => ['nullable', 'string', 'max:100', Rule::unique('products', 'barcode')->where('tenant_id', $this->user()->tenant_id)->ignore($this->route('product'))],
             'product_name' => 'required|string|max:255',
@@ -44,6 +46,9 @@ class ProductRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        if (blank($this->input('sku'))) {
+            $this->merge(['sku' => $this->route('product')?->sku ?? 'ITEM-'.Str::uuid()]);
+        }
         foreach (['units' => ['name', 'factor', 'price'], 'price_tiers' => ['min_quantity', 'price']] as $key => $fields) {
             if (is_array($this->input($key))) {
                 $rows = array_values(array_filter($this->input($key), fn ($row) => ! is_array($row) || collect($fields)->contains(fn ($field) => filled($row[$field] ?? null))));
@@ -70,7 +75,7 @@ class ProductRequest extends FormRequest
 
     public function catalogData(): array
     {
-        $data = $this->safe()->except(['image', 'units']);
+        $data = $this->safe()->except(['image', 'units', 'category_name']);
         $tracked = $data['type'] === 'product' && $this->boolean('manage_stock');
 
         return array_merge($data, [

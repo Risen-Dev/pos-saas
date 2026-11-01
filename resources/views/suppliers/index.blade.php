@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('title', 'Daftar Supplier')
+    @section('title', 'Daftar Pemasok')
 
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop" x-data="{ showDeleteModal: false, deleteUrl: '', supplierName: '' }">
 
@@ -8,7 +8,7 @@
             class="flex flex-col justify-between gap-4 pb-6 mb-8 border-b sm:flex-row sm:items-center border-border-200">
             <div>
                 <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
-                    Daftar Supplier & Pemasok
+                    Daftar Pemasok & Pemasok
                 </h1>
                 <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
                     Kelola hubungan dengan vendor bahan baku, termin pembayaran (TOP), dan info rekening bank supplier.
@@ -16,10 +16,10 @@
             </div>
 
             <!-- Button Primary: Height 44px, Radius-md (10px), Emerald Green -->
-            <button onclick="document.getElementById('addSupplierModal').classList.remove('hidden')"
+            <button onclick="document.getElementById('addPemasokModal').classList.remove('hidden')"
                 class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm shrink-0">
                 <x-icon class="text-xs fa-solid fa-truck-field" />
-                <span>Tambah Supplier</span>
+                <span>Tambah Pemasok</span>
             </button>
         </div>
 
@@ -28,7 +28,7 @@
             <div
                 class="flex items-center justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <div>
-                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Total Supplier
+                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Total Pemasok
                         Terdaftar</span>
                     <p class="mt-2 font-mono text-2xl font-semibold md:text-3xl text-ink-900">
                         {{ $suppliers->total() }}
@@ -78,7 +78,7 @@
                     <thead>
                         <tr
                             class="h-12 text-xs font-semibold tracking-wider uppercase border-b bg-surface-100 border-border-200 font-heading text-ink-700">
-                            <th class="px-5 py-3">Nama Supplier & ID</th>
+                            <th class="px-5 py-3">Nama Pemasok & ID</th>
                             <th class="px-5 py-3 text-center">Termin Pembayaran (TOP)</th>
                             <th class="px-5 py-3">Kontak & Info Rekening Bank</th>
                             <th class="px-5 py-3 text-center">Aksi</th>
@@ -88,7 +88,7 @@
                         @forelse($suppliers as $item)
                             <tr class="h-12 transition-colors hover:bg-surface-100/60">
 
-                                <!-- Supplier Avatar, Name & ID Code -->
+                                <!-- Pemasok Avatar, Name & ID Code -->
                                 <td class="px-5 py-3">
                                     <div class="flex items-center gap-3">
                                         <div
@@ -143,7 +143,7 @@
                                     <button type="button"
                                         @click="showDeleteModal = true; deleteUrl = '{{ route('suppliers.destroy', $item->id) }}'; supplierName = '{{ addslashes($item->name) }}'"
                                         class="p-2 transition-colors rounded-md text-ink-700 hover:text-semantic-danger bg-surface-100 hover:bg-red-50"
-                                        title="Hapus Supplier">
+                                        title="Hapus Pemasok">
                                         <x-icon class="text-xs fa-solid fa-trash-can" />
                                     </button>
                                 </td>
@@ -177,14 +177,14 @@
             {{ $suppliers->links() }}
         </div>
 
-        <!-- Modal Tambah Supplier (Max-Width 480px / max-w-modal-sm, Backdrop Blur 2px) -->
-        <div id="addSupplierModal"
+        <!-- Modal Tambah Pemasok (Max-Width 480px / max-w-modal-sm, Backdrop Blur 2px) -->
+        <div data-dialog id="addPemasokModal"
             class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-ink-900/40 backdrop-blur-[2px]">
             <div class="w-full p-6 border rounded-lg shadow-lg bg-surface-0 max-w-modal-sm border-border-200">
 
                 <div class="flex items-center justify-between pb-3 mb-4 border-b border-border-200">
-                    <h3 class="text-lg font-semibold font-heading text-ink-900">Tambah Supplier Baru</h3>
-                    <button type="button" onclick="document.getElementById('addSupplierModal').classList.add('hidden')"
+                    <h3 class="text-lg font-semibold font-heading text-ink-900">Tambah Pemasok Baru</h3>
+                    <button type="button" onclick="document.getElementById('addPemasokModal').classList.add('hidden')"
                         class="p-1 text-ink-400 hover:text-ink-900">
                         <x-icon class="text-base fa-solid fa-xmark" />
                     </button>
@@ -195,10 +195,10 @@
 
                     <!-- Nama Perusahaan / Vendor -->
                     <div>
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
-                            Nama Perusahaan / Supplier <span class="text-semantic-danger">*</span>
+                        <label for="field-name" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                            Nama Perusahaan / Pemasok <span class="text-semantic-danger">*</span>
                         </label>
-                        <input type="text" name="name" required
+                        <input id="field-name" type="text" name="name" required
                             placeholder="Contoh: PT Kopi Perkasa, Toko Sumber Rejeki"
                             class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
                     </div>
@@ -206,15 +206,15 @@
                     <!-- No WhatsApp & TOP -->
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">No.
+                            <label for="field-phone" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">No.
                                 WhatsApp</label>
-                            <input type="text" name="phone" placeholder="0812xxxx"
+                            <input id="field-phone" type="text" name="phone" placeholder="0812xxxx"
                                 class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600">
                         </div>
                         <div>
-                            <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Termin (TOP
+                            <label for="field-term_of_payment" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Termin (TOP
                                 Hari)</label>
-                            <input type="number" name="term_of_payment" value="0"
+                            <input id="field-term_of_payment" type="number" name="term_of_payment" value="0"
                                 class="w-full px-3 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                         </div>
                     </div>
@@ -225,15 +225,15 @@
                             Informasi Pembayaran Bank</p>
                         <div class="grid grid-cols-2 gap-2.5">
                             <div>
-                                <label class="block font-body text-[11px] font-medium text-ink-700 mb-1">Nama
+                                <label for="field-bank_name" class="block font-body text-[11px] font-medium text-ink-700 mb-1">Nama
                                     Bank</label>
-                                <input type="text" name="bank_name" placeholder="BCA / Mandiri"
+                                <input id="field-bank_name" type="text" name="bank_name" placeholder="BCA / Mandiri"
                                     class="w-full h-10 px-3 text-xs border rounded-sm outline-none font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                             </div>
                             <div>
-                                <label class="block font-body text-[11px] font-medium text-ink-700 mb-1">No.
+                                <label for="field-bank_account_number" class="block font-body text-[11px] font-medium text-ink-700 mb-1">No.
                                     Rekening</label>
-                                <input type="text" name="bank_account_number" placeholder="123xxxx"
+                                <input id="field-bank_account_number" type="text" name="bank_account_number" placeholder="123xxxx"
                                     class="w-full h-10 px-3 font-mono text-xs border rounded-sm outline-none text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                             </div>
                         </div>
@@ -241,30 +241,30 @@
 
                     <!-- Alamat Lengkap -->
                     <div>
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Alamat Lengkap Kantor
+                        <label for="field-address" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Alamat Lengkap Kantor
                             / Gudang</label>
-                        <textarea name="address" rows="2" placeholder="Contoh: Jl. Industri Raya No. 45, Jakarta"
+                        <textarea id="field-address" name="address" rows="2" placeholder="Contoh: Jl. Industri Raya No. 45, Jakarta"
                             class="w-full p-3 text-xs transition-all border rounded-sm outline-none font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600"></textarea>
                     </div>
 
                     <!-- Action Buttons -->
                     <div class="flex items-center gap-3 pt-3">
                         <button type="button"
-                            onclick="document.getElementById('addSupplierModal').classList.add('hidden')"
+                            onclick="document.getElementById('addPemasokModal').classList.add('hidden')"
                             class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">
                             Batal
                         </button>
                         <button type="submit"
                             class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body">
-                            Simpan Supplier
+                            Simpan Pemasok
                         </button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- Modal Confirm Hapus Supplier -->
-        <div x-show="showDeleteModal" x-cloak x-transition:enter="transition ease-out duration-200"
+        <!-- Modal Confirm Hapus Pemasok -->
+        <div data-dialog x-show="showDeleteModal" x-cloak x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
@@ -279,7 +279,7 @@
                 </div>
 
                 <div class="mb-6 text-center">
-                    <h3 class="text-lg font-semibold font-heading text-ink-900">Hapus Supplier Ini?</h3>
+                    <h3 class="text-lg font-semibold font-heading text-ink-900">Hapus Pemasok Ini?</h3>
                     <p class="mt-2 text-xs leading-relaxed font-body text-ink-700">
                         Apakah Anda yakin ingin menghapus data supplier <span class="font-semibold text-ink-900"
                             x-text="supplierName"></span>? Riwayat mutasi bahan baku yang terikat tidak akan terhapus.

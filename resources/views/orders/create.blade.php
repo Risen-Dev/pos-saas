@@ -5,7 +5,7 @@
         <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-primary-50 text-primary-600">
             <x-icon class="text-2xl fa-solid fa-cash-register" />
         </div>
-        <h2 class="mb-2 text-xl font-bold font-heading text-ink-900">Membuka POS Terminal...</h2>
+        <h2 class="mb-2 text-xl font-bold font-heading text-ink-900">Membuka Kasir...</h2>
         <p class="mb-6 text-xs font-body text-ink-700">
             Sistem penginputan transaksi baru dialihkan ke Terminal Kasir GrowPOS yang dilengkapi fitur katalog cepat &
             kalkulasi otomatis.

@@ -27,6 +27,7 @@ class LaunchCheck extends Command
             'Midtrans live mode enabled' => (bool) config('services.midtrans.is_production'),
             'Midtrans server key configured' => filled(config('services.midtrans.server_key')),
             'SMTP host configured' => config('mail.default') !== 'smtp' || filled(config('mail.mailers.smtp.host')),
+            'Independent offsite backup disk configured' => filled(config('backup.offsite_disk')) && ! in_array(config('backup.offsite_disk'), ['local', 'public'], true),
             'Support contact configured' => filled(config('launch.support_email')),
         ];
         try {

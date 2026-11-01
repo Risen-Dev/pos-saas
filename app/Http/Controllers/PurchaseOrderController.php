@@ -45,7 +45,7 @@ class PurchaseOrderController extends Controller
                 $po->items()->create($line);
             }
 
-            return redirect()->route('purchases.show', $po)->with('success', 'Purchase order dibuat.');
+            return redirect()->route('purchases.show', $po)->with('success', 'Pesanan pembelian dibuat.');
         });
     }
 

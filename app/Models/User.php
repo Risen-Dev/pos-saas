@@ -17,6 +17,8 @@ class User extends Authenticatable implements MustVerifyEmail
     // HANYA gunakan Trait resmi di sini (Jangan ada VerifyEmail di baris use ini)
     use HasFactory, HasRoles, Notifiable;
 
+    protected $attributes = ['status' => 'active'];
+
     protected $fillable = [
         'tenant_id',
         'name',

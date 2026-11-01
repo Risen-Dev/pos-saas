@@ -20,34 +20,37 @@
 
         <!-- Form Card Container -->
         <div class="p-6 border rounded-lg shadow-sm bg-surface-0 border-border-200">
-            <form action="{{ route('discounts.store') }}" method="POST" class="space-y-6">
+            <form action="{{ route('discounts.store') }}" method="POST" class="space-y-6" x-data="{ discountType: @js(old('type', 'percentage')) }">
                 @csrf
 
                 <!-- Row 1: Nama, Tipe & Nilai -->
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
                     <div>
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                        <label for="field-name" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
                             Nama Diskon / Event Promo <span class="text-semantic-danger">*</span>
                         </label>
-                        <input type="text" name="name"
+                        <input id="field-name" type="text" name="name"
                             placeholder="Contoh: Morning Coffee Promo, Sale Akhir Tahun" required
                             class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Tipe Skema</label>
-                            <select name="type"
+                            <label for="field-type" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Tipe Skema</label>
+                            <select id="field-type" name="type" x-model="discountType"
                                 class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
                                 <option value="percentage">Persentase (%)</option>
                                 <option value="fixed">Nominal (Rp)</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
-                                Nilai Diskon <span class="text-semantic-danger">*</span>
-                            </label>
-                            <input type="number" name="value" step="0.01" placeholder="10 atau 15000" required
+                        <div x-show="discountType === 'percentage'">
+                            <label for="field-value-percent" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Nilai Diskon (%) *</label>
+                            <input id="field-value-percent" type="number" name="value" step="0.01" placeholder="10" :disabled="discountType !== 'percentage'" value="{{ old('value') }}" required
+                                class="w-full px-3 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
+                        </div>
+                        <div x-show="discountType === 'fixed'" x-cloak>
+                            <label for="field-value-fixed" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Nilai Diskon (Rp) *</label>
+                            <input id="field-value-fixed" type="text" inputmode="numeric" data-rupiah-input name="value" placeholder="Rp 15.000" :disabled="discountType !== 'fixed'" value="{{ old('value') }}" required
                                 class="w-full px-3 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
                         </div>
                     </div>
@@ -61,26 +64,26 @@
 
                     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                         <div>
-                            <label class="block font-body text-[11px] font-medium text-ink-700 mb-1">Tanggal
+                            <label for="field-start_date" class="block font-body text-[11px] font-medium text-ink-700 mb-1">Tanggal
                                 Mulai</label>
-                            <input type="date" name="start_date"
+                            <input id="field-start_date" type="date" name="start_date"
                                 class="w-full h-10 px-3 text-xs border rounded-sm outline-none font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                         </div>
                         <div>
-                            <label class="block font-body text-[11px] font-medium text-ink-700 mb-1">Tanggal
+                            <label for="field-end_date" class="block font-body text-[11px] font-medium text-ink-700 mb-1">Tanggal
                                 Selesai</label>
-                            <input type="date" name="end_date"
+                            <input id="field-end_date" type="date" name="end_date"
                                 class="w-full h-10 px-3 text-xs border rounded-sm outline-none font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                         </div>
                         <div>
-                            <label class="block font-body text-[11px] font-medium text-ink-700 mb-1">Jam Mulai (Happy
+                            <label for="field-start_time" class="block font-body text-[11px] font-medium text-ink-700 mb-1">Jam Mulai (Happy
                                 Hour)</label>
-                            <input type="time" name="start_time"
+                            <input id="field-start_time" type="time" name="start_time"
                                 class="w-full h-10 px-3 text-xs border rounded-sm outline-none font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                         </div>
                         <div>
-                            <label class="block font-body text-[11px] font-medium text-ink-700 mb-1">Jam Selesai</label>
-                            <input type="time" name="end_time"
+                            <label for="field-end_time" class="block font-body text-[11px] font-medium text-ink-700 mb-1">Jam Selesai</label>
+                            <input id="field-end_time" type="time" name="end_time"
                                 class="w-full h-10 px-3 text-xs border rounded-sm outline-none font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                         </div>
                     </div>

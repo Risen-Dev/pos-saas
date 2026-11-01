@@ -183,16 +183,19 @@
                             <ul class="space-y-2.5 text-xs text-ink-700">
                                 <li class="flex items-center gap-2">
                                     <x-icon class="fa-solid fa-check text-emerald-600" />
-                                    <span>Maksimal <strong>{{ $plan->max_users }}</strong> Kasir / Karyawan</span>
+                                    <span>Maksimal <strong>{{ $plan->max_users }}</strong> pengguna (termasuk pemilik)</span>
                                 </li>
                                 <li class="flex items-center gap-2">
                                     <x-icon class="fa-solid fa-check text-emerald-600" />
-                                    <span>Maksimal <strong>{{ $plan->max_products }}</strong> SKU Produk</span>
+                                    <span>Maksimal <strong>{{ $plan->max_products }}</strong> produk / layanan</span>
                                 </li>
                                 <li class="flex items-center gap-2">
                                     <x-icon class="fa-solid fa-check text-emerald-600" />
-                                    <span>Maksimal <strong>{{ $plan->max_outlets }}</strong> Outlet Toko</span>
+                                    <span>Maksimal <strong>{{ $plan->max_outlets }}</strong> bisnis / outlet</span>
                                 </li>
+                                @foreach($plan->advertisedFeatures() as $feature => $included)
+                                    @if($included)<li class="flex items-center gap-2"><x-icon class="fa-solid fa-check text-emerald-600" /><span>{{ $feature }}</span></li>@endif
+                                @endforeach
                             </ul>
                         </div>
 
@@ -222,7 +225,7 @@
         </div>
 
         {{-- MODAL DETAIL & KONFIRMASI PEMBELIAN (Pencegah Bug Pending Invoice) --}}
-        <div x-show="showConfirmModal" x-cloak x-transition:enter="transition ease-out duration-200"
+        <div data-dialog x-show="showConfirmModal" x-cloak x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"

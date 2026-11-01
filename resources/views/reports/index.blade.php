@@ -11,19 +11,19 @@
                     Laporan Operasional
                 </h1>
                 <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
-                    Pantau seluruh performa omzet penjualan, HPP, estimasi laba sebelum retur/biaya, komisi platform, dan audit laci kasir
+                    Lihat penjualan, penerimaan tunai, pembayaran manual, dan bon. Buka rincian jika memerlukan perhitungan modal dan biaya.
                     secara langsung.
                 </p>
             </div>
 
             <form method="GET" action="{{ route('reports.index') }}"
                 class="flex flex-wrap items-center gap-2.5 p-2 bg-surface-0 border border-border-200 rounded-md shadow-sm">
-                <div class="flex items-center gap-2">
-                    <input type="date" name="start_date" value="{{ $startDate }}"
-                        class="h-10 px-3 text-xs border rounded-sm outline-none font-body text-ink-900 bg-surface-100 border-border-200 focus:border-primary-600">
+                <div class="grid w-full min-w-0 grid-cols-1 gap-2 sm:w-auto sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center">
+                    <input aria-label="Tanggal mulai" type="date" name="start_date" value="{{ $startDate }}"
+                        class="w-full min-w-0 h-10 px-3 text-xs border rounded-sm outline-none font-body text-ink-900 bg-surface-100 border-border-200 focus:border-primary-600">
                     <span class="text-xs font-semibold uppercase font-body text-ink-400">s/d</span>
-                    <input type="date" name="end_date" value="{{ $endDate }}"
-                        class="h-10 px-3 text-xs border rounded-sm outline-none font-body text-ink-900 bg-surface-100 border-border-200 focus:border-primary-600">
+                    <input aria-label="Tanggal sampai" type="date" name="end_date" value="{{ $endDate }}"
+                        class="w-full min-w-0 h-10 px-3 text-xs border rounded-sm outline-none font-body text-ink-900 bg-surface-100 border-border-200 focus:border-primary-600">
                 </div>
 
                 <button type="submit"
@@ -62,7 +62,14 @@
             $marginPercent = $netProfit !== null && $revenueBeforeTax > 0 ? number_format(($netProfit / $revenueBeforeTax) * 100, 1) : null;
         @endphp
 
+        <x-business-overview :overview="$overview" />
         @include('reports.partials.cash-summary')
+        <section class="grid gap-4 my-5 sm:grid-cols-2" aria-label="Ringkasan penjualan">
+            <div class="p-5 bg-white border rounded-lg border-border-200"><h2 class="text-sm font-semibold">Penjualan lunas</h2><p class="mt-2 text-2xl font-bold">Rp {{ number_format($salesSummary->total_net, 0, ',', '.') }}</p><p class="mt-2 text-xs text-ink-700">Termasuk pajak, sebelum retur. Mengikuti tanggal transaksi.</p></div>
+            <div class="p-5 bg-white border rounded-lg border-border-200"><h2 class="text-sm font-semibold">Transaksi lunas</h2><p class="mt-2 text-2xl font-bold">{{ number_format($salesSummary->total_transactions, 0, ',', '.') }}</p><p class="mt-2 text-xs text-ink-700">Bon yang belum lunas belum termasuk penjualan ini.</p></div>
+        </section>
+        <details class="my-5 p-4 border rounded-lg border-border-200">
+            <summary class="font-semibold cursor-pointer">Rincian modal, estimasi laba & biaya</summary>
         <!-- Stat Summary Cards Grid (Ringkasan Keuangan & Laba Bersih) -->
         <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-2 lg:grid-cols-3 md:gap-6">
 
@@ -177,6 +184,7 @@
             </div>
         </div>
 
+        </details>
         <!-- 2 Column Breakdown: Aliran Dana & Top 5 Selling -->
         <div class="grid grid-cols-1 gap-6 mb-8 lg:grid-cols-3">
 
@@ -214,8 +222,7 @@
                                 <div class="flex items-center justify-between mb-1.5">
                                     <div class="flex items-center gap-2">
                                         <span class="w-2 h-2 rounded-full bg-accent-500"></span>
-                                        <span class="text-xs font-semibold uppercase font-body text-accent-700">QRIS /
-                                            Online</span>
+                                        <span class="text-xs font-semibold uppercase font-body text-accent-700">{{ \App\Support\PaymentMethod::label($pm->payment_method) }}</span>
                                     </div>
                                     <span class="font-mono text-xs font-semibold text-ink-900">
                                         Rp {{ number_format($pm->total_amount, 0, ',', '.') }}
@@ -378,7 +385,7 @@
             <div class="p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200 lg:col-span-1">
                 <div class="mb-4">
                     <h3 class="text-base font-semibold font-heading text-ink-900">Proporsi Kanal Pembayaran</h3>
-                    <p class="font-body text-xs text-ink-700 mt-0.5">Perbandingan metode Tunai vs QRIS Online.</p>
+                    <p class="font-body text-xs text-ink-700 mt-0.5">Perbandingan metode pembayaran pada transaksi lunas.</p>
                 </div>
                 <div class="relative flex items-center justify-center w-full h-64">
                     <canvas id="paymentChart"></canvas>
@@ -388,10 +395,10 @@
 
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        window.addEventListener("growpos:charts-ready", function() {
             // 1. Chart Omzet Penjualan (GrowPOS Colors: Emerald Green #16805F)
             const ctxTrend = document.getElementById('trendChart').getContext('2d');
             const trendLabels = {!! json_encode($chartLabels) !!};
@@ -455,7 +462,7 @@
             let pmLabels = [];
             let pmValues = [];
             @foreach ($paymentMethods as $pm)
-                pmLabels.push("{{ $pm->payment_method == 'cash' ? 'Tunai (Cash)' : 'QRIS / Online' }}");
+                pmLabels.push("{{ \App\Support\PaymentMethod::label($pm->payment_method) }}");
                 pmValues.push({{ $pm->total_amount }});
             @endforeach
 

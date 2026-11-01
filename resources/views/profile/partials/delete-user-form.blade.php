@@ -35,8 +35,8 @@
 
             <div class="mb-6">
                 <label for="password" class="sr-only">Password</label>
-                <input type="password" id="password" name="password" placeholder="Masukkan Kata Sandi Anda"
-                    class="w-full px-3 font-mono text-xs transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-semantic-danger">
+                <div class="relative" x-data="{ passwordVisible: false }"><input type="password" :type="passwordVisible ? 'text' : 'password'" id="password" name="password" placeholder="Masukkan Kata Sandi Anda"
+                    class="pr-12 w-full px-3 font-mono text-xs transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-semantic-danger"><x-password-toggle control="password" /></div>
                 <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-1" />
             </div>
 

@@ -163,7 +163,7 @@
                                     </div>
                                 </td>
 
-                                <td class="px-5 py-3 font-mono text-xs text-ink-700">{{ $emp->email }}</td>
+                                <td class="px-5 py-3 font-mono text-xs text-ink-700">{{ $emp->email }}<span class="block mt-1 text-xs">{{ $emp->status === 'active' ? 'Akses aktif' : 'Akses nonaktif' }}</span></td>
 
                                 <td class="px-5 py-3 text-center">
                                     @if ($emp->role === 'admin')
@@ -183,7 +183,7 @@
                                 <td class="px-5 py-3 font-mono text-xs text-ink-700">
                                     {{ $emp->created_at->format('d M Y') }}</td>
 
-                                <td class="px-5 py-3 text-center">
+                                <td class="px-5 py-3 text-center">@if ($emp->id !== auth()->id() && $emp->id !== auth()->user()->tenant->user_id)<form action="{{ route('employees.status', $emp->id) }}" method="POST" class="mb-2">@csrf @method('PATCH')<input type="hidden" name="status" value="{{ $emp->status === 'active' ? 'inactive' : 'active' }}"><button class="min-h-11 px-3 text-xs font-semibold underline">{{ $emp->status === 'active' ? 'Nonaktifkan akses' : 'Aktifkan akses' }}</button></form>@endif
                                     @if ($emp->id !== auth()->id())
                                         <button type="button"
                                             @click="showDeleteModal = true; deleteUrl = '{{ route('employees.destroy', $emp->id) }}'; employeeName = '{{ addslashes($emp->name) }}'"
@@ -203,7 +203,7 @@
         </div>
 
         <!-- Modal Tambah Akun Pegawai -->
-        <div x-show="showAddModal" x-cloak x-transition:enter="transition ease-out duration-200"
+        <div data-dialog x-show="showAddModal" x-cloak x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
@@ -221,23 +221,23 @@
                 <form action="{{ route('employees.store') }}" method="POST" class="space-y-4">
                     @csrf
                     <div>
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Nama Lengkap Pegawai
+                        <label for="field-name" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Nama Lengkap Pegawai
                             <span class="text-semantic-danger">*</span></label>
-                        <input type="text" name="name" required placeholder="Contoh: Andi Wijaya"
+                        <input id="field-name" type="text" name="name" required placeholder="Contoh: Andi Wijaya"
                             class="w-full px-3 text-xs border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                     </div>
 
                     <div>
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Email Login System
+                        <label for="field-email" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Email Login System
                             <span class="text-semantic-danger">*</span></label>
-                        <input type="email" name="email" required placeholder="andi@tokokita.com"
+                        <input id="field-email" type="email" name="email" required placeholder="andi@tokokita.com"
                             class="w-full px-3 text-xs border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                     </div>
 
                     <div>
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Tingkat Hak Akses
+                        <label for="field-role" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Tingkat Hak Akses
                             (Role) <span class="text-semantic-danger">*</span></label>
-                        <select name="role" required
+                        <select id="field-role" name="role" required
                             class="w-full px-3 text-xs border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                             <option value="kasir">Kasir (Hanya Penjualan POS & Shift Operasional)</option>
                             <option value="manager">Manager (POS + Kelola Produk, Stok & Laporan)</option>
@@ -247,17 +247,17 @@
 
                     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <div>
-                            <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Kata Sandi <span
+                            <label for="field-password" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Kata Sandi <span
                                     class="text-semantic-danger">*</span></label>
-                            <input type="password" name="password" required placeholder="Min 8 karakter"
-                                class="w-full px-3 text-xs border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
+                            <div class="relative" x-data="{ passwordVisible: false }"><input id="field-password" type="password" :type="passwordVisible ? 'text' : 'password'" name="password" required placeholder="Min 8 karakter"
+                                class="pr-12 w-full px-3 text-xs border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600"><x-password-toggle control="field-password" /></div>
                         </div>
 
                         <div>
-                            <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Konfirmasi Sandi
+                            <label for="field-password_confirmation" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Konfirmasi Sandi
                                 <span class="text-semantic-danger">*</span></label>
-                            <input type="password" name="password_confirmation" required placeholder="Ulangi sandi"
-                                class="w-full px-3 text-xs border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
+                            <div class="relative" x-data="{ passwordVisible: false }"><input id="field-password_confirmation" type="password" :type="passwordVisible ? 'text' : 'password'" name="password_confirmation" required placeholder="Ulangi sandi"
+                                class="pr-12 w-full px-3 text-xs border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600"><x-password-toggle control="field-password_confirmation" /></div>
                         </div>
                     </div>
 
@@ -273,7 +273,7 @@
         </div>
 
         <!-- Modal Confirm Hapus Akses -->
-        <div x-show="showDeleteModal" x-cloak x-transition:enter="transition ease-out duration-200"
+        <div data-dialog x-show="showDeleteModal" x-cloak x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"

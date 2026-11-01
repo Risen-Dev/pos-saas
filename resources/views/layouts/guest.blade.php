@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
-    class="h-full motion-safe:scroll-smooth [&_*]:[-webkit-tap-highlight-color:transparent]">
+<html lang="id" class="h-full motion-safe:scroll-smooth [&_*]:[-webkit-tap-highlight-color:transparent]">
 
 <head>
     <meta charset="utf-8">
@@ -10,6 +9,9 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <title>GrowPOS - @yield('title', 'SaaS POS UMKM')</title>
 

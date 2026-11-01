@@ -112,6 +112,12 @@
                 <span>-Rp {{ number_format($order->discount, 0, ',', '.') }}</span>
             </div>
         @endif
+        @if ($order->loyalty_discount > 0)
+            <div class="total-row">
+                <span>Potongan poin loyalitas:</span>
+                <span>-Rp {{ number_format($order->loyalty_discount, 0, ',', '.') }}</span>
+            </div>
+        @endif
         @if ($order->tax > 0)
             <div class="total-row">
                 <span>Pajak Outlet:</span>
@@ -127,7 +133,7 @@
         <div class="divider"></div>
 
         <div class="total-row">
-            <span>Bayar ({{ strtoupper($order->payment_method) }}):</span>
+            <span>Bayar ({{ \App\Support\PaymentMethod::label($order->payment_method) }}):</span>
             <span>Rp {{ number_format($order->paid_amount, 0, ',', '.') }}</span>
         </div>
         <div class="total-row">
@@ -149,6 +155,7 @@
             window.print();
         });
     </script>
+@if($order->payment_verified_at)<p class="text-center" style="font-size:10px">Dana diperiksa manual oleh petugas toko.<br>{{ $order->payment_reference ? 'Ref: '.$order->payment_reference : '' }}</p>@endif
 </body>
 
 </html>

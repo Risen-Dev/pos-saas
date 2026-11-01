@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('title', 'Buku Kas & Pengeluaran')
+    @section('title', 'Kas & Pengeluaran')
 
     @php
         $kindMeta = [
@@ -17,7 +17,7 @@
                     <x-icon class="fa-solid fa-book-open" />
                     Operasional Kas
                 </div>
-                <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">Buku Kas & Pengeluaran</h1>
+                <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">Kas & Pengeluaran</h1>
                 <p class="max-w-2xl mt-1 text-xs leading-relaxed font-body text-ink-700 md:text-sm">
                     Pantau uang tunai yang benar-benar bergerak pada shift. Penjualan, pembayaran bon, refund, dan pengeluaran tercatat dalam satu riwayat.
                 </p>
@@ -26,7 +26,7 @@
             <a href="{{ route('shifts.index') }}"
                 class="inline-flex items-center justify-center h-10 gap-2 px-4 text-xs font-semibold transition-colors border rounded-md border-border-200 text-ink-700 bg-surface-0 hover:bg-surface-100">
                 <x-icon class="fa-solid fa-user-clock" />
-                Kelola Shift
+                Sesi kasir
             </a>
         </div>
 
@@ -79,7 +79,7 @@
                     <span class="text-[10px] font-bold tracking-widest uppercase text-ink-400">Net Hari Ini</span>
                     <span class="flex items-center justify-center w-8 h-8 rounded-md bg-accent-100 text-accent-700"><x-icon class="fa-solid fa-scale-balanced" /></span>
                 </div>
-                <p class="font-mono text-xl font-semibold {{ ($todayIn - $todayOut) >= 0 ? 'text-ink-900' : 'text-semantic-danger' }}">Rp {{ number_format($todayIn - $todayOut, 0, ',', '.') }}</p>
+                <p class="font-mono text-xl font-semibold {{ ($todayIn - $todayOut) >= 0 ? 'text-ink-900' : 'text-semantic-danger' }}">{{ ($todayIn - $todayOut) < 0 ? '-Rp ' . number_format(abs($todayIn - $todayOut), 0, ',', '.') : 'Rp ' . number_format($todayIn - $todayOut, 0, ',', '.') }}</p>
                 <p class="mt-1 text-[11px] text-ink-400">Kas masuk dikurangi kas keluar</p>
             </div>
         </div>
@@ -96,7 +96,7 @@
 
                 @if (!$currentShift)
                     <div class="p-3 mb-4 text-xs leading-relaxed border rounded-md bg-accent-100/50 border-accent-500/20 text-accent-700">
-                        <x-icon class="mr-1 fa-solid fa-triangle-exclamation" /> Buka shift terlebih dahulu sebelum mencatat pengeluaran.
+                        <x-icon class="mr-1 fa-solid fa-triangle-exclamation" /> Mulai jualan terlebih dahulu sebelum mencatat pengeluaran.
                     </div>
                 @endif
 
@@ -119,7 +119,7 @@
                         <textarea id="cash_reason" name="reason" maxlength="500" required rows="4"
                             class="w-full px-3 py-2.5 text-sm border rounded-md resize-none border-border-200 bg-surface-0 text-ink-900 focus:border-primary-500 focus:ring-primary-500"
                             placeholder="Contoh: pembelian gas, parkir, biaya kirim...">{{ old('reason') }}</textarea>
-                        <p class="mt-1 text-[10px] text-ink-400">Tuliskan alasan yang cukup jelas agar mudah direkonsiliasi saat tutup shift.</p>
+                        <p class="mt-1 text-[10px] text-ink-400">Tuliskan alasan yang cukup jelas agar mudah direkonsiliasi saat tutup penjualan.</p>
                     </div>
 
                     <button type="submit" @disabled(!$currentShift)

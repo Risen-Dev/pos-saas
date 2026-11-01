@@ -63,8 +63,11 @@
                 <div class="flex justify-between gap-4 text-[#65796f]"><span>Subtotal</span><span>Rp
                         {{ number_format($order->subtotal, 0, ',', '.') }}</span></div>
                 @if ($order->discount > 0)
-                    <div class="flex justify-between gap-4 text-[#65796f]"><span>Diskon</span><span>- Rp
+                    <div class="flex justify-between gap-4 text-[#65796f]"><span>Diskon</span><span>-Rp
                             {{ number_format($order->discount, 0, ',', '.') }}</span></div>
+                @endif
+                @if ($order->loyalty_discount > 0)
+                    <div class="flex justify-between gap-4 text-[#65796f]"><span>Potongan poin loyalitas ({{ number_format($order->points_redeemed,0,',','.') }} poin)</span><span>-Rp {{ number_format($order->loyalty_discount,0,',','.') }}</span></div>
                 @endif
                 @if ($order->tax > 0)
                     <div class="flex justify-between gap-4 text-[#65796f]"><span>Pajak</span><span>Rp
@@ -79,7 +82,7 @@
                 <div class="p-4 rounded-xl bg-[#f7f9f6]">
                     <p class="text-[10px] font-bold uppercase tracking-wider text-[#789085]">Metode pembayaran</p>
                     <p class="mt-1 text-sm font-semibold">
-                        {{ $order->payment_method === 'cash' ? 'Tunai' : strtoupper($order->payment_method) }}</p>
+                        {{ $order->payment_method === 'cash' ? 'Tunai' : \App\Support\PaymentMethod::label($order->payment_method) }}</p>
                 </div>
                 <div class="p-4 rounded-xl bg-[#f7f9f6]">
                     <p class="text-[10px] font-bold uppercase tracking-wider text-[#789085]">Kasir</p>

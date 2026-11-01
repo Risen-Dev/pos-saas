@@ -16,7 +16,9 @@ trait BelongsToTenant
         // Filter otomatis: setiap query ke model ini otomatis
         // ditambahkan WHERE tenant_id = tenant aktif user login
         static::addGlobalScope('tenant', function (Builder $builder) {
-            if (auth()->check() && auth()->user()->tenant_id) {
+            if (auth()->check() && ! auth()->user()->tenant_id) {
+                $builder->whereRaw('1 = 0');
+            } elseif (auth()->check()) {
                 $builder->where(
                     $builder->getModel()->getTable().'.tenant_id',
                     auth()->user()->tenant_id

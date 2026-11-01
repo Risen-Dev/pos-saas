@@ -172,7 +172,7 @@
                             class="flex items-center justify-between p-3 border rounded-md bg-surface-100 border-border-200">
                             <div class="flex items-center gap-2">
                                 <span class="w-2 h-2 rounded-full bg-primary-600"></span>
-                                <span class="font-semibold text-ink-900">Enkripsi Kata Sandi</span>
+                                <span class="font-semibold text-ink-900">Hash Kata Sandi</span>
                             </div>
                             <span
                                 class="inline-flex items-center px-2 py-0.5 text-[11px] font-semibold text-primary-700 bg-primary-100 rounded-full">

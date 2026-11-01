@@ -26,24 +26,24 @@
 
         <!-- Form Card Container -->
         <div class="p-6 border rounded-lg shadow-sm bg-surface-0 border-border-200">
-            <form action="{{ route('discounts.update', $discount->id) }}" method="POST" class="space-y-6">
+            <form action="{{ route('discounts.update', $discount->id) }}" method="POST" class="space-y-6" x-data="{ discountType: @js(old('type', $discount->type)) }">
                 @csrf
                 @method('PUT')
 
                 <!-- Row 1: Nama, Tipe & Nilai -->
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
                     <div>
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                        <label for="field-name" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
                             Nama Diskon / Event Promo <span class="text-semantic-danger">*</span>
                         </label>
-                        <input type="text" name="name" value="{{ old('name', $discount->name) }}" required
+                        <input id="field-name" type="text" name="name" value="{{ old('name', $discount->name) }}" required
                             class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Tipe Skema</label>
-                            <select name="type"
+                            <label for="field-type" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Tipe Skema</label>
+                            <select id="field-type" name="type" x-model="discountType"
                                 class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
                                 <option value="percentage" {{ $discount->type == 'percentage' ? 'selected' : '' }}>
                                     Persentase (%)</option>
@@ -51,11 +51,14 @@
                                 </option>
                             </select>
                         </div>
-                        <div>
-                            <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
-                                Nilai Diskon <span class="text-semantic-danger">*</span>
-                            </label>
-                            <input type="number" name="value" value="{{ old('value', $discount->value) }}" required
+                        <div x-show="discountType === 'percentage'">
+                            <label for="field-value-percent" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Nilai Diskon (%) *</label>
+                            <input id="field-value-percent" type="number" name="value" value="{{ old('value', $discount->value) }}" :disabled="discountType !== 'percentage'" required
+                                class="w-full px-3 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
+                        </div>
+                        <div x-show="discountType === 'fixed'" x-cloak>
+                            <label for="field-value-fixed" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Nilai Diskon (Rp) *</label>
+                            <input id="field-value-fixed" type="text" inputmode="numeric" data-rupiah-input name="value" value="{{ old('value', $discount->value) }}" :disabled="discountType !== 'fixed'" required
                                 class="w-full px-3 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
                         </div>
                     </div>
@@ -69,27 +72,27 @@
 
                     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                         <div>
-                            <label class="block font-body text-[11px] font-medium text-ink-700 mb-1">Tanggal
+                            <label for="field-start_date" class="block font-body text-[11px] font-medium text-ink-700 mb-1">Tanggal
                                 Mulai</label>
-                            <input type="date" name="start_date"
+                            <input id="field-start_date" type="date" name="start_date"
                                 value="{{ old('start_date', $discount->start_date) }}"
                                 class="w-full h-10 px-3 text-xs border rounded-sm outline-none font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                         </div>
                         <div>
-                            <label class="block font-body text-[11px] font-medium text-ink-700 mb-1">Tanggal
+                            <label for="field-end_date" class="block font-body text-[11px] font-medium text-ink-700 mb-1">Tanggal
                                 Selesai</label>
-                            <input type="date" name="end_date" value="{{ old('end_date', $discount->end_date) }}"
+                            <input id="field-end_date" type="date" name="end_date" value="{{ old('end_date', $discount->end_date) }}"
                                 class="w-full h-10 px-3 text-xs border rounded-sm outline-none font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                         </div>
                         <div>
-                            <label class="block font-body text-[11px] font-medium text-ink-700 mb-1">Jam Mulai</label>
-                            <input type="time" name="start_time"
+                            <label for="field-start_time" class="block font-body text-[11px] font-medium text-ink-700 mb-1">Jam Mulai</label>
+                            <input id="field-start_time" type="time" name="start_time"
                                 value="{{ old('start_time', $discount->start_time) }}"
                                 class="w-full h-10 px-3 text-xs border rounded-sm outline-none font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                         </div>
                         <div>
-                            <label class="block font-body text-[11px] font-medium text-ink-700 mb-1">Jam Selesai</label>
-                            <input type="time" name="end_time" value="{{ old('end_time', $discount->end_time) }}"
+                            <label for="field-end_time" class="block font-body text-[11px] font-medium text-ink-700 mb-1">Jam Selesai</label>
+                            <input id="field-end_time" type="time" name="end_time" value="{{ old('end_time', $discount->end_time) }}"
                                 class="w-full h-10 px-3 text-xs border rounded-sm outline-none font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                         </div>
                     </div>
