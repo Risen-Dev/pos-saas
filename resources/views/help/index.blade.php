@@ -37,8 +37,13 @@
                 href="{{ route('getting-started') }}">Mulai berjualan</a><a
                 class="inline-flex items-center justify-center gap-2 min-h-11 [padding:10px_17px] [border:1px_solid_#dae4dd] rounded-md bg-white [color:#234a3b] [font-size:13px] font-semibold cursor-pointer hover:[background:#f1f7f3] disabled:[opacity:0.45] disabled:cursor-wait focus-visible:[outline:3px_solid_#90b9a5] focus-visible:[outline-offset:3px]"
                 href="{{ route('billing.index') }}">Lihat paket & batas penggunaan</a></div>
-        <p class="[color:#65796f] [font-size:13px] [line-height:1.6] mt-6">Butuh bantuan? <a class="underline"
-                href="mailto:{{ config('launch.support_email') }}">{{ config('launch.support_email') }}</a>. Sertakan
-            nomor nota dan langkah masalah; jangan kirim password atau data kartu.</p>
+        <p class="[color:#65796f] [font-size:13px] [line-height:1.6] mt-6">Butuh bantuan?
+            @if (filled(config('launch.support_email')))
+                <a class="underline" href="mailto:{{ config('launch.support_email') }}">{{ config('launch.support_email') }}</a>.
+            @else
+                Hubungi admin GrowPOS untuk mendapatkan kontak dukungan.
+            @endif
+            Sertakan nomor nota dan langkah masalah; jangan kirim password atau data kartu.
+        </p>
     </div>
 </x-app-layout>

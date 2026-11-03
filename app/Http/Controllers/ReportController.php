@@ -55,10 +55,16 @@ class ReportController extends Controller
             ->get();
 
         // Unknown historic costs stay unknown; current catalog prices never rewrite history.
-        $costOrderIds = app(SalesDataset::class)->between($tenantId, $startDate.' 00:00:00', $endDate.' 23:59:59')->select('id');
-        $costItems = DB::table('order_items')->whereIn('order_id', $costOrderIds);
-        $missingCosts = (clone $costItems)->whereNull('unit_cost')->count();
-        $totalHpp = $missingCosts ? null : (float) (clone $costItems)->selectRaw('SUM(quantity * unit_cost) as cost')->value('cost');
+        // Join the filtered orders directly. A whereIn(subquery) here can fail on
+        // older MySQL/MariaDB versions when the query is wrapped by aggregate calls.
+        $costItems = DB::table('order_items')
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.tenant_id', $tenantId)
+            ->where('orders.payment_status', 'paid')
+            ->where('orders.order_status', 'completed')
+            ->whereBetween(DB::raw('COALESCE(orders.sold_at, orders.created_at)'), [$startDate.' 00:00:00', $endDate.' 23:59:59']);
+        $missingCosts = (clone $costItems)->whereNull('order_items.unit_cost')->count();
+        $totalHpp = $missingCosts ? null : (float) (clone $costItems)->selectRaw('SUM(order_items.quantity * order_items.unit_cost) as cost')->value('cost');
         $totalPlatformFee = (float) $paymentMethods->sum('platform_fee');
         $storeNetSales = $salesSummary->total_net - $totalPlatformFee;
         $revenueBeforeTax = $salesSummary->total_gross - $salesSummary->total_discount;
