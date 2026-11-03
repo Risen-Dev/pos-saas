@@ -1,65 +1,46 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# Provision shared/.env + shared/storage and point the web root at current/public.
-SOURCE_DIR="${DEPLOY_SOURCE:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
-DEPLOY_ROOT="${DEPLOY_ROOT:-/var/www/pos-saas}"
-HEALTH_URL="${DEPLOY_HEALTH_URL:-http://127.0.0.1/up}"
-REF="${DEPLOY_REF:-origin/main}"
-[[ "$DEPLOY_ROOT" = /* && "$DEPLOY_ROOT" != / ]] || { echo 'DEPLOY_ROOT must be a non-root absolute directory.' >&2; exit 1; }
-[[ -f "$DEPLOY_ROOT/shared/.env" && -d "$DEPLOY_ROOT/shared/storage" ]] || { echo 'Provision shared/.env and shared/storage before deploying.' >&2; exit 1; }
-mkdir -p "$DEPLOY_ROOT/releases"
-exec 9>"$DEPLOY_ROOT/.deploy.lock"
-flock -n 9 || { echo 'Another deployment is running.' >&2; exit 1; }
-previous="$(readlink "$DEPLOY_ROOT/current" || true)"
-release="$(mktemp -d "$DEPLOY_ROOT/releases/release-$(date -u +%Y%m%dT%H%M%SZ)-XXXXXX")"
-switched=0
-switch_release() {
-    local next="$DEPLOY_ROOT/.current-next-$$"
-    ln -s "$1" "$next"
-    mv -Tf "$next" "$DEPLOY_ROOT/current"
-}
-reload_fpm() {
-    if [[ -n "${PHP_FPM_SERVICE:-}" ]]; then
-        [[ "$PHP_FPM_SERVICE" =~ ^[a-zA-Z0-9@._-]+$ ]] || return 1
-        systemctl reload "$PHP_FPM_SERVICE"
-    fi
-}
+APP_DIR="/var/www/pos-saas"
+cd "$APP_DIR"
+
 on_error() {
-    local code=$?
-    trap - ERR
-    if [[ "$switched" = 1 && -n "$previous" ]]; then
-        switch_release "$previous"
-        reload_fpm || true
-        (cd "$previous" && php artisan queue:restart) || true
-        echo 'Application symlink restored. Schema was not rolled back; inspect migration compatibility.' >&2
-    fi
-    echo "Deploy failed at line $1. Release retained for diagnosis: $release" >&2
-    exit "$code"
+  local exit_code=$?
+  echo "DEPLOY FAILED at line $1 (exit $exit_code). Check the error before retrying." >&2
+  exit "$exit_code"
 }
 trap 'on_error "$LINENO"' ERR
 
-git -C "$SOURCE_DIR" fetch origin main
-git -C "$SOURCE_DIR" archive "$REF" | tar -x -C "$release"
-# Only the newly-created release's generated storage stub is replaced.
-rm -rf "${release:?}/storage"
-ln -s "$DEPLOY_ROOT/shared/storage" "$release/storage"
-ln -s "$DEPLOY_ROOT/shared/.env" "$release/.env"
-mkdir -p "$release/storage/logs" "$release/storage/framework/cache/data" "$release/storage/framework/sessions" "$release/storage/framework/views" "$release/bootstrap/cache"
-cd "$release"
+echo "=== DEPLOY START ==="
+echo "Pull latest code..."
+git pull --ff-only origin main
+
+echo "Install composer dependencies..."
 composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
-npm ci --ignore-scripts
+
+echo "Prepare Laravel runtime directories..."
+mkdir -p storage/logs storage/framework/cache/data storage/framework/sessions storage/framework/views bootstrap/cache
+# fdev and the web server must both be able to write to storage and bootstrap/cache.
+# Configure ownership/ACLs during initial server provisioning (do not chown runtime files on each deploy).
+if [[ ! -w storage/logs || ! -w bootstrap/cache ]]; then
+  echo 'Laravel runtime paths are not writable. Fix fdev/www-data permissions before deploying.' >&2
+  exit 1
+fi
+
+echo "Build assets..."
+npm ci
 npm run build
-composer audit --locked --no-dev
-npm audit
-php artisan growpos:backup
+
+echo "Clear cache..."
+php artisan optimize:clear
+
+echo "Run migrations..."
 php artisan migrate --force
+
+echo "Optimize Laravel..."
 php artisan optimize
-php artisan growpos:launch-check
-ln -s "$release/storage/app/public" "$release/public/storage"
-switch_release "$release"
-switched=1
-reload_fpm
-curl --fail --silent --show-error --max-time 20 "$HEALTH_URL" >/dev/null
+
+echo "Restart queue..."
 php artisan queue:restart
-echo "Release healthy: $release"
+
+echo "=== DEPLOY DONE ==="
