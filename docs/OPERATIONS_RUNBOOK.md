@@ -10,6 +10,69 @@ Runbook untuk operator staging/production setelah kode perbaikan direview dan CI
 - Environment: APP_ENV=production, APP_DEBUG=false, APP_URL HTTPS, SESSION_SECURE_COOKIE=true, queue persisten, email delivery, Midtrans sesuai environment, support contact. Jangan menaruh credentials dalam command log/Git.
 - Siapkan scheduler setiap menit menjalankan `php /var/www/pos-saas/artisan schedule:run` serta worker persisten.
 
+## Menindaklanjuti `growpos:launch-check`
+
+Untuk hasil yang dikirim operator pada 2026-11-03, nilai-nilai ini perlu disetel pada `/var/www/pos-saas/.env` melalui editor aman (jangan tempel secret ke chat/terminal yang direkam):
+
+```dotenv
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://trialpos.fdevsite.cloud
+SESSION_SECURE_COOKIE=true
+MIDTRANS_IS_PRODUCTION=true
+GROWPOS_BACKUP_DISK=s3
+GROWPOS_SUPPORT_EMAIL=alamat-dukungan-bisnis@domain-anda
+```
+
+`MIDTRANS_IS_PRODUCTION=true` hanya setelah key produksi sudah dimasukkan ke `MIDTRANS_SERVER_KEY` dan `MIDTRANS_CLIENT_KEY`; jangan aktifkan dengan key sandbox. Untuk disk S3, lengkapi `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`, dan `AWS_BUCKET` dengan bucket privat yang benar-benar terpisah dari host aplikasi serta izin minimum yang diperlukan. Jangan menaruh kredensial di repository.
+
+Setelah mengubah `.env`, dari `/var/www/pos-saas`:
+
+```bash
+php artisan optimize:clear
+php artisan config:cache
+php artisan queue:restart
+```
+
+### Scheduler heartbeat
+
+Pastikan cron milik user aplikasi (`fdev`) memanggil scheduler setiap menit. Periksa entry yang ada terlebih dahulu agar tidak menambahkan duplikat:
+
+```cron
+* * * * * cd /var/www/pos-saas && /usr/bin/php artisan schedule:run >> /dev/null 2>&1
+```
+
+Sesuaikan `/usr/bin/php` dengan `command -v php` pada server. Scheduler mengantrikan job heartbeat worker setiap menit dan menjalankan backup harian pukul 02:00.
+
+### Worker heartbeat
+
+Pastikan ada tepat worker persisten yang dijaga Supervisor/systemd dan berjalan sebagai user aplikasi dari `/var/www/pos-saas`. Untuk queue database, proses intinya:
+
+```bash
+php artisan queue:work database --sleep=3 --tries=3 --timeout=60 --max-time=3600
+```
+
+Jika service sudah ada, periksa `systemctl status` atau `supervisorctl status` sebelum membuat service baru. Sesudah start/restart worker, tunggu scheduler mengantrekan job heartbeat lalu jalankan ulang launch check. Jika heartbeat tetap gagal, lihat log worker dan `failed_jobs`; jangan menandai heartbeat secara manual.
+
+### Backup heartbeat
+
+Setelah bucket dan credential offsite siap, jalankan satu backup terkontrol:
+
+```bash
+php artisan growpos:backup
+```
+
+Command harus selesai sukses, mengunggah backup dan checksum, lalu membaca ulang object untuk membandingkan checksum. Jika gagal, periksa log tanpa menyalin credential atau isi dump. `Backup completed within 26 hours` baru lulus setelah backup tercatat. Heartbeat ini belum membuktikan restore berhasil; lakukan restore drill ke database/host terisolasi dan dokumentasikan hasilnya sebelum launch.
+
+### Pemeriksaan akhir
+
+```bash
+php artisan schedule:list
+php artisan growpos:launch-check
+```
+
+`APP_ENV`, secure cookie, kontak dukungan, worker, scheduler, dan offsite backup adalah kegagalan konfigurasi/operasi yang dapat ditangani dengan langkah di atas. Uji Midtrans produksi tetap perlu transaksi terkontrol yang direkonsiliasi; flag konfigurasi saja tidak membuktikan provider siap.
+
 ## Backup offsite
 
 Konfigurasi disk privat terpisah, misalnya disk `s3` yang sudah didukung `config/filesystems.php`, dengan credential dari secret store/env operator. Tetapkan `GROWPOS_BACKUP_DISK=s3`, prefix khusus aplikasi dan `GROWPOS_BACKUP_RETENTION_DAYS=14` (minimum 2). Sesuaikan retention dan jadwal dengan RPO/RTO yang disepakati; default harian 02:00 berarti sasaran RPO maksimal 24 jam, bukan jaminan.
