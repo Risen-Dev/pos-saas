@@ -25,6 +25,66 @@
     <x-landing.navbar />
     <main id="main-content">
         <x-landing.hero />
+        @php
+            $demoVideoUrl = trim((string) config('services.growpos.demo_video_url', '/video/growpos-demo.mp4'));
+            $demoVideoPath = parse_url($demoVideoUrl, PHP_URL_PATH) ?? $demoVideoUrl;
+            $demoVideoType = str_ends_with(strtolower($demoVideoPath), '.webm') ? 'video/webm' : 'video/mp4';
+        @endphp
+        <section id="pengalaman" class="scroll-mt-20 overflow-hidden bg-white py-20 sm:py-28">
+            <div class="mx-auto grid max-w-7xl items-center gap-10 px-5 sm:px-8 lg:grid-cols-12 lg:gap-16">
+                <div class="lg:col-span-5">
+                    <p class="mb-5 text-xs font-bold uppercase tracking-[.22em] text-primary-600">DEMO SINGKAT GROWPOS</p>
+                    <h2 class="text-4xl font-extrabold leading-[1.12] tracking-[-.055em] text-[#172E24] sm:text-5xl">
+                        Lihat alur usaha jadi lebih sederhana.
+                    </h2>
+                    <p class="mt-6 max-w-md text-base leading-8 text-[#65766B]">
+                        Kenali cara GrowPOS membantu mencatat penjualan, menjaga stok, dan membaca hasil usaha dalam satu alur.
+                    </p>
+                    <div class="mt-7 flex flex-wrap gap-2 text-xs font-semibold text-[#476C59] sm:text-sm">
+                        <span class="rounded-full bg-[#F1F6F0] px-3 py-2">Kasir</span>
+                        <span class="rounded-full bg-[#F1F6F0] px-3 py-2">Stok</span>
+                        <span class="rounded-full bg-[#F1F6F0] px-3 py-2">Laporan</span>
+                    </div>
+                    <a href="{{ route('register') }}"
+                        class="mt-8 inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary-600 px-6 text-sm font-bold text-white transition hover:bg-primary-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
+                        Coba GrowPOS <span aria-hidden="true">↗</span>
+                    </a>
+                </div>
+                <div class="lg:col-span-7">
+                    <div class="group relative aspect-video overflow-hidden rounded-2xl border border-[#DCE7DF] bg-[#E7F0E9] shadow-[0_24px_70px_-32px_rgba(23,55,42,.42)] sm:rounded-[1.75rem]">
+                        @if ($demoVideoUrl !== '')
+                            <video class="h-full w-full object-cover" controls playsinline preload="metadata"
+                                poster="{{ asset('img/growpos-retail-1920.webp') }}">
+                                <source src="{{ $demoVideoUrl }}" type="{{ $demoVideoType }}">
+                                Browser Anda tidak mendukung pemutar video.
+                            </video>
+                        @else
+                            <img src="{{ asset('img/growpos-retail-1920.webp') }}" width="1672" height="941"
+                                alt="Preview GrowPOS untuk membantu operasional toko" loading="lazy" decoding="async"
+                                class="h-full w-full object-cover transition duration-700 group-hover:scale-[1.02]">
+                            <div class="absolute inset-0 bg-gradient-to-t from-[#10281E]/75 via-[#10281E]/10 to-transparent"></div>
+                            <div class="absolute inset-x-0 bottom-0 flex flex-col gap-4 p-5 text-white sm:flex-row sm:items-end sm:justify-between sm:p-7">
+                                <div>
+                                    <span class="inline-flex rounded-full border border-white/30 bg-white/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[.18em] backdrop-blur-sm">Preview produk</span>
+                                    <p class="mt-3 text-lg font-bold sm:text-2xl">Kasir, stok, dan laporan dalam satu alur.</p>
+                                </div>
+                                <span aria-hidden="true" class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/40 bg-white/20 text-lg backdrop-blur-sm sm:h-14 sm:w-14">▶</span>
+                            </div>
+                            <p class="absolute right-4 top-4 rounded-full border border-white/50 bg-white/90 px-3 py-1.5 text-[10px] font-bold text-[#17694D] shadow-sm sm:right-5 sm:top-5 sm:text-xs">
+                                Video demo segera hadir
+                            </p>
+                        @endif
+                    </div>
+                    <p class="mt-3 text-xs leading-5 text-[#78877E]">
+                        @if ($demoVideoUrl === '')
+                            Video belum dipasang. Tambahkan URL MP4 melalui <code>GROWPOS_DEMO_VIDEO_URL</code> saat aset demo siap.
+                        @else
+                            Putar video untuk melihat alur kerja GrowPOS.
+                        @endif
+                    </p>
+                </div>
+            </div>
+        </section>
         <section id="fitur" class="overflow-hidden bg-[#F6F8F5] py-20 sm:py-28">
             <div class="px-5 mx-auto max-w-7xl sm:px-8">
                 <div class="flex flex-col justify-between gap-5 mb-12 md:flex-row md:items-end">
@@ -56,37 +116,7 @@
                 </div>
             </div>
         </section>
-        <section id="pengalaman" class="py-20 bg-white sm:py-28">
-            <div class="grid items-center gap-12 px-5 mx-auto max-w-7xl sm:px-8 lg:grid-cols-12 lg:gap-20">
-                <div class="lg:col-span-5">
-                    <p class="mb-5 text-xs font-bold uppercase tracking-[.22em] text-primary-600">DIBUAT UNTUK HARI-HARI
-                        SIBUK</p>
-                    <h2 class="text-4xl font-extrabold leading-[1.12] tracking-[-.055em] text-[#172E24] sm:text-5xl">
-                        Fokus ke pelanggan.<br>Bukan ke sistem.</h2>
-                    <p class="mt-6 max-w-md text-base leading-8 text-[#65766B]">Dari membuka toko sampai menutup shift,
-                        GrowPOS membantu pekerjaan sehari-hari terasa lebih ringan.</p>
-                    <a href="{{ route('register') }}"
-                        class="inline-flex items-center gap-2 pb-2 mt-8 text-sm font-bold transition border-b-2 border-primary-600 text-primary-700 hover:gap-4">Mulai
-                        gunakan GrowPOS <span aria-hidden="true">↗</span></a>
-                </div>
-                <div class="relative lg:col-span-7">
-                    <div class="aspect-[5/4] overflow-hidden rounded-[1.5rem] bg-[#DCE9DF]">
-                        <img src="{{ asset('img/growpos-retail-1920.webp') }}" width="1672" height="941"
-                            alt="Aktivitas toko retail" loading="lazy" decoding="async"
-                            class="object-cover w-full h-full">
-                        {{-- <div class="flex h-full items-center justify-center px-8 text-center text-[#517662]"
-                            aria-hidden="true"><span class="text-lg font-semibold">Foto aktivitas toko GrowPOS</span>
-                        </div> --}}
-                    </div>
-                    <div
-                        class="absolute -bottom-5 left-5 rounded-xl border border-[#E0E9E2] bg-white px-6 py-4 shadow-xl sm:left-[-24px]">
-                        <p class="text-xs font-semibold tracking-widest uppercase text-primary-600">GrowPOS</p>
-                        <p class="mt-1 text-lg font-bold text-[#17372A]">Kerja lebih simpel.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <section id="harga" class="bg-[#F6F8F5] py-20 sm:py-28">
+        <section id="harga" class="bg-[#F6F8F5] py-20 sm:py-28" x-data="{ billingPeriod: 'monthly' }">
             <div class="px-5 mx-auto max-w-7xl sm:px-8">
                 <div class="max-w-2xl mx-auto text-center mb-14">
                     <p class="mb-4 text-xs font-bold uppercase tracking-[.22em] text-primary-600">HARGA TRANSPARAN</p>
@@ -96,12 +126,21 @@
                         memulai.</p>
                 </div>
                 @if (isset($plans) && $plans->count() > 0)
+                    @if ($plans->contains(fn ($plan) => (float) $plan->price > 0))
+                        <div class="flex flex-col items-center gap-2 mb-8">
+                            <div class="inline-flex gap-1 p-1 border rounded-xl border-[#DCE7DF] bg-white" role="group" aria-label="Periode pembayaran">
+                                <button type="button" @click="billingPeriod = 'monthly'" :aria-pressed="billingPeriod === 'monthly'" :class="billingPeriod === 'monthly' ? 'bg-[#17694D] text-white' : 'text-[#52685D] hover:bg-[#F1F6F0]'" class="px-4 py-2 text-xs font-bold rounded-lg">Bulanan</button>
+                                <button type="button" @click="billingPeriod = 'yearly'" :aria-pressed="billingPeriod === 'yearly'" :class="billingPeriod === 'yearly' ? 'bg-[#17694D] text-white' : 'text-[#52685D] hover:bg-[#F1F6F0]'" class="px-4 py-2 text-xs font-bold rounded-lg">Tahunan <span class="ml-1 text-[10px]">Hemat 2 bulan</span></button>
+                            </div>
+                            <p class="text-xs text-[#65766B]">Bayar di muka sesuai periode. Tidak ada perpanjangan otomatis.</p>
+                        </div>
+                    @endif
                     <div class="mx-auto grid max-w-6xl items-stretch gap-5 md:grid-cols-{{ min($plans->count(), 3) }}">
                         @foreach ($plans as $plan)
                             <x-landing.pricing-card :plan-id="$plan->id" :popular="$plan->slug === 'growth'" :title="$plan->name"
-                                :desc="$plan->description" :price="$plan->price == 0
+                                :desc="$plan->description" :monthly-price="$plan->price" :price="$plan->price == 0
                                     ? 'Rp 0'
-                                    : 'Rp ' . number_format($plan->price, 0, ',', '.')" :period="$plan->duration_days . ' hari'" :cta="auth()->check()
+                                    : 'Rp ' . number_format($plan->price, 0, ',', '.')" :period="$plan->price == 0 ? 'selamanya' : 'bulan'" :cta="auth()->check()
                                     ? ($plan->price == 0
                                         ? 'Pilih Starter'
                                         : 'Langganan Sekarang')

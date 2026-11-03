@@ -12,14 +12,14 @@ class PlanSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Paket Starter (Gratis / UMKM Baru)
+        // 1. Paket Starter gratis berkelanjutan untuk UMKM baru.
         Plan::updateOrCreate(
             ['slug' => 'starter'],
             [
                 'name' => 'Starter',
                 'description' => 'Cocok untuk pedagang kaki lima & UMKM baru.',
                 'price' => 0,
-                'duration_days' => 30,
+                'duration_days' => null,
                 'max_users' => 1,
                 'max_products' => 100,
                 'max_outlets' => 1,

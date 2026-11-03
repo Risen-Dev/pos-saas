@@ -35,7 +35,7 @@
                     ->user()
                     ->tenant->subscriptions()
                     ->where('status', 'active')
-                    ->whereDate('end_date', '>=', today())
+                    ->where(fn ($query) => $query->whereNull('end_date')->orWhereDate('end_date', '>=', today()))
                     ->latest()
                     ->first()
                 : null;

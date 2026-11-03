@@ -4,6 +4,7 @@
     <div class="w-full px-4 py-8 mx-auto space-y-8 sm:px-6 lg:px-8 max-w-7xl" x-data="{
         showConfirmModal: false,
         selectedPlan: null,
+        billingPeriod: 'monthly',
         openCheckout(plan) {
             this.selectedPlan = plan;
             this.showConfirmModal = true;
@@ -61,7 +62,7 @@
                 Status Berlangganan Toko Saat Ini
             </h2>
 
-            @if ($currentSubscription && $currentSubscription->status === 'active' && $currentSubscription->end_date >= now())
+            @if ($currentSubscription && $currentSubscription->status === 'active' && (!$currentSubscription->end_date || $currentSubscription->end_date >= now()))
                 <div
                     class="grid grid-cols-1 gap-4 p-5 border md:grid-cols-3 rounded-xl bg-primary-50/50 border-primary-200">
                     <div>
@@ -85,12 +86,13 @@
                         <span class="text-xs font-semibold tracking-wider uppercase text-primary-700">Berlaku
                             Sampai</span>
                         <p class="mt-1 text-base font-bold text-primary-900">
-                            {{ \Carbon\Carbon::parse($currentSubscription->end_date)->translatedFormat('d F Y (H:i)') }}
-                            <span class="block text-xs font-normal text-primary-700 mt-0.5">
-                                (Sisa
-                                {{ (int) \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($currentSubscription->end_date)) }}
-                                Hari)
-                            </span>
+                            @if ($currentSubscription->end_date)
+                                {{ \Carbon\Carbon::parse($currentSubscription->end_date)->translatedFormat('d F Y') }}
+                                <span class="block text-xs font-normal text-primary-700 mt-0.5">Sisa {{ (int) \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($currentSubscription->end_date)) }} hari</span>
+                            @else
+                                Aktif selamanya
+                                <span class="block text-xs font-normal text-primary-700 mt-0.5">Paket gratis berkelanjutan</span>
+                            @endif
                         </p>
                     </div>
                 </div>
@@ -127,6 +129,16 @@
                     layanan.</p>
             </div>
 
+            @if ($plans->contains(fn ($plan) => (float) $plan->price > 0))
+                <div class="flex flex-col items-center gap-2 mb-6">
+                    <div class="inline-flex gap-1 p-1 border rounded-xl border-border-200 bg-surface-0" role="group" aria-label="Periode pembayaran">
+                        <button type="button" @click="billingPeriod = 'monthly'" :aria-pressed="billingPeriod === 'monthly'" :class="billingPeriod === 'monthly' ? 'bg-primary-600 text-white' : 'text-ink-700 hover:bg-surface-100'" class="px-4 py-2 text-xs font-bold rounded-lg">Bulanan</button>
+                        <button type="button" @click="billingPeriod = 'yearly'" :aria-pressed="billingPeriod === 'yearly'" :class="billingPeriod === 'yearly' ? 'bg-primary-600 text-white' : 'text-ink-700 hover:bg-surface-100'" class="px-4 py-2 text-xs font-bold rounded-lg">Tahunan <span class="ml-1 text-[10px]">Hemat 2 bulan</span></button>
+                    </div>
+                    <p class="text-xs text-ink-500">Bayar di muka sesuai periode. Tidak ada perpanjangan otomatis.</p>
+                </div>
+            @endif
+
             <div class="grid items-stretch grid-cols-1 gap-6 md:grid-cols-3">
                 @forelse ($plans as $plan)
                     @php
@@ -134,7 +146,7 @@
                             $currentSubscription &&
                             $currentSubscription->plan_id === $plan->id &&
                             $currentSubscription->status === 'active' &&
-                            $currentSubscription->end_date >= now();
+                            (!$currentSubscription->end_date || $currentSubscription->end_date >= now());
 
                         $currentPrice = $currentSubscription?->plan?->price ?? 0;
                         $isUpgrade = $currentSubscription && $plan->price > $currentPrice;
@@ -170,12 +182,13 @@
 
                             <p class="text-xs leading-relaxed text-ink-600 min-h-[36px]">{{ $plan->description }}</p>
 
-                            <div class="flex items-baseline gap-1 font-bold text-primary-600">
-                                <span class="text-3xl font-extrabold">
-                                    {{ $plan->price == 0 ? 'Rp 0' : 'Rp ' . number_format($plan->price, 0, ',', '.') }}
-                                </span>
-                                <span class="text-xs font-normal text-ink-400">/ {{ $plan->duration_days }} Hari</span>
+                            <div class="flex flex-wrap items-baseline gap-1 font-bold text-primary-600">
+                                <span class="text-3xl font-extrabold" x-text="{{ (float) $plan->price }} === 0 ? 'Rp 0' : 'Rp ' + Number({{ (float) $plan->price }} * (billingPeriod === 'yearly' ? 10 : 1)).toLocaleString('id-ID')"></span>
+                                <span class="text-xs font-normal text-ink-400" x-text="{{ (float) $plan->price }} === 0 ? 'selamanya' : (billingPeriod === 'yearly' ? '/ tahun' : '/ bulan')"></span>
                             </div>
+                            @if ((float) $plan->price > 0)
+                                <p class="text-[11px] text-ink-500" x-show="billingPeriod === 'yearly'">Setara 10 bulan, akses penuh 12 bulan.</p>
+                            @endif
 
                             <hr class="border-border-100">
 
@@ -267,7 +280,7 @@
                             <div class="p-3 border rounded-lg bg-surface-0 border-border-200">
                                 <span class="text-ink-500 block mb-0.5">Masa Aktif Paket</span>
                                 <strong class="text-sm text-ink-900"
-                                    x-text="selectedPlan.duration_days + ' Hari'"></strong>
+                                    x-text="Number(selectedPlan.price) === 0 ? 'Selamanya' : (billingPeriod === 'yearly' ? '12 Bulan' : '1 Bulan')"></strong>
                             </div>
                         </div>
 
@@ -275,13 +288,14 @@
                             class="flex items-center justify-between p-4 border rounded-xl bg-primary-50 border-primary-200">
                             <span class="text-xs font-bold text-primary-900">Total Pembayaran:</span>
                             <span class="text-xl font-black text-primary-700"
-                                x-text="selectedPlan.price == 0 ? 'Rp 0 (Gratis)' : 'Rp ' + Number(selectedPlan.price).toLocaleString('id-ID')"></span>
+                                x-text="Number(selectedPlan.price) == 0 ? 'Rp 0 (Gratis)' : 'Rp ' + Number(Number(selectedPlan.price) * (billingPeriod === 'yearly' ? 10 : 1)).toLocaleString('id-ID')"></span>
                         </div>
 
                         {{-- Form BARU Di Dalam Modal --}}
                         <form action="{{ route('billing.subscribe') }}" method="POST" class="pt-2">
                             @csrf
                             <input type="hidden" name="plan_id" :value="selectedPlan.id">
+                            <input type="hidden" name="billing_period" :value="Number(selectedPlan.price) === 0 ? 'monthly' : billingPeriod">
 
                             <div class="flex items-center gap-3">
                                 <button type="button" @click="showConfirmModal = false"

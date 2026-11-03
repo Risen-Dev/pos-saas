@@ -2,6 +2,10 @@
 
 return [
 
+    'growpos' => [
+        'demo_video_url' => env('GROWPOS_DEMO_VIDEO_URL') ?: '/video/growpos-demo.mp4',
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],

@@ -22,7 +22,7 @@ class EnsureSubscriptionIsActive
             // Cek apakah tenant memiliki paket aktif yang belum kadaluarsa
             $hasActiveSubscription = $tenant->subscriptions()
                 ->where('status', 'active')->whereDate('start_date', '<=', today())
-                ->whereDate('end_date', '>=', today())
+                ->where(fn ($query) => $query->whereNull('end_date')->orWhereDate('end_date', '>=', today()))
                 ->exists();
 
             // Jika tidak ada paket aktif / sudah habis masa berlakunya

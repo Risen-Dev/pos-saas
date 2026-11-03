@@ -9,7 +9,7 @@
                 ? $tenant
                     ->subscriptions()
                     ->where('status', 'active')
-                    ->where('end_date', '>=', now())
+                    ->where(fn ($query) => $query->whereNull('end_date')->orWhere('end_date', '>=', now()))
                     ->latest('id')
                     ->first()
                 : null;
@@ -20,7 +20,7 @@
 
             // Perhitungan Sisa Hari Integer Presisi (Tanpa Koma)
             $remainingDays = $currentSubscription
-                ? (int) ceil(now()->diffInHours(\Carbon\Carbon::parse($currentSubscription->end_date)) / 24)
+                ? ($currentSubscription->end_date ? (int) ceil(now()->diffInHours(\Carbon\Carbon::parse($currentSubscription->end_date)) / 24) : null)
                 : 0;
         @endphp
 
@@ -84,7 +84,7 @@
                         </div>
                     </div>
 
-                    @if ($currentSubscription && $remainingDays > 0)
+                    @if ($currentSubscription && ($remainingDays === null || $remainingDays > 0))
                         <div class="p-4 space-y-2 border rounded-md bg-emerald-50/50 border-emerald-200">
                             <div class="flex items-center justify-between">
                                 <span class="text-xs font-bold tracking-wider uppercase text-emerald-900">
@@ -95,10 +95,13 @@
                                     Aktif
                                 </span>
                             </div>
-                            <p class="text-xs text-ink-700">
-                                Masa berlaku hingga:
-                                <strong>{{ \Carbon\Carbon::parse($currentSubscription->end_date)->translatedFormat('d M Y') }}</strong>
-                            </p>
+                            @if ($currentSubscription->end_date)
+                                <p class="text-xs text-ink-700">Masa berlaku hingga:
+                                    <strong>{{ \Carbon\Carbon::parse($currentSubscription->end_date)->translatedFormat('d M Y') }}</strong>
+                                </p>
+                            @else
+                                <p class="text-xs text-ink-700">Paket gratis aktif tanpa batas waktu.</p>
+                            @endif
                         </div>
                     @else
                         <div class="p-4 space-y-1 border rounded-md bg-rose-50 border-rose-200">
@@ -111,8 +114,8 @@
                 <div class="flex items-center justify-between pt-4 mt-6 text-xs border-t border-border-200 font-body">
                     <span class="text-ink-700">Masa Aktif Tersisa:</span>
                     <span
-                        class="font-mono font-bold {{ $remainingDays <= 5 ? 'text-semantic-danger' : 'text-primary-600' }}">
-                        {{ $remainingDays }} Hari
+                        class="font-mono font-bold {{ $remainingDays !== null && $remainingDays <= 5 ? 'text-semantic-danger' : 'text-primary-600' }}">
+                        {{ $remainingDays === null ? 'Tanpa batas' : $remainingDays.' Hari' }}
                     </span>
                 </div>
             </div>

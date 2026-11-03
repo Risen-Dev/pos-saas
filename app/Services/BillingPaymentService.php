@@ -39,9 +39,10 @@ class BillingPaymentService
             $duration = $invoice->duration_days ?? $plan->duration_days ?? 30;
             $active = Subscription::withoutGlobalScopes()->where('tenant_id', $tenantId)
                 ->where('status', 'active')->where('start_date', '<=', today())
-                ->whereDate('end_date', '>=', today())->latest('id')->lockForUpdate()->first();
+                ->where(fn ($query) => $query->whereNull('end_date')->orWhereDate('end_date', '>=', today()))
+                ->latest('id')->lockForUpdate()->first();
             if ($active && $active->plan_id === $plan->id) {
-                $active->update(['end_date' => Carbon::parse($active->end_date)->addDays($duration)]);
+                $active->update(['end_date' => ($active->end_date ? Carbon::parse($active->end_date) : today())->addDays($duration)]);
                 $subscription = $active;
             } else {
                 Subscription::withoutGlobalScopes()->where('tenant_id', $tenantId)->where('status', 'active')->update(['status' => 'cancelled']);

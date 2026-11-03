@@ -100,7 +100,7 @@ class Tenant extends Model
     {
         $activeSubscription = $this->subscriptions()
             ->where('status', 'active')->whereDate('start_date', '<=', today())
-            ->whereDate('end_date', '>=', today())
+            ->where(fn ($query) => $query->whereNull('end_date')->orWhereDate('end_date', '>=', today()))
             ->latest()
             ->first();
 

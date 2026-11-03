@@ -83,7 +83,8 @@
                                     </p>
                                 </td>
                                 <td class="p-4 font-semibold text-center">
-                                    {{ $invoice->duration_days ?? $invoice->plan?->duration_days ?? 30 }} Hari
+                                    @php($invoiceDuration = $invoice->duration_days ?? $invoice->plan?->duration_days ?? 30)
+                                    {{ $invoiceDuration >= 360 ? '12 Bulan' : ($invoiceDuration >= 28 ? '1 Bulan' : $invoiceDuration.' Hari') }}
                                 </td>
                                 <td class="p-4 text-sm font-bold text-right">
                                     Rp {{ number_format($invoice->amount, 0, ',', '.') }}

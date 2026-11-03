@@ -11,7 +11,7 @@ window.addEventListener('scroll', () => { scrolled = window.scrollY > 24 }, { pa
         </a>
         <div class="items-center hidden gap-9 md:flex">
             <x-landing.nav-link href="#fitur">Fitur</x-landing.nav-link>
-            <x-landing.nav-link href="#pengalaman">Untuk Usaha</x-landing.nav-link>
+            <x-landing.nav-link href="#pengalaman">Demo</x-landing.nav-link>
             <x-landing.nav-link href="#harga">Harga</x-landing.nav-link>
         </div>
         <div class="items-center hidden gap-5 md:flex">
@@ -36,7 +36,7 @@ window.addEventListener('scroll', () => { scrolled = window.scrollY > 24 }, { pa
         class="border-t border-[#E6ECE7] bg-white px-5 pb-6 pt-3 md:hidden">
         <div class="flex flex-col gap-1">
             <a href="#fitur" @click="open=false" class="py-3 text-sm font-semibold">Fitur</a>
-            <a href="#pengalaman" @click="open=false" class="py-3 text-sm font-semibold">Untuk Usaha</a>
+            <a href="#pengalaman" @click="open=false" class="py-3 text-sm font-semibold">Demo</a>
             <a href="#harga" @click="open=false" class="py-3 text-sm font-semibold">Harga</a>
             <a href="{{ route('login') }}" class="py-3 text-sm font-semibold">Masuk</a>
             <a href="{{ route('register') }}"

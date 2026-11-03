@@ -26,7 +26,7 @@ class SubscriptionController extends Controller
         // 🛠️ PERBAIKAN: Hanya ambil subscription yang berstatus ACTIVE dan belum expired
         $currentSubscription = $tenant ? $tenant->subscriptions()
             ->where('status', 'active')
-            ->whereDate('end_date', '>=', today())
+            ->where(fn ($query) => $query->whereNull('end_date')->orWhereDate('end_date', '>=', today()))
             ->latest('id')
             ->first() : null;
 
@@ -44,29 +44,36 @@ class SubscriptionController extends Controller
     {
         $data = $request->validate([
             'plan_id' => ['required', 'integer', Rule::exists('plans', 'id')->where('is_active', true)->where('is_public', true)],
+            'billing_period' => ['nullable', Rule::in(['monthly', 'yearly'])],
         ]);
         $user = $request->user();
         abort_unless($user->tenant_id, 422, 'Siapkan bisnis sebelum memilih paket.');
         $invoice = DB::transaction(function () use ($user, $data) {
             $tenant = Tenant::whereKey($user->tenant_id)->lockForUpdate()->firstOrFail();
             $plan = Plan::where('is_active', true)->where('is_public', true)->findOrFail($data['plan_id']);
+            $billingPeriod = (float) $plan->price === 0.0 ? 'free' : ($data['billing_period'] ?? 'monthly');
+            $duration = $billingPeriod === 'yearly' ? 365 : ($plan->duration_days ?? 30);
+            $amount = $billingPeriod === 'yearly' ? (int) round($plan->price * 10) : (int) round($plan->price);
             if ((float) $plan->price === 0.0) {
-                $active = $tenant->subscriptions()->where('status', 'active')->where('start_date', '<=', today())->whereDate('end_date', '>=', today())->latest('id')->first();
+                $active = $tenant->subscriptions()->where('status', 'active')->where('start_date', '<=', today())
+                    ->where(fn ($query) => $query->whereNull('end_date')->orWhereDate('end_date', '>=', today()))
+                    ->latest('id')->first();
                 if ($active) {
                     return null;
                 }
                 Subscription::create(['tenant_id' => $tenant->id, 'plan_id' => $plan->id,
-                    'status' => 'active', 'start_date' => today(), 'end_date' => now()->addDays($plan->duration_days ?? 30)]);
+                    'status' => 'active', 'start_date' => today(), 'end_date' => null]);
                 $tenant->update(['status' => 'active']);
 
                 return null;
             }
 
             return Invoice::where('tenant_id', $tenant->id)->where('plan_id', $plan->id)
+                ->where('duration_days', $duration)
                 ->where('status', 'pending')->where('due_date', '>=', now())->latest('id')->first()
                 ?? Invoice::create(['tenant_id' => $tenant->id, 'plan_id' => $plan->id,
-                    'invoice_number' => 'INV-SAAS-'.Str::uuid(), 'amount' => (int) round($plan->price),
-                    'duration_days' => $plan->duration_days ?? 30, 'status' => 'pending', 'due_date' => now()->addDay()]);
+                    'invoice_number' => 'INV-SAAS-'.Str::uuid(), 'amount' => $amount,
+                    'duration_days' => $duration, 'status' => 'pending', 'due_date' => now()->addDay()]);
         }, 3);
         if (! $invoice) {
             return redirect()->route('dashboard')->with('success', 'Paket aktif siap digunakan.');

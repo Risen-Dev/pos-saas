@@ -9,8 +9,9 @@
     'capacity' => null,
     'popular' => false,
     'actionUrl' => null,
+    'monthlyPrice' => null,
 ])
-<article @class([
+<article x-data="{ monthlyPrice: @js((float) ($monthlyPrice ?? 0)) }" @class([
     'relative flex h-full flex-col rounded-[1.25rem] border p-7 sm:p-8',
     'border-primary-600 bg-[#153F2C] text-white shadow-xl' => $popular,
     'border-[#DFE8E1] bg-white text-[#17372A]' => !$popular,
@@ -27,12 +28,15 @@
         'text-[#6D7D72]' => !$popular,
     ])>{{ $desc }}</p>
     <div class="flex flex-wrap items-baseline gap-2 mt-7"><strong
-            class="text-3xl font-extrabold tracking-[-.05em]">{{ $price }}</strong><span
+            class="text-3xl font-extrabold tracking-[-.05em]" x-text="monthlyPrice === 0 ? 'Rp 0' : 'Rp ' + Number(monthlyPrice * (billingPeriod === 'yearly' ? 10 : 1)).toLocaleString('id-ID')">{{ $price }}</strong><span
             @class([
                 'text-xs',
                 'text-white/60' => $popular,
                 'text-[#7A8B7E]' => !$popular,
-            ])>/ {{ $period }}</span></div>
+            ]) x-text="monthlyPrice === 0 ? 'selamanya' : (billingPeriod === 'yearly' ? 'per tahun' : 'per bulan')">/ {{ $period }}</span></div>
+    @if ((float) ($monthlyPrice ?? 0) > 0)
+        <p class="mt-2 text-xs opacity-75" x-show="billingPeriod === 'yearly'">Bayar 10 bulan, gunakan 12 bulan.</p>
+    @endif
     @if ($capacity)
         <p @class([
             'mt-4 text-xs leading-6',
@@ -61,7 +65,7 @@
     @auth
         @if ($planId)
             <form action="{{ route('billing.subscribe') }}" method="POST">@csrf<input type="hidden" name="plan_id"
-                    value="{{ $planId }}"><button type="submit" @class([
+                    value="{{ $planId }}"><input type="hidden" name="billing_period" :value="monthlyPrice === 0 ? 'monthly' : billingPeriod"><button type="submit" @class([
                         'flex min-h-12 w-full items-center justify-center rounded-lg px-4 text-sm font-bold transition',
                         'bg-white text-[#174C33] hover:bg-[#EAF4EC]' => $popular,
                         'bg-primary-600 text-white hover:bg-primary-900' => !$popular,

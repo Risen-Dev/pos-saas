@@ -35,6 +35,10 @@
                 <a href="{{ route('register') }}"
                     class="inline-flex items-center justify-center text-sm font-bold text-white transition min-h-12 rounded-xl bg-primary-600 px-7 hover:bg-primary-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Mulai
                     Sekarang <span class="ml-3" aria-hidden="true">↗</span></a>
+                <a href="#pengalaman"
+                    class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#C8DACD] bg-white/85 px-6 text-sm font-bold text-[#1E4832] backdrop-blur-sm transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
+                    Lihat demo <span aria-hidden="true">▶</span>
+                </a>
                 <a href="#fitur"
                     class="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#C8DACD] bg-white/85 px-6 text-sm font-bold text-[#1E4832] backdrop-blur-sm transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Jelajahi
                     Fitur</a>

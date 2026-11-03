@@ -21,7 +21,7 @@ class CheckSubscription
         // 2. Cek apakah tenant memiliki langganan aktif
         $activeSubscription = $tenant->subscriptions()
             ->where('status', 'active')
-            ->where('end_date', '>=', now()->startOfDay())
+            ->where(fn ($query) => $query->whereNull('end_date')->orWhere('end_date', '>=', now()->startOfDay()))
             ->first();
 
         if (! $activeSubscription) {
