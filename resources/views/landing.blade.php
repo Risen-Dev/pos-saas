@@ -71,11 +71,9 @@
                 </div>
                 <div class="relative lg:col-span-7">
                     <div class="aspect-[5/4] overflow-hidden rounded-[1.5rem] bg-[#DCE9DF]">
-                        <img src="{{ asset('img/growpos-retail-960.webp') }}"
-                            srcset="{{ asset('img/growpos-retail-480.webp') }} 480w, {{ asset('img/growpos-retail-960.webp') }} 960w, {{ asset('img/growpos-retail-1440.webp') }} 1440w, {{ asset('img/growpos-retail-1920.webp') }} 1672w"
-                            sizes="(min-width: 1024px) 50vw, 100vw" width="1672" height="941"
-                            alt="Aktivitas toko retail" loading="lazy" class="object-cover w-full h-full"
-                            onerror="this.style.display='none'">
+                        <img src="{{ asset('img/growpos-retail-1920.webp') }}" width="1672" height="941"
+                            alt="Aktivitas toko retail" loading="lazy" decoding="async"
+                            class="object-cover w-full h-full">
                         {{-- <div class="flex h-full items-center justify-center px-8 text-center text-[#517662]"
                             aria-hidden="true"><span class="text-lg font-semibold">Foto aktivitas toko GrowPOS</span>
                         </div> --}}
