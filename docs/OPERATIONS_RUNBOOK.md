@@ -6,9 +6,9 @@ Runbook untuk operator staging/production setelah kode perbaikan direview dan CI
 
 - Commit dan push perubahan yang telah direview. `deploy.sh` membangun dari `git archive DEPLOY_REF` (default origin/main), sehingga perubahan belum di-commit tidak ikut release.
 - Host Linux dengan PHP >=8.3 dan ekstensi Composer, Node >=22, Composer, Git, flock, GNU mv, curl, mysqldump/mysql untuk MySQL, web server dan PHP-FPM. Worker dan scheduler dikelola service manager.
-- Buat DEPLOY_ROOT khusus (default /var/www/growpos), `shared/.env` privat dan `shared/storage`. Web root mengarah ke `current/public`; worker menggunakan `current/artisan`. Ownership storage/bootstrap/cache harus cocok dengan user web/worker.
+- `DEPLOY_ROOT` default `/var/www/pos-saas`. Siapkan `shared/.env` privat dan `shared/storage`. Web root harus mengarah ke `current/public`; worker menggunakan `current/artisan`. Ownership storage/bootstrap/cache harus cocok dengan user web/worker.
 - Environment: APP_ENV=production, APP_DEBUG=false, APP_URL HTTPS, SESSION_SECURE_COOKIE=true, queue persisten, email delivery, Midtrans sesuai environment, support contact. Jangan menaruh credentials dalam command log/Git.
-- Siapkan scheduler setiap menit menjalankan `php /var/www/growpos/current/artisan schedule:run` serta worker persisten. Pada setup pertama, bootstrap release staging/provisioned harus sudah memiliki schema/worker sehingga heartbeat dapat dinilai; script sengaja menolak launch check yang belum sehat.
+- Siapkan scheduler setiap menit menjalankan `php /var/www/pos-saas/current/artisan schedule:run` serta worker persisten. Pada setup pertama, bootstrap release staging/provisioned harus sudah memiliki schema/worker sehingga heartbeat dapat dinilai; script sengaja menolak launch check yang belum sehat.
 
 ## Backup offsite
 
@@ -23,10 +23,23 @@ Konfigurasi disk privat terpisah, misalnya disk `s3` yang sudah didukung `config
 ## Deployment
 
 1. CI wajib lulus: suite PHP, JS, build, dependency audit, MySQL concurrency/restore dan browser regression. Pada staging, uji webhook/status provider, email dan hardware yang digunakan.
-2. Jalankan `DEPLOY_ROOT=/var/www/growpos DEPLOY_REF=origin/main PHP_FPM_SERVICE=php8.3-fpm ./deploy.sh` dari checkout sumber operator. Sesuaikan nama service aktual; nilai contoh bukan auto-detection.
+2. Jalankan `DEPLOY_ROOT=/var/www/pos-saas DEPLOY_REF=origin/main PHP_FPM_SERVICE=php8.3-fpm ./deploy.sh` dari checkout sumber operator. Sesuaikan nama service aktual; nilai contoh bukan auto-detection.
 3. Script mengunci deployment, membuat release baru, install/build/audit, backup, migrate, optimize dan launch-check sebelum switch symlink. Backup harus benar-benar berhasil; jangan bypass exit code.
 4. Switch atomik diikuti reload FPM opsional, health URL `/up` dan queue restart. Health URL harus menuju vhost release yang diuji (set DEPLOY_HEALTH_URL bila localhost default bukan vhost aplikasi).
 5. Periksa launch-check, login, checkout fixture staging, billing, queue/export dan log setelah release. Jangan melakukan pembelian live sekadar smoke test tanpa prosedur merchant.
+
+### Peralihan pertama dari document root lama
+
+Server lama dapat tetap melayani `/var/www/pos-saas/public` selama release pertama disiapkan. Sebelum menjalankan script, salin konfigurasi dan storage aktif ke lokasi shared (perintah ini hanya untuk setup pertama; pastikan backup tersedia dan jangan menampilkan isi `.env`):
+
+```bash
+sudo install -d -o fdev -g www-data -m 2775 /var/www/pos-saas/shared/storage
+sudo install -o fdev -g www-data -m 640 /var/www/pos-saas/.env /var/www/pos-saas/shared/.env
+sudo rsync -a /var/www/pos-saas/storage/ /var/www/pos-saas/shared/storage/
+sudo chown -R fdev:www-data /var/www/pos-saas/shared/storage
+```
+
+Commit dan push kode ke `main`, lalu jalankan release pertama. Setelah `current` berhasil dibuat, ubah `root` pada vhost `trialpos.fdevsite.cloud` dari `/var/www/pos-saas/public` menjadi `/var/www/pos-saas/current/public`, jalankan `sudo nginx -t`, lalu reload Nginx. Verifikasi `/up` dan aset hero melalui domain. Perbarui juga path worker dan scheduler agar menjalankan `/var/www/pos-saas/current/artisan`.
 
 Dua migration perbaikan menambah activation marker/duration invoice, movement snapshot stocktake, FK users.tenant_id dan memperlebar due_date ke datetime. Lakukan backup dan cek orphan users sebelum rollout. Ukur durasi ALTER pada salinan volume production; MySQL dapat mengambil metadata lock. Tidak ada klaim online DDL tanpa pengukuran.
 

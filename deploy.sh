@@ -3,10 +3,10 @@ set -Eeuo pipefail
 
 # Provision shared/.env + shared/storage and point the web root at current/public.
 SOURCE_DIR="${DEPLOY_SOURCE:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
-DEPLOY_ROOT="${DEPLOY_ROOT:-/var/www/growpos}"
+DEPLOY_ROOT="${DEPLOY_ROOT:-/var/www/pos-saas}"
 HEALTH_URL="${DEPLOY_HEALTH_URL:-http://127.0.0.1/up}"
 REF="${DEPLOY_REF:-origin/main}"
-[[ "$DEPLOY_ROOT" = /* && "$DEPLOY_ROOT" != / ]] || { echo 'DEPLOY_ROOT must be a dedicated absolute directory.' >&2; exit 1; }
+[[ "$DEPLOY_ROOT" = /* && "$DEPLOY_ROOT" != / ]] || { echo 'DEPLOY_ROOT must be a non-root absolute directory.' >&2; exit 1; }
 [[ -f "$DEPLOY_ROOT/shared/.env" && -d "$DEPLOY_ROOT/shared/storage" ]] || { echo 'Provision shared/.env and shared/storage before deploying.' >&2; exit 1; }
 mkdir -p "$DEPLOY_ROOT/releases"
 exec 9>"$DEPLOY_ROOT/.deploy.lock"
