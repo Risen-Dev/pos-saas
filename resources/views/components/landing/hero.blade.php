@@ -1,7 +1,7 @@
 <section id="beranda" class="relative isolate min-h-[100svh] overflow-hidden bg-[#F1F6F0]">
     {{-- Full-bleed photograph --}}
     <div class="absolute inset-0 z-0">
-        <img src="{{ asset('img/growpos-hero-960.webp') }}" srcset="{{ asset('img/growpos-hero-480.webp') }} 480w, {{ asset('img/growpos-hero-960.webp') }} 960w, {{ asset('img/growpos-hero-1440.webp') }} 1440w, {{ asset('img/growpos-hero-1920.webp') }} 1536w" sizes="100vw" width="1536" height="1024" alt="Aktivitas kasir di toko menggunakan GrowPOS"
+        <img src="{{ asset('img/growpos-hero-1920.webp') }}" width="1536" height="1024" alt="Aktivitas kasir di toko menggunakan GrowPOS"
             fetchpriority="high" class="h-full w-full object-cover object-[58%_center] lg:object-center">
     </div>
 
