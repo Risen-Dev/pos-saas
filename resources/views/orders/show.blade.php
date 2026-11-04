@@ -182,7 +182,7 @@
                 @endif
                 @if ($order->loyalty_discount > 0)
                     <div class="flex justify-between text-semantic-danger">
-                        <span>Potongan poin loyalitas ({{ number_format($order->points_redeemed, 0, ',', '.') }} poin)</span>
+                        <span>{{ $order->loyalty_program_type === 'stamps' ? 'Reward stamp loyalitas ('.number_format($order->stamps_redeemed, 0, ',', '.').' stamp)' : 'Potongan poin loyalitas ('.number_format($order->points_redeemed, 0, ',', '.').' poin)' }}</span>
                         <span>-Rp {{ number_format($order->loyalty_discount, 0, ',', '.') }}</span>
                     </div>
                 @endif

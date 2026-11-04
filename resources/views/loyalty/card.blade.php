@@ -70,6 +70,11 @@
         .progress-copy span { display:block; margin-top:3px; color:#bdb19b; font-size:9px; }
         .card-progress { grid-column:1/-1; height:7px; margin-top:-7px; overflow:hidden; border:1px solid rgba(244,223,183,.17); border-radius:999px; background:rgba(0,0,0,.35); }
         .card-progress-fill { width:var(--progress); height:100%; border-radius:inherit; background:linear-gradient(90deg,#a47d40,#f0d69b 68%,#fff0c7); box-shadow:0 0 13px rgba(229,189,109,.48); animation:progress-in .9s .35s var(--loyalty-motion) both; }
+        .stamp-row { grid-column:1/-1; display:flex; align-items:center; gap:clamp(3px,.65vw,8px); margin-top:-7px; }
+        .stamp-token { display:grid; width:clamp(18px,3.2vw,31px); aspect-ratio:1; flex:1 1 0; max-width:34px; place-items:center; border:1px solid rgba(219,255,234,.3); border-radius:50%; color:rgba(223,255,236,.48); background:radial-gradient(circle at 32% 24%,rgba(255,255,255,.12),rgba(0,46,32,.34) 70%); box-shadow:inset 0 1px rgba(255,255,255,.1),0 3px 8px rgba(0,0,0,.12); transition:transform .35s var(--loyalty-motion),background .35s ease,box-shadow .35s ease; }
+        .stamp-token svg { width:52%; height:52%; }
+        .stamp-token.is-earned { border-color:rgba(218,255,169,.92); color:#e9ffd0; background:radial-gradient(circle at 30% 20%,#d5f79e,#4bc987 62%,#087451); box-shadow:0 0 13px rgba(108,238,164,.55),inset 0 1px rgba(255,255,255,.62); animation:stamp-pop .55s var(--loyalty-motion) both; }
+        @keyframes stamp-pop { 0%{transform:scale(.65) rotate(-18deg);opacity:.4} 70%{transform:scale(1.16) rotate(5deg)} 100%{transform:scale(1) rotate(0);opacity:1} }
         .reward-line { grid-column:1/-1; margin-top:-8px; color:#ded0b3; font-size:10px; }
         .flip-hint { display:inline-flex; align-items:center; gap:8px; min-height:38px; padding:8px 15px; border:1px solid rgba(133,110,70,.27); border-radius:999px; color:#6f6148; background:rgba(255,253,248,.48); font-size:11px; font-weight:650; cursor:pointer; transition:transform .2s ease, background .2s ease, box-shadow .2s ease; }
         .flip-hint:hover { transform:translateY(-2px); background:#fffdf9; box-shadow:0 8px 18px rgba(66,48,22,.09); }
@@ -293,6 +298,8 @@
         .progress-copy span,.reward-line { color:#c4e5d2; }
         .card-progress { border-color:rgba(219,255,234,.2); background:rgba(0,37,26,.4); }
         .card-progress-fill { background:linear-gradient(90deg,#34c98a,#9be8a6 68%,#e3f7ad); box-shadow:0 0 13px rgba(82,220,153,.45); }
+        .stamp-token { border-color:rgba(199,255,220,.35); }
+        .stamp-token.is-earned { border-color:#d9f7a5; color:#075a42; background:radial-gradient(circle at 30% 20%,#f3ffcf,#a3efa9 48%,#25b77d); box-shadow:0 0 13px rgba(82,220,153,.48),inset 0 1px #fff; }
         .flip-hint { border-color:rgba(8,116,81,.22); color:#17664c; background:rgba(255,255,255,.58); }
         .flip-hint:hover { background:#fff; box-shadow:0 8px 18px rgba(19,86,61,.1); }
         .flip-hint:focus-visible,.utility-button:focus-visible,.qr-trigger:focus-visible,.dialog-close:focus-visible { outline-color:#15966c; }
@@ -332,6 +339,8 @@
         $pointsIntoStep = (int) $customer->points % $step;
         $pointsToNextReward = $pointsIntoStep === 0 ? 0 : $step - $pointsIntoStep;
         $progressPercent = min(100, (int) round(($pointsIntoStep / $step) * 100));
+        $visiblePointBalance = max(0, (int) $customer->points);
+        $stampProgressLabel = min($stampGoal, max(0, $stampProgress));
         $logo = $tenant->img_logo ? \Illuminate\Support\Facades\Storage::url($tenant->img_logo) : null;
         $memberCode = (string) ($customer->loyalty_member_code ?? '');
     @endphp
@@ -379,20 +388,38 @@
 
                             <div class="card-lower">
                                 <div>
-                                    <span class="balance-label">Saldo poin Anda</span>
-                                    <p class="balance-value">{{ number_format($customer->points, 0, ',', '.') }} <span>poin</span></p>
+                                    <span class="balance-label">{{ $isStampProgram ? 'Stamp terkumpul' : 'Saldo poin Anda' }}</span>
+                                    <p class="balance-value">{{ number_format($isStampProgram ? $visibleStampBalance : $visiblePointBalance, 0, ',', '.') }} <span>{{ $isStampProgram ? 'stamp' : 'poin' }}</span></p>
                                 </div>
                                 @if ($programActive)
-                                    <div class="progress-copy"><strong>{{ number_format($pointsIntoStep, 0, ',', '.') }} / {{ number_format($step, 0, ',', '.') }}</strong><span>poin ke reward</span></div>
-                                    <div class="card-progress" role="progressbar" aria-label="Progres menuju reward berikutnya" aria-valuemin="0" aria-valuemax="{{ $step }}" aria-valuenow="{{ $pointsIntoStep }}"><div class="card-progress-fill" style="--progress:{{ $progressPercent }}%"></div></div>
-                                    <p class="reward-line">
-                                        @if ($pointsToNextReward === 0) Reward berikutnya sudah bisa ditukar.
-                                        @else {{ number_format($pointsToNextReward, 0, ',', '.') }} poin lagi untuk potongan Rp {{ number_format($rewardValue, 0, ',', '.') }}.
-                                        @endif
-                                    </p>
+                                    @if ($isStampProgram)
+                                        <div class="progress-copy"><strong>{{ $stampProgressLabel }} / {{ $stampGoal }}</strong><span>stamp ke reward</span></div>
+                                        <div class="stamp-row" role="img" aria-label="{{ $stampProgressLabel }} dari {{ $stampGoal }} stamp menuju reward">
+                                            @for ($stamp = 1; $stamp <= $stampGoal; $stamp++)
+                                                <span class="stamp-token {{ $stamp <= $stampProgressLabel ? 'is-earned' : '' }}" style="animation-delay:{{ min(350, $stamp * 35) }}ms">
+                                                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2.8 2.77 5.62 6.2.9-4.49 4.38 1.06 6.18L12 16.96l-5.54 2.92 1.06-6.18-4.49-4.38 6.2-.9L12 2.8Z"/></svg>
+                                                </span>
+                                            @endfor
+                                        </div>
+                                        <div class="card-progress" role="progressbar" aria-label="Progres menuju reward berikutnya" aria-valuemin="0" aria-valuemax="{{ $stampGoal }}" aria-valuenow="{{ $stampProgressLabel }}"><div class="card-progress-fill" style="--progress:{{ $stampProgressPercent }}%"></div></div>
+                                        <p class="reward-line">
+                                            @if ($stampRewardsAvailable > 0) {{ number_format($stampRewardsAvailable, 0, ',', '.') }} reward siap ditukar.
+                                            @elseif ($stampBalance < 0) Stamp sedang disesuaikan karena transaksi retur penuh.
+                                            @else {{ number_format($stampGoal - $stampProgressLabel, 0, ',', '.') }} stamp lagi untuk potongan Rp {{ number_format($stampRewardValue, 0, ',', '.') }}.
+                                            @endif
+                                        </p>
+                                    @else
+                                        <div class="progress-copy"><strong>{{ number_format($pointsIntoStep, 0, ',', '.') }} / {{ number_format($step, 0, ',', '.') }}</strong><span>poin ke reward</span></div>
+                                        <div class="card-progress" role="progressbar" aria-label="Progres menuju reward berikutnya" aria-valuemin="0" aria-valuemax="{{ $step }}" aria-valuenow="{{ $pointsIntoStep }}"><div class="card-progress-fill" style="--progress:{{ $progressPercent }}%"></div></div>
+                                        <p class="reward-line">
+                                            @if ($pointsToNextReward === 0) Reward berikutnya sudah bisa ditukar.
+                                            @else {{ number_format($pointsToNextReward, 0, ',', '.') }} poin lagi untuk potongan Rp {{ number_format($rewardValue, 0, ',', '.') }}.
+                                            @endif
+                                        </p>
+                                    @endif
                                 @else
-                                    <div class="progress-copy"><strong>—</strong><span>program poin</span></div>
-                                    <p class="reward-line">Program poin sedang tidak aktif.</p>
+                                    <div class="progress-copy"><strong>—</strong><span>program loyalty</span></div>
+                                    <p class="reward-line">Program loyalty sedang tidak aktif.</p>
                                 @endif
                             </div>
                         </div>
@@ -434,30 +461,31 @@
                         <div class="overview-label">Reward berikutnya</div>
                         <div class="overview-reward">
                             @if ($programActive)
-                                Potongan Rp {{ number_format($rewardValue, 0, ',', '.') }}
-                                <span>{{ $availableRewards > 0 ? number_format($availableRewards, 0, ',', '.') . ' reward siap ditukar' : number_format($pointsToNextReward, 0, ',', '.') . ' poin lagi untuk reward' }}</span>
+                                Potongan Rp {{ number_format($isStampProgram ? $stampRewardValue : $rewardValue, 0, ',', '.') }}
+                                <span>{{ $isStampProgram ? ($stampRewardsAvailable > 0 ? number_format($stampRewardsAvailable, 0, ',', '.') . ' reward siap ditukar' : number_format($stampGoal - $stampProgressLabel, 0, ',', '.') . ' stamp lagi untuk reward') : ($availableRewards > 0 ? number_format($availableRewards, 0, ',', '.') . ' reward siap ditukar' : number_format($pointsToNextReward, 0, ',', '.') . ' poin lagi untuk reward') }}</span>
                             @else
-                                Program poin tidak aktif
-                                <span>Saldo poin tetap tersimpan.</span>
+                                Program loyalty tidak aktif
+                                <span>Riwayat loyalty tetap tersimpan.</span>
                             @endif
                         </div>
                     </div>
-                    <div class="reward-count">{{ number_format($customer->points, 0, ',', '.') }}<small>total poin</small></div>
+                    <div class="reward-count">{{ number_format($isStampProgram ? $visibleStampBalance : $visiblePointBalance, 0, ',', '.') }}<small>{{ $isStampProgram ? 'total stamp' : 'total poin' }}</small></div>
                 </div>
 
-                <div class="section-heading"><h3>Aktivitas poin</h3><span>{{ $activity->count() }} terbaru</span></div>
-                <ul class="activity-list" tabindex="0" aria-label="Daftar aktivitas poin, dapat digulir">
+                <div class="section-heading"><h3>{{ $isStampProgram ? 'Aktivitas stamp' : 'Aktivitas poin' }}</h3><span>{{ $activity->count() }} terbaru</span></div>
+                <ul class="activity-list" tabindex="0" aria-label="Daftar aktivitas loyalty, dapat digulir">
                     @forelse ($activity as $entry)
+                        @php($delta = (int) ($isStampProgram ? $entry->stamps_delta : $entry->points_delta))
                         <li class="activity-item">
-                            <span class="activity-marker" aria-hidden="true">{{ $entry->points_delta > 0 ? '＋' : '−' }}</span>
+                            <span class="activity-marker" aria-hidden="true">{{ $delta > 0 ? '＋' : ($delta < 0 ? '−' : '•') }}</span>
                             <span class="activity-copy">
-                                <strong>{{ match ($entry->type) { 'earned' => 'Poin dari pembelian', 'redeemed' => 'Poin digunakan', 'redemption_reversed' => 'Poin penukaran dikembalikan', 'redemption_restored' => 'Poin dikembalikan karena retur', 'return_reversal' => 'Poin disesuaikan karena retur', default => 'Penyesuaian poin' } }}</strong>
+                                <strong>{{ $isStampProgram ? match ($entry->type) { 'earned' => 'Stamp dari pembelian', 'redeemed' => 'Stamp ditukar', 'redemption_reversed' => 'Stamp penukaran dikembalikan', 'redemption_restored' => 'Stamp dikembalikan karena retur', 'return_reversal' => 'Stamp disesuaikan karena retur', default => 'Penyesuaian stamp' } : match ($entry->type) { 'earned' => 'Poin dari pembelian', 'redeemed' => 'Poin digunakan', 'redemption_reversed' => 'Poin penukaran dikembalikan', 'redemption_restored' => 'Poin dikembalikan karena retur', 'return_reversal' => 'Poin disesuaikan karena retur', default => 'Penyesuaian poin' } }}</strong>
                                 <time datetime="{{ $entry->created_at->toIso8601String() }}">{{ $entry->created_at->timezone(config('app.timezone'))->format('d M Y, H:i') }}</time>
                             </span>
-                            <strong class="activity-points {{ $entry->points_delta > 0 ? 'is-earned' : '' }}">{{ $entry->points_delta > 0 ? '+' : '' }}{{ number_format($entry->points_delta, 0, ',', '.') }}</strong>
+                            <strong class="activity-points {{ $delta > 0 ? 'is-earned' : '' }}">{{ $delta > 0 ? '+' : '' }}{{ number_format($delta, 0, ',', '.') }} {{ $isStampProgram ? 'stamp' : 'poin' }}</strong>
                         </li>
                     @empty
-                        <li class="activity-empty">Belum ada aktivitas poin.<span>Transaksi berikutnya akan muncul di sini.</span></li>
+                        <li class="activity-empty">Belum ada aktivitas {{ $isStampProgram ? 'stamp' : 'poin' }}.<span>Transaksi berikutnya akan muncul di sini.</span></li>
                     @endforelse
                 </ul>
                 <div class="panel-foot">

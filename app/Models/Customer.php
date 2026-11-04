@@ -43,6 +43,11 @@ class Customer extends Model
         return $this->hasMany(LoyaltyPointTransaction::class);
     }
 
+    public function loyaltyStampTransactions()
+    {
+        return $this->hasMany(LoyaltyStampTransaction::class);
+    }
+
     public function ensureLoyaltyCard(): self
     {
         if (! $this->is_member) {

@@ -12,6 +12,8 @@ use App\Models\StockMovement;
 use App\Models\Tenant;
 use App\Services\CashLedger;
 use App\Services\CustomerPoints;
+use App\Services\CustomerStamps;
+use App\Services\LoyaltyProgram;
 use App\Services\MidtransGateway;
 use App\Services\OrderPaymentService;
 use App\Services\OrderPricing;
@@ -54,7 +56,10 @@ class PosController extends Controller
                 return $product;
             });
 
-        $customers = Customer::where('tenant_id', $tenantId)->orderBy('name')->limit(50)->get(['id', 'name', 'is_member', 'points', 'loyalty_member_code']);
+        $customers = Customer::where('tenant_id', $tenantId)
+            ->select(['id', 'name', 'is_member', 'points', 'loyalty_member_code'])
+            ->withSum('loyaltyStampTransactions as stamp_balance', 'stamps_delta')
+            ->orderBy('name')->limit(50)->get();
 
         $activeShift = Shift::where('tenant_id', $tenantId)
             ->where('user_id', $userId)
@@ -106,6 +111,7 @@ class PosController extends Controller
             'items.*.quantity' => 'required|numeric|decimal:0,3|min:0.001|max:100000',
             'customer_id' => ['nullable', 'integer', Rule::exists('customers', 'id')->where('tenant_id', $tenantId)],
             'points_to_redeem' => 'sometimes|integer|min:0|max:100000000',
+            'redeem_stamp_reward' => 'sometimes|boolean',
             'payment_method' => 'required|in:cash,midtrans,transfer,qris_manual',
             'manual_confirmed' => Rule::when(in_array($request->input('payment_method'), ['transfer', 'qris_manual'], true), ['required', 'accepted'], ['exclude']),
             'payment_reference' => 'nullable|string|max:100',
@@ -204,12 +210,31 @@ class PosController extends Controller
                     'unit_cost' => $costKnown ? $product->cost_price * $factor + $addons->sum('cost') : null];
             }
             $settings = Setting::where('tenant_id', $tenantId)->pluck('value', 'key');
+            $loyaltyProgram = app(LoyaltyProgram::class)->type($settings->all());
             $taxRate = min(100, max(0, (float) ($settings['tax_percentage'] ?? 0)));
             $tax = ($settings['tax_active'] ?? '0') === '1' ? (int) round(($subtotal - $discount) * $taxRate / 100) : 0;
             $beforeLoyaltyTotal = $subtotal - $discount + $tax;
             $pointsToRedeem = (int) ($data['points_to_redeem'] ?? 0);
+            $redeemStampReward = (bool) ($data['redeem_stamp_reward'] ?? false);
+            $stampsToRedeem = 0;
             $loyaltyDiscount = 0;
-            if ($pointsToRedeem > 0) {
+            if ($loyaltyProgram === 'stamps' && $pointsToRedeem > 0) {
+                throw ValidationException::withMessages(['points_to_redeem' => 'Program toko menggunakan stamp, bukan poin.']);
+            }
+            if ($loyaltyProgram !== 'stamps' && $redeemStampReward) {
+                throw ValidationException::withMessages(['redeem_stamp_reward' => 'Program stamp tidak aktif untuk toko ini.']);
+            }
+            if ($redeemStampReward) {
+                if (empty($data['customer_id'])) {
+                    throw ValidationException::withMessages(['customer_id' => 'Pilih member untuk menggunakan reward stamp.']);
+                }
+                if ($data['payment_method'] === 'cash' && $data['payment_status'] === 'unpaid') {
+                    throw ValidationException::withMessages(['redeem_stamp_reward' => 'Reward stamp hanya dapat digunakan pada transaksi yang dibayar.']);
+                }
+                $member = Customer::where('tenant_id', $tenantId)->lockForUpdate()->findOrFail($data['customer_id']);
+                $loyaltyDiscount = app(CustomerStamps::class)->redemptionDiscount($member, $beforeLoyaltyTotal, $settings->all());
+                $stampsToRedeem = max(2, (int) ($settings['stamp_reward_goal'] ?? 8));
+            } elseif ($pointsToRedeem > 0) {
                 if (empty($data['customer_id'])) {
                     throw ValidationException::withMessages(['points_to_redeem' => 'Pilih member untuk menggunakan poin.']);
                 }
@@ -246,16 +271,20 @@ class PosController extends Controller
                 'kitchen_status' => auth()->user()->tenant->hasBusinessModule('food') && collect($lines)->contains(fn ($line) => $line['requires_preparation']) ? 'queued' : null, 'sold_at' => isset($data['sold_at']) ? Carbon::parse($data['sold_at'])->setTimezone(config('app.timezone')) : now(),
                 'tenant_id' => $tenantId, 'user_id' => auth()->id(), 'shift_id' => $shift->id,
                 'customer_id' => $data['customer_id'] ?? null,
+                'loyalty_program_type' => $loyaltyProgram,
+                'stamp_minimum_purchase' => $loyaltyProgram === 'stamps' ? (int) ($settings['stamp_minimum_purchase'] ?? 0) : null,
                 'invoice_number' => 'INV-'.($data['checkout_key'] ?? Str::uuid()),
                 'order_type' => $data['order_type'], 'table_number' => $data['table_number'] ?? null,
                 'subtotal' => $subtotal, 'discount' => $discount, 'tax' => $tax, 'grand_total' => $total,
                 'points_redeemed' => $pointsToRedeem, 'loyalty_discount' => $loyaltyDiscount,
+                'stamps_redeemed' => $stampsToRedeem,
                 'payment_method' => $data['payment_method'], 'payment_status' => $paid ? 'paid' : 'unpaid',
                 'paid_amount' => $paid ? $data['paid_amount'] : 0,
                 'change_amount' => $paid ? $data['paid_amount'] - $total : 0,
                 'order_status' => $paid ? 'completed' : 'pending', 'note' => $data['note'] ?? null,
             ]);
             app(CustomerPoints::class)->redeemForOrder($order);
+            app(CustomerStamps::class)->redeemForOrder($order);
             app(CashLedger::class)->checkout($order);
             foreach ($lines as $line) {
                 $orderItem = $order->items()->create($line);
@@ -269,6 +298,7 @@ class PosController extends Controller
             app(RecipeStock::class)->deduct($tenantId, $materialTotals, $order);
             if ($paid) {
                 app(CustomerPoints::class)->award($order);
+                app(CustomerStamps::class)->award($order);
             } elseif (! $digital) {
                 Customer::where('tenant_id', $tenantId)->whereKey($order->customer_id)->increment('total_debt', $total);
             }
@@ -317,12 +347,17 @@ class PosController extends Controller
                 $phone = '62'.substr($phone, 1);
             }
             $message = 'Kartu member '.$order->tenant->name.' untuk '.$customer->name.': '.$cardUrl;
+            $programType = $order->loyalty_program_type ?? app(LoyaltyProgram::class)->type(app(CustomerPoints::class)->settings($order->tenant_id));
             $loyalty = [
                 'loyalty_card_url' => $cardUrl,
                 'whatsapp_share_url' => 'https://wa.me/'.($phone ?: '').'?text='.rawurlencode($message),
+                'loyalty_program_type' => $programType,
                 'points_awarded' => (int) $order->points_awarded,
                 'points_balance' => (int) $customer->fresh()->points,
                 'points_redeemed' => (int) $order->points_redeemed,
+                'stamps_awarded' => (int) $order->stamps_awarded,
+                'stamp_balance' => app(CustomerStamps::class)->balance($customer->fresh()),
+                'stamps_redeemed' => (int) $order->stamps_redeemed,
                 'loyalty_discount' => (int) $order->loyalty_discount,
             ];
         }

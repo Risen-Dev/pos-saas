@@ -80,6 +80,7 @@ class OrderReturnService
             $priorRefund = (float) DB::table('order_returns')->where('order_id', $order->id)->sum('amount');
             DB::table('order_returns')->insert(['tenant_id' => $actor->tenant_id, 'order_id' => $order->id, 'order_item_id' => $item->id, 'cash_entry_id' => $entry->id, 'quantity' => $quantity, 'amount' => $amount, 'restock' => $restock, 'created_at' => now(), 'updated_at' => now()]);
             app(CustomerPoints::class)->reverseForReturn($order, $amount, (int) $priorRefund, $entry->id);
+            app(CustomerStamps::class)->reverseForReturn($order, $amount, (int) $priorRefund, $entry->id);
             ActivityLog::create(['tenant_id' => $actor->tenant_id, 'user_id' => $actor->id, 'action' => 'order.return', 'description' => 'Order '.$order->id.' item '.$item->id.'; '.$quantity.' unit; Rp '.$amount.'; '.$data['reason']]);
         }, 3);
     }

@@ -32,6 +32,10 @@ class CustomerPoints
         }
 
         $settings = $this->settings($order->tenant_id);
+        if (app(LoyaltyProgram::class)->type($settings) !== 'points'
+            || $order->loyalty_program_type === 'stamps') {
+            return 0;
+        }
         if (($settings['point_mode'] ?? 'disabled') === 'disabled') {
             return 0;
         }
@@ -82,7 +86,9 @@ class CustomerPoints
         if (! $customer->is_member || ! $this->planAllowsLoyalty($customer->tenant)) {
             throw ValidationException::withMessages(['points_to_redeem' => 'Poin hanya dapat digunakan oleh member pada paket Growth atau Scale.']);
         }
-        if (($settings['point_mode'] ?? 'disabled') === 'disabled' || (float) ($settings['point_rule_value'] ?? 0) <= 0) {
+        if (app(LoyaltyProgram::class)->type($settings) !== 'points'
+            || ($settings['point_mode'] ?? 'disabled') === 'disabled'
+            || (float) ($settings['point_rule_value'] ?? 0) <= 0) {
             throw ValidationException::withMessages(['points_to_redeem' => 'Program poin belum diaktifkan untuk toko ini.']);
         }
 

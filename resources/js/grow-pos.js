@@ -25,6 +25,7 @@ export default () => ({
     newCustomerMember: false,
     customerCreateError: "",
     pointsToRedeem: 0,
+    useStampReward: false,
     orderNote: "",
     modal: "",
     selected: null,
@@ -105,6 +106,7 @@ export default () => ({
         if (this.customer && this.config.canCredit) this.lookupCustomers();
         this.$watch("customer", (value) => {
             this.pointsToRedeem = 0;
+            this.useStampReward = false;
             if (
                 value &&
                 !this.customerOptions.some(
@@ -112,6 +114,9 @@ export default () => ({
                 )
             )
                 this.lookupCustomers();
+        });
+        this.$watch("method", (value) => {
+            if (value === "credit") this.useStampReward = false;
         });
         this.$watch("cart", () => this.persist());
         for (const field of ["search", "category", "itemType"]) {
@@ -146,6 +151,7 @@ export default () => ({
         window.addEventListener("offline", () => {
             this.online = false;
             this.pointsToRedeem = 0;
+            this.useStampReward = false;
         });
         this.syncQueue();
     },
@@ -254,17 +260,28 @@ export default () => ({
         const points = Number(this.pointsToRedeem) || 0;
         const step = Number(this.config?.pointRedemptionPoints) || 1;
         const value = Number(this.config?.pointRedemptionValue) || 0;
-        const discount = this.canUsePoints && points > 0 && points % step === 0 && points <= this.maxRedeemablePoints
+        const pointsDiscount = this.canUsePoints && points > 0 && points % step === 0 && points <= this.maxRedeemablePoints
             ? Math.floor(points / step) * value
             : 0;
+        const stampDiscount = this.canUseStampReward && this.useStampReward
+            ? Number(this.config?.stampRewardValue) || 0
+            : 0;
+        const discount = pointsDiscount || stampDiscount;
 
-        return { ...amounts, loyaltyDiscount: discount, total: amounts.total - discount };
+        return { ...amounts, loyaltyDiscount: discount, redeemStampReward: stampDiscount > 0, total: amounts.total - discount };
     },
     get selectedCustomer() {
         return this.customerOptions.find((person) => Number(person.id) === Number(this.customer)) || null;
     },
     get canUsePoints() {
-        return Boolean(this.online && this.config?.loyaltyProgramEnabled && this.selectedCustomer?.is_member && this.method !== "credit");
+        return Boolean(this.online && this.config?.loyaltyProgramEnabled && this.config?.loyaltyProgramType === "points" && this.selectedCustomer?.is_member && this.method !== "credit");
+    },
+    get canUseStampReward() {
+        const goal = Number(this.config?.stampRewardGoal) || 0;
+        const reward = Number(this.config?.stampRewardValue) || 0;
+        const payable = totals(this.cart, this.config?.taxRate || 0).total;
+
+        return Boolean(this.online && this.config?.loyaltyProgramEnabled && this.config?.loyaltyProgramType === "stamps" && this.selectedCustomer?.is_member && this.method !== "credit" && Number(this.selectedCustomer?.stamp_balance || 0) >= goal && payable > reward);
     },
     get maxRedeemablePoints() {
         if (!this.canUsePoints) return 0;
@@ -668,6 +685,7 @@ export default () => ({
             payment_method: this.method === "credit" ? "cash" : this.method,
             payment_status: this.method === "credit" ? "unpaid" : "paid",
             points_to_redeem: this.method === "credit" ? 0 : Number(this.pointsToRedeem || 0),
+            redeem_stamp_reward: this.method !== "credit" && this.canUseStampReward && this.useStampReward,
             paid_amount: manual
                 ? total
                 : this.method === "cash"
@@ -794,6 +812,7 @@ export default () => ({
         this.manualConfirmed = false;
         this.paymentReference = "";
         this.pointsToRedeem = 0;
+        this.useStampReward = false;
         if (result.order_status === "cancelled") {
             this.modal = "";
             this.notice = "Pembayaran sudah dibatalkan.";

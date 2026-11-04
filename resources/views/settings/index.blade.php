@@ -88,7 +88,7 @@
                             <x-icon class="text-xs fa-solid fa-star" />
                         </div>
                         <h3 class="text-base font-semibold font-heading text-ink-900">
-                            Poin loyalitas pelanggan
+                            Program loyalitas pelanggan
                         </h3>
                     </div>
 
@@ -101,7 +101,17 @@
                 </div>
 
                 @can('feature-loyalty')
-                    <!-- TAMPILAN AKTIF (USER DENGAN PAKET GROWTH / SCALE) -->
+                    <div class="max-w-xl">
+                        <label for="loyalty_program_type" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Jenis program</label>
+                        <select name="loyalty_program_type" id="loyalty_program_type" class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
+                            <option value="disabled" @selected(old('loyalty_program_type', $loyaltyProgramType) === 'disabled')>Nonaktif</option>
+                            <option value="points" @selected(old('loyalty_program_type', $loyaltyProgramType) === 'points')>Poin berdasarkan transaksi</option>
+                            <option value="stamps" @selected(old('loyalty_program_type', $loyaltyProgramType) === 'stamps')>Stamp per transaksi</option>
+                        </select>
+                        <p class="mt-2 text-[11px] text-ink-700">Pilih satu program untuk pelanggan. Saldo poin lama tetap disimpan dan tidak dikonversi saat beralih ke stamp.</p>
+                    </div>
+
+                    <div id="points-program-fields" class="mt-5 {{ old('loyalty_program_type', $loyaltyProgramType) !== 'points' ? 'hidden' : '' }}">
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <!-- Point Mode Select -->
                         <div>
@@ -154,6 +164,25 @@
                         </div>
                     </div>
                     <p class="mt-2 text-[11px] text-ink-700">Contoh: 100 poin ditukar dengan potongan Rp10.000. Penukaran berlaku dalam kelipatan ini.</p>
+                    </div>
+
+                    <div id="stamps-program-fields" class="mt-5 {{ old('loyalty_program_type', $loyaltyProgramType) !== 'stamps' ? 'hidden' : '' }}">
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                            <div>
+                                <label for="stamp_minimum_purchase" class="block mb-1.5 text-xs font-semibold text-ink-900">Minimum belanja per stamp (Rp)</label>
+                                <input id="stamp_minimum_purchase" type="text" inputmode="numeric" data-rupiah-input name="stamp_minimum_purchase" value="{{ old('stamp_minimum_purchase', $settings['stamp_minimum_purchase'] ?? 20000) }}" class="w-full px-3 text-xs border rounded-sm h-11 border-border-200">
+                            </div>
+                            <div>
+                                <label for="stamp_reward_goal" class="block mb-1.5 text-xs font-semibold text-ink-900">Stamp untuk reward</label>
+                                <input id="stamp_reward_goal" type="number" min="2" max="12" step="1" name="stamp_reward_goal" value="{{ old('stamp_reward_goal', $settings['stamp_reward_goal'] ?? 8) }}" class="w-full px-3 text-xs border rounded-sm h-11 border-border-200">
+                            </div>
+                            <div>
+                                <label for="stamp_reward_value" class="block mb-1.5 text-xs font-semibold text-ink-900">Potongan reward (Rp)</label>
+                                <input id="stamp_reward_value" type="text" inputmode="numeric" data-rupiah-input name="stamp_reward_value" value="{{ old('stamp_reward_value', $settings['stamp_reward_value'] ?? 10000) }}" class="w-full px-3 text-xs border rounded-sm h-11 border-border-200">
+                            </div>
+                        </div>
+                        <p class="p-3 mt-4 text-xs rounded-md bg-primary-50 text-primary-800">1 transaksi lunas yang memenuhi minimum belanja mendapat 1 stamp. Maksimal 1 stamp per transaksi. {{ old('stamp_reward_goal', $settings['stamp_reward_goal'] ?? 8) }} stamp dapat ditukar dengan potongan sesuai nominal reward.</p>
+                    </div>
                 @else
                     <!-- TAMPILAN TERKUNCI (USER DENGAN PAKET STARTER) -->
                     <div
@@ -164,9 +193,9 @@
                                 <x-icon class="text-base fa-solid fa-crown" />
                             </div>
                             <div>
-                                <h4 class="text-xs font-bold text-amber-900">Poin loyalitas tersedia di paket berbayar</h4>
+                                <h4 class="text-xs font-bold text-amber-900">Loyalty pelanggan tersedia di paket berbayar</h4>
                                 <p class="text-[11px] text-amber-800 mt-0.5">
-                                    Fitur otomatisasi poin loyalitas dan manajemen member toko hanya tersedia pada
+                                    Fitur loyalty dan manajemen member toko hanya tersedia pada
                                     <strong>Paket Growth</strong> dan <strong>Scale</strong>.
                                 </p>
                             </div>
@@ -214,12 +243,29 @@
         <script>
             document.addEventListener("DOMContentLoaded", function() {
                 const pointModeSelect = document.getElementById('point_mode');
+                const programSelect = document.getElementById('loyalty_program_type');
+                const pointsFields = document.getElementById('points-program-fields');
+                const stampsFields = document.getElementById('stamps-program-fields');
                 const label = document.getElementById('value_label');
                 const help = document.getElementById('value_help');
                 const moneyInput = document.getElementById('field-point_rule_value-money');
                 const numericInput = document.getElementById('field-point_rule_value');
 
-                if (!pointModeSelect) return;
+                if (!pointModeSelect || !programSelect) return;
+
+                function updateProgramFields() {
+                    const pointsEnabled = programSelect.value === 'points';
+                    const stampsEnabled = programSelect.value === 'stamps';
+                    pointsFields.classList.toggle('hidden', !pointsEnabled);
+                    stampsFields.classList.toggle('hidden', !stampsEnabled);
+                    pointsFields.querySelectorAll('input,select').forEach((field) => field.disabled = !pointsEnabled);
+                    stampsFields.querySelectorAll('input,select').forEach((field) => field.disabled = !stampsEnabled);
+                    pointModeSelect.disabled = !pointsEnabled;
+                    updatePointHelp();
+                    if (!pointsEnabled) {
+                        pointsFields.querySelectorAll('input,select').forEach((field) => field.disabled = true);
+                    }
+                }
 
                 const digits = (value) => String(value ?? '').replace(/\D/g, '');
                 const formatRupiah = (value) => {
@@ -266,7 +312,8 @@
                 }
 
                 pointModeSelect.addEventListener('change', updatePointHelp);
-                updatePointHelp();
+                programSelect.addEventListener('change', updateProgramFields);
+                updateProgramFields();
             });
         </script>
     @endcan

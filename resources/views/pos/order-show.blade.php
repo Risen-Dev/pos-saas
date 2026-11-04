@@ -67,7 +67,7 @@
                             {{ number_format($order->discount, 0, ',', '.') }}</span></div>
                 @endif
                 @if ($order->loyalty_discount > 0)
-                    <div class="flex justify-between gap-4 text-[#65796f]"><span>Potongan poin loyalitas ({{ number_format($order->points_redeemed,0,',','.') }} poin)</span><span>-Rp {{ number_format($order->loyalty_discount,0,',','.') }}</span></div>
+                    <div class="flex justify-between gap-4 text-[#65796f]"><span>{{ $order->loyalty_program_type === 'stamps' ? 'Reward stamp loyalitas ('.number_format($order->stamps_redeemed, 0, ',', '.').' stamp)' : 'Potongan poin loyalitas ('.number_format($order->points_redeemed, 0, ',', '.').' poin)' }}</span><span>-Rp {{ number_format($order->loyalty_discount,0,',','.') }}</span></div>
                 @endif
                 @if ($order->tax > 0)
                     <div class="flex justify-between gap-4 text-[#65796f]"><span>Pajak</span><span>Rp

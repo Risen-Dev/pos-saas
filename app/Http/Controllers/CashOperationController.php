@@ -72,6 +72,7 @@ class CashOperationController extends Controller
             }
             if ($paid) {
                 app(CustomerPoints::class)->award($order);
+                app(\App\Services\CustomerStamps::class)->award($order);
             }
         }, 3);
 

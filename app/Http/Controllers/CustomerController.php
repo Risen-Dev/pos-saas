@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Order;
+use App\Services\CustomerPoints;
+use App\Services\CustomerStamps;
+use App\Services\LoyaltyProgram;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -15,10 +18,15 @@ class CustomerController extends Controller
         Gate::authorize('feature-crm');
         $data = $request->validate(['q' => 'nullable|string|max:100', 'selected' => 'nullable|integer|min:1']);
         $customers = Customer::where('tenant_id', auth()->user()->tenant_id)
+            ->select(['id', 'name', 'is_member', 'points', 'loyalty_member_code'])
+            ->withSum('loyaltyStampTransactions as stamp_balance', 'stamps_delta')
             ->when($data['q'] ?? '', fn ($query, $term) => $query->where(fn ($query) => $query->where('name', 'like', '%'.$term.'%')->orWhere('phone', 'like', '%'.$term.'%')->orWhere('loyalty_member_code', 'like', '%'.$term.'%')))
-            ->orderBy('name')->limit(50)->get(['id', 'name', 'is_member', 'points', 'loyalty_member_code']);
+            ->orderBy('name')->limit(50)->get();
         if (! empty($data['selected']) && ! $customers->contains('id', (int) $data['selected'])) {
-            $selected = Customer::where('tenant_id', auth()->user()->tenant_id)->find($data['selected'], ['id', 'name', 'is_member', 'points', 'loyalty_member_code']);
+            $selected = Customer::where('tenant_id', auth()->user()->tenant_id)
+                ->select(['id', 'name', 'is_member', 'points', 'loyalty_member_code'])
+                ->withSum('loyaltyStampTransactions as stamp_balance', 'stamps_delta')
+                ->find($data['selected']);
             if ($selected) {
                 $customers->prepend($selected);
             }
@@ -129,6 +137,7 @@ class CustomerController extends Controller
         if ($customer->tenant_id !== auth()->user()->tenant_id) {
             abort(403);
         }
+        $tenantId = (int) $customer->tenant_id;
 
         if (Gate::allows('feature-loyalty') && $customer->is_member) {
             $customer->ensureLoyaltyCard();
@@ -137,7 +146,13 @@ class CustomerController extends Controller
         $orders = $customer->orders()->when(auth()->user()->role === 'kasir', fn ($query) => $query->where('user_id', auth()->id()))
             ->latest('id')->paginate(15);
 
-        $loyaltyActivity = $customer->loyaltyPointTransactions()->latest('id')->limit(10)->get();
+        $loyaltyProgramType = app(LoyaltyProgram::class)->type(app(CustomerPoints::class)->settings($tenantId));
+        $loyaltyBalance = $loyaltyProgramType === 'stamps'
+            ? app(CustomerStamps::class)->balance($customer)
+            : (int) $customer->points;
+        $loyaltyActivity = $loyaltyProgramType === 'stamps'
+            ? $customer->loyaltyStampTransactions()->latest('id')->limit(10)->get()
+            : $customer->loyaltyPointTransactions()->latest('id')->limit(10)->get();
         $loyaltyCardUrl = $customer->is_member && $customer->loyalty_card_token
             ? route('loyalty.card', $customer->loyalty_card_token)
             : null;
@@ -152,7 +167,7 @@ class CustomerController extends Controller
             ? 'https://wa.me/'.($whatsappNumber ?: '').'?text='.rawurlencode($shareText)
             : null;
 
-        return view('customers.show', compact('customer', 'orders', 'loyaltyActivity', 'loyaltyCardUrl', 'whatsappShareUrl'));
+        return view('customers.show', compact('customer', 'orders', 'loyaltyActivity', 'loyaltyCardUrl', 'whatsappShareUrl', 'loyaltyProgramType', 'loyaltyBalance'));
     }
 
     public function joinLoyalty(Customer $customer)
@@ -244,7 +259,11 @@ class CustomerController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => array_merge($customer->only(['id', 'name', 'is_member', 'points', 'loyalty_member_code']), $share),
+            'data' => array_merge(
+                $customer->only(['id', 'name', 'is_member', 'points', 'loyalty_member_code']),
+                ['stamp_balance' => app(\App\Services\CustomerStamps::class)->balance($customer)],
+                $share,
+            ),
         ]);
     }
 }

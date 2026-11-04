@@ -1,0 +1,17 @@
+[program:growpos-worker]
+process_name=%(program_name)s_%(process_num)02d
+directory=/var/www/pos-saas
+command=/usr/bin/php artisan queue:work database --sleep=3 --tries=3 --timeout=60 --max-time=3600
+user=fdev
+numprocs=1
+autostart=true
+autorestart=true
+startsecs=5
+startretries=3
+stopasgroup=true
+killasgroup=true
+stopwaitsecs=70
+redirect_stderr=true
+stdout_logfile=/var/www/pos-saas/storage/logs/growpos-worker.log
+stdout_logfile_maxbytes=20MB
+stdout_logfile_backups=5

@@ -12,6 +12,12 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 @php
+    $loyaltyProgramType = app(\App\Services\LoyaltyProgram::class)->type($settings);
+    $loyaltyProgramEnabled = \Illuminate\Support\Facades\Gate::allows('feature-loyalty') && match ($loyaltyProgramType) {
+        'stamps' => (int) ($settings['stamp_reward_goal'] ?? 0) >= 2 && (int) ($settings['stamp_reward_value'] ?? 0) > 0,
+        'points' => ($settings['point_mode'] ?? 'disabled') !== 'disabled' && (float) ($settings['point_rule_value'] ?? 0) > 0,
+        default => false,
+    };
     $catalog = $products
         ->map(
             fn($p) => [
@@ -62,10 +68,14 @@
         'customerLookup' => route('pos.customers.lookup', absolute: false),
         'canCredit' => \Illuminate\Support\Facades\Gate::allows('feature-crm'),
         'canLoyalty' => \Illuminate\Support\Facades\Gate::allows('feature-loyalty'),
-        'loyaltyProgramEnabled' => \Illuminate\Support\Facades\Gate::allows('feature-loyalty') && ($settings['point_mode'] ?? 'disabled') !== 'disabled' && (float) ($settings['point_rule_value'] ?? 0) > 0,
+        'loyaltyProgramEnabled' => $loyaltyProgramEnabled,
+        'loyaltyProgramType' => $loyaltyProgramType,
         'customerStore' => route('customers.storeApi', absolute: false),
         'pointRedemptionPoints' => max(1, (int) ($settings['point_redemption_points'] ?? 100)),
         'pointRedemptionValue' => max(1, (int) ($settings['point_redemption_value'] ?? 10000)),
+        'stampMinimumPurchase' => max(0, (int) ($settings['stamp_minimum_purchase'] ?? 0)),
+        'stampRewardGoal' => max(2, (int) ($settings['stamp_reward_goal'] ?? 8)),
+        'stampRewardValue' => max(1, (int) ($settings['stamp_reward_value'] ?? 10000)),
         'food' => auth()->user()->tenant->hasBusinessModule('food'),
         'pendingPayments' => $pendingPayments,
         'tenant' => auth()->user()->tenant_id,
@@ -1001,6 +1011,11 @@
                     </label>
                     <p class="mt-2 text-xs text-ink-700" x-text="`Setiap ${formatQuantity(config.pointRedemptionPoints)} poin memberi potongan ${money(config.pointRedemptionValue)}. Maksimal saat ini ${formatQuantity(maxRedeemablePoints)} poin.`"></p>
                 </div>
+                <div x-show="canUseStampReward" x-cloak class="p-4 mt-4 border rounded-md border-border-200 bg-primary-50">
+                    <p class="text-sm font-semibold text-primary-900">Stamp member: <span x-text="formatQuantity(selectedCustomer?.stamp_balance || 0)"></span> / <span x-text="formatQuantity(config.stampRewardGoal)"></span></p>
+                    <label class="flex items-start gap-2 mt-3 text-sm text-ink-900"><input type="checkbox" x-model="useStampReward" class="mt-1"><span>Gunakan reward potongan <strong x-text="money(config.stampRewardValue)"></strong></span></label>
+                    <p class="mt-2 text-xs text-ink-700">Reward ditahan saat pembayaran diproses. Jika pembayaran QRIS gagal atau dibatalkan, stamp dikembalikan. Transaksi tetap bisa mendapat 1 stamp jika nilai belanja setelah potongan memenuhi minimum.</p>
+                </div>
                 <form @submit.prevent="submit()">
                     <div x-show="method==='cash'"><label
                             class="block [font-size:12px] font-semibold [color:#536b5e] [&_input]:block [&_input]:w-full [&_input]:[margin-top:7px] [&_input]:[border:1px_solid_#dce5de] [&_input]:[border-radius:9px] [&_input]:[padding:11px] [&_input]:bg-white [&_input]:[font-size:14px] [&_input]:[color:#18372d] [&_input]:min-h-11 [&_select]:block [&_select]:w-full [&_select]:[margin-top:7px] [&_select]:[border:1px_solid_#dce5de] [&_select]:[border-radius:9px] [&_select]:[padding:11px] [&_select]:bg-white [&_select]:[font-size:14px] [&_select]:[color:#18372d] [&_select]:min-h-11 [&_textarea]:block [&_textarea]:w-full [&_textarea]:[margin-top:7px] [&_textarea]:[border:1px_solid_#dce5de] [&_textarea]:[border-radius:9px] [&_textarea]:[padding:11px] [&_textarea]:bg-white [&_textarea]:[font-size:14px] [&_textarea]:[color:#18372d] [&_textarea]:min-h-11 mt-5">Uang
@@ -1122,10 +1137,12 @@
                         class="inline-flex items-center justify-center gap-2 min-h-11 [padding:10px_17px] [border:1px_solid_#dae4dd] rounded-md bg-white [color:#234a3b] [font-size:13px] font-semibold cursor-pointer hover:[background:#f1f7f3] disabled:[opacity:0.45] disabled:cursor-wait focus-visible:[outline:3px_solid_#90b9a5] focus-visible:[outline-offset:3px] ![background:#17694d] !text-white ![border-color:#17694d] hover:![background:#12523d] w-full mt-5"
                         :href="'/orders/' + receipt.order_id + '/print'" target="_blank" rel="noopener">Cetak struk
                         ↗</a>
-                    <p x-show="receipt.loyalty_discount" class="mt-3 text-xs text-ink-700">Potongan poin: <strong x-text="money(receipt.loyalty_discount)"></strong> · <span x-text="formatQuantity(receipt.points_redeemed)"></span> poin digunakan</p>
+                    <p x-show="receipt.loyalty_discount && receipt.loyalty_program_type==='points'" class="mt-3 text-xs text-ink-700">Potongan poin: <strong x-text="money(receipt.loyalty_discount)"></strong> · <span x-text="formatQuantity(receipt.points_redeemed)"></span> poin digunakan</p>
+                    <p x-show="receipt.loyalty_discount && receipt.loyalty_program_type==='stamps'" class="mt-3 text-xs text-ink-700">Reward stamp digunakan: <strong x-text="money(receipt.loyalty_discount)"></strong> · <span x-text="formatQuantity(receipt.stamps_redeemed)"></span> stamp</p>
                     <div x-show="receipt.loyalty_card_url" x-cloak class="p-4 mt-4 text-left border rounded-lg border-border-200 bg-primary-50">
                         <p class="text-sm font-semibold text-primary-900">Kartu loyalitas pelanggan</p>
                         <p x-show="receipt.points_awarded" class="mt-1 text-xs text-primary-900">Poin didapat: <strong x-text="'+'+formatQuantity(receipt.points_awarded)"></strong> · Saldo <strong x-text="formatQuantity(receipt.points_balance)"></strong></p>
+                        <p x-show="receipt.loyalty_program_type==='stamps' && receipt.stamps_awarded" class="mt-1 text-xs text-primary-900">Stamp didapat: <strong x-text="'+'+formatQuantity(receipt.stamps_awarded)"></strong> · Saldo <strong x-text="formatQuantity(receipt.stamp_balance)"></strong></p>
                         <p class="mt-2 text-xs text-ink-700">Bagikan tautan kartu yang sama ke pelanggan. Admin meninjau pesan sebelum mengirimkannya.</p>
                         <div class="flex flex-wrap gap-2 mt-3">
                             <a :href="receipt.whatsapp_share_url" target="_blank" rel="noopener noreferrer" class="inline-flex items-center min-h-10 px-3 text-xs font-semibold text-white rounded-md bg-primary-700">Bagikan lewat WhatsApp</a>

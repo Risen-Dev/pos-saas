@@ -35,10 +35,12 @@ class OrderPaymentService
                 DB::table('tenant_wallets')->where('tenant_id', $order->tenant_id)->increment('balance', $net, ['updated_at' => now()]);
                 $order->update(['payment_attention' => false, 'payment_status' => 'paid', 'order_status' => 'completed', 'paid_amount' => $order->grand_total, 'withdrawal_status' => 'pending']);
                 app(CustomerPoints::class)->award($order);
+                app(CustomerStamps::class)->award($order);
             } elseif (in_array($status, ['cancel', 'deny', 'expire'], true) && $order->order_status !== 'cancelled') {
                 app(OrderStock::class)->change($order, true);
                 $order->update(['order_status' => 'cancelled']);
                 app(CustomerPoints::class)->releaseRedemption($order, 'Poin dikembalikan karena pembayaran QRIS dibatalkan.');
+                app(CustomerStamps::class)->releaseRedemption($order, 'Stamp dikembalikan karena pembayaran QRIS dibatalkan.');
             }
             if (in_array($status, ['cancel', 'deny', 'expire'], true)) {
                 $order->update(['payment_attention' => false]);

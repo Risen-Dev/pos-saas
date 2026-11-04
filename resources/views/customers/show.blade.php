@@ -12,7 +12,7 @@
         <dl class="grid gap-4 sm:grid-cols-3">
             @can('feature-loyalty')
             <div class="p-5 bg-white border rounded-lg border-border-200"><dt>Status</dt><dd class="mt-2 font-bold">{{ $customer->is_member ? 'Member' : 'Pelanggan umum' }}</dd></div>
-            <div class="p-5 bg-white border rounded-lg border-border-200"><dt>Poin loyalitas</dt><dd class="mt-2 font-bold">{{ number_format($customer->points,0,',','.') }}</dd></div>
+            <div class="p-5 bg-white border rounded-lg border-border-200"><dt>{{ $loyaltyProgramType === 'stamps' ? 'Stamp loyalitas' : 'Poin loyalitas' }}</dt><dd class="mt-2 font-bold">{{ number_format($loyaltyBalance,0,',','.') }} {{ $loyaltyProgramType === 'stamps' ? 'stamp' : 'poin' }}</dd></div>
             @endcan
             <div class="p-5 bg-white border rounded-lg border-border-200"><dt>Sisa piutang</dt><dd class="mt-2 font-bold">Rp {{ number_format($customer->total_debt,0,',','.') }}</dd></div>
         </dl>
@@ -38,17 +38,17 @@
             @elseif ($customer->phone)
                 <form method="POST" action="{{ route('customers.loyalty.join', $customer) }}" class="flex flex-wrap items-center justify-between gap-3 p-5 bg-white border rounded-lg border-border-200">
                     @csrf
-                    <div><h2 class="font-semibold">Buat kartu loyalitas</h2><p class="mt-1 text-sm text-ink-700">Pelanggan dapat melihat poin melalui tautan kartu digital.</p></div>
+                    <div><h2 class="font-semibold">Buat kartu loyalitas</h2><p class="mt-1 text-sm text-ink-700">Pelanggan dapat melihat {{ $loyaltyProgramType === 'stamps' ? 'stamp' : 'poin' }} melalui tautan kartu digital.</p></div>
                     <button class="min-h-11 px-4 text-sm font-semibold text-white rounded-md bg-primary-700">Daftarkan sebagai member</button>
                 </form>
             @endif
         @endcan
         @can('feature-loyalty')
             <section class="p-5 bg-white border rounded-lg border-border-200">
-                <h2 class="font-semibold">Riwayat poin</h2>
+                <h2 class="font-semibold">Riwayat {{ $loyaltyProgramType === 'stamps' ? 'stamp' : 'poin' }}</h2>
                 <div class="mt-3 overflow-x-auto">
                     <table class="w-full text-sm text-left"><thead><tr class="border-b"><th class="py-2 pr-4">Aktivitas</th><th class="py-2 pr-4">Tanggal</th><th class="py-2 text-right">Perubahan</th></tr></thead>
-                        <tbody>@forelse($loyaltyActivity as $entry)<tr class="border-b"><td class="py-3 pr-4">{{ $entry->description ?: str($entry->type)->replace('_', ' ')->ucfirst() }}</td><td class="py-3 pr-4 whitespace-nowrap">{{ $entry->created_at->format('d/m/Y H:i') }}</td><td class="py-3 text-right font-semibold {{ $entry->points_delta > 0 ? 'text-primary-700' : '' }}">{{ $entry->points_delta > 0 ? '+' : '' }}{{ number_format($entry->points_delta,0,',','.') }}</td></tr>@empty<tr><td colspan="3" class="py-4 text-center text-ink-700">Belum ada aktivitas poin.</td></tr>@endforelse</tbody>
+                        <tbody>@forelse($loyaltyActivity as $entry)@php($delta = (int) ($loyaltyProgramType === 'stamps' ? $entry->stamps_delta : $entry->points_delta))<tr class="border-b"><td class="py-3 pr-4">{{ $entry->description ?: str($entry->type)->replace('_', ' ')->ucfirst() }}</td><td class="py-3 pr-4 whitespace-nowrap">{{ $entry->created_at->format('d/m/Y H:i') }}</td><td class="py-3 text-right font-semibold {{ $delta > 0 ? 'text-primary-700' : '' }}">{{ $delta > 0 ? '+' : '' }}{{ number_format($delta,0,',','.') }} {{ $loyaltyProgramType === 'stamps' ? 'stamp' : 'poin' }}</td></tr>@empty<tr><td colspan="3" class="py-4 text-center text-ink-700">Belum ada aktivitas {{ $loyaltyProgramType === 'stamps' ? 'stamp' : 'poin' }}.</td></tr>@endforelse</tbody>
                     </table>
                 </div>
             </section>

@@ -52,7 +52,9 @@ Pastikan ada tepat worker persisten yang dijaga Supervisor/systemd dan berjalan 
 php artisan queue:work database --sleep=3 --tries=3 --timeout=60 --max-time=3600
 ```
 
-Jika service sudah ada, periksa `systemctl status` atau `supervisorctl status` sebelum membuat service baru. Sesudah start/restart worker, tunggu scheduler mengantrekan job heartbeat lalu jalankan ulang launch check. Jika heartbeat tetap gagal, lihat log worker dan `failed_jobs`; jangan menandai heartbeat secara manual.
+Jika Supervisor sudah terpasang, template tersedia di `ops/supervisor/growpos-worker.conf.example`. Periksa konfigurasi service yang ada dulu agar tidak menjalankan worker duplikat, lalu salin sebagai `/etc/supervisor/conf.d/growpos-worker.conf`, jalankan `sudo supervisorctl reread`, `sudo supervisorctl update`, dan periksa `sudo supervisorctl status growpos-worker:*`. Sesuaikan path PHP jika `command -v php` bukan `/usr/bin/php`. Bila menggunakan systemd, buat unit setara dengan `WorkingDirectory=/var/www/pos-saas`, user `fdev`, dan perintah queue di atas.
+
+Sesudah start/restart worker, tunggu scheduler mengantrekan job heartbeat lalu jalankan ulang launch check. Jika heartbeat tetap gagal, lihat log worker dan `failed_jobs`; jangan menandai heartbeat secara manual.
 
 ### Backup heartbeat
 
