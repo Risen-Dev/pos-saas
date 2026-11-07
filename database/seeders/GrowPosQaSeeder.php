@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Plan;
 use App\Models\Product;
+use App\Models\Setting;
 use App\Models\Subscription;
 use App\Models\Tenant;
 use App\Models\User;
@@ -38,6 +39,32 @@ class GrowPosQaSeeder extends Seeder
         );
 
         $this->seedCatalog($tenantA);
+
+        foreach ([
+            'loyalty_program_type' => 'points',
+            'point_mode' => 'per_investment',
+            'point_rule_value' => '10000',
+            'point_member_only' => '1',
+            'point_redemption_points' => '100',
+            'point_redemption_value' => '10000',
+        ] as $key => $value) {
+            Setting::updateOrCreate(
+                ['tenant_id' => $tenantA->id, 'key' => $key],
+                ['value' => $value],
+            );
+        }
+
+        User::updateOrCreate(
+            ['email' => 'qa.new@growpos.test'],
+            [
+                'tenant_id' => null,
+                'name' => 'New Business QA',
+                'password' => Hash::make($password),
+                'status' => 'active',
+                'role' => 'admin',
+                'email_verified_at' => now(),
+            ],
+        );
 
         // Tenant kedua sengaja dibuat dengan katalog berbeda untuk QA tenant isolation.
         $this->seedTenant(
@@ -261,5 +288,25 @@ class GrowPosQaSeeder extends Seeder
                 'total_debt' => 0,
             ]
         );
+
+        for ($index = 1; $index <= 12; $index++) {
+            Product::updateOrCreate(
+                ['tenant_id' => $tenant->id, 'sku' => sprintf('QA-PAGE-%03d', $index)],
+                [
+                    'category_id' => $goods->id,
+                    'product_name' => sprintf('Produk Pagination QA %02d', $index),
+                    'type' => 'product',
+                    'cost_price' => 1000,
+                    'sell_price' => 2000,
+                    'stock' => 30,
+                    'manage_stock' => true,
+                    'min_stock' => 3,
+                    'base_unit' => 'pcs',
+                    'allow_fraction' => false,
+                    'price_tiers' => null,
+                    'is_active' => true,
+                ],
+            );
+        }
     }
 }

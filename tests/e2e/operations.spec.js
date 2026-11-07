@@ -88,7 +88,10 @@ test("member checkout redeems points and exposes the updated loyalty card", asyn
 }) => {
     await signIn(page);
     await page.goto("/pos");
-    const startShift = page.getByRole("button", { name: "Mulai jualan", exact: true });
+    const startShift = page.getByRole("button", {
+        name: "Mulai jualan",
+        exact: true,
+    });
     if (await startShift.count()) {
         await startShift.click();
         const shiftDialog = page.getByRole("dialog", { name: "Detail kasir" });
@@ -103,33 +106,49 @@ test("member checkout redeems points and exposes the updated loyalty card", asyn
 
     await page.getByRole("button", { name: /BE Beras Premium QA/ }).click();
     const productDialog = page.getByRole("dialog", { name: "Detail kasir" });
-    await productDialog.getByRole("spinbutton", { name: "Jumlah", exact: true }).fill("2");
+    await productDialog
+        .getByRole("spinbutton", { name: "Jumlah", exact: true })
+        .fill("2");
     await productDialog.getByRole("button", { name: /^Tambahkan/ }).click();
     await page
         .getByLabel("Pelanggan / member")
         .selectOption({ label: "Customer Testing QA · Member · 100 poin" });
-    await page.getByRole("button", { name: "Lanjut pembayaran →", exact: true }).click();
+    await page
+        .getByRole("button", { name: "Lanjut pembayaran →", exact: true })
+        .click();
     const paymentDialog = page.getByRole("dialog", { name: "Detail kasir" });
     await expect(paymentDialog.getByText("Poin member:")).toBeVisible();
     await paymentDialog.getByLabel("Gunakan poin").fill("100");
     await expect(paymentDialog.getByText("Rp 20.000").first()).toBeVisible();
-    await paymentDialog.getByRole("button", { name: "Uang pas", exact: true }).click();
+    await paymentDialog
+        .getByRole("button", { name: "Uang pas", exact: true })
+        .click();
     await paymentDialog
         .getByRole("button", { name: "Konfirmasi pembayaran", exact: true })
         .click();
 
     await expect(
-        paymentDialog.getByRole("heading", { name: "Transaksi berhasil.", exact: true }),
+        paymentDialog.getByRole("heading", {
+            name: "Transaksi berhasil.",
+            exact: true,
+        }),
     ).toBeVisible();
     await expect(paymentDialog.getByText(/poin digunakan/)).toBeVisible();
-    await expect(paymentDialog.getByText(/Saldo/)).toContainText("2");
-    const cardLink = paymentDialog.getByRole("link", { name: "Lihat kartu", exact: true });
+    await expect(paymentDialog.getByText(/Poin didapat:/)).toContainText("2");
+    const cardLink = paymentDialog.getByRole("link", {
+        name: "Lihat kartu",
+        exact: true,
+    });
     const href = await cardLink.getAttribute("href");
     expect(href).toMatch(/\/loyalty\/card\/[A-Za-z0-9]{64}$/);
     await page.goto(href);
-    await expect(page.getByRole("heading", { name: "Toko Maju Jaya QA" })).toBeVisible();
-    await expect(page.getByText("Customer Testing QA", { exact: false })).toBeVisible();
-    await expect(page.getByText("2", { exact: true })).toBeVisible();
+    await expect(
+        page.getByRole("heading", { name: "Toko Maju Jaya QA" }),
+    ).toBeVisible();
+    await expect(
+        page.getByText("Customer Testing QA", { exact: false }),
+    ).toBeVisible();
+    await expect(page.locator(".balance-value")).toContainText("2 poin");
 });
 
 test("first business setup stays separate from adding another business", async ({
@@ -189,7 +208,10 @@ test("minimal catalog and verified manual payment work in the browser", async ({
     await expect(page).toHaveURL(/\/products$/);
     await page.goto("/pos");
     const dialog = page.getByRole("dialog", { name: "Detail kasir" });
-    const startShift = page.getByRole("button", { name: "Mulai jualan", exact: true });
+    const startShift = page.getByRole("button", {
+        name: "Mulai jualan",
+        exact: true,
+    });
     if (await startShift.count()) {
         await startShift.click();
         await dialog
@@ -341,7 +363,9 @@ test("a checkout appears in history, updates stock, and rolls into reports", asy
     expect(stockBefore).toBeGreaterThan(0);
 
     await page.goto("/reports");
-    const salesSummary = page.getByRole("region", { name: "Ringkasan penjualan" });
+    const salesSummary = page.getByRole("region", {
+        name: "Ringkasan penjualan",
+    });
     const revenueCard = salesSummary.locator("div").nth(0);
     const transactionCard = salesSummary.locator("div").nth(1);
     const readAmount = async (locator) =>
@@ -366,9 +390,7 @@ test("a checkout appears in history, updates stock, and rolls into reports", asy
     }
 
     await page.getByRole("button", { name: /BE Beras Premium QA/ }).click();
-    await shiftDialog
-        .getByRole("button", { name: /^Tambahkan/ })
-        .click();
+    await shiftDialog.getByRole("button", { name: /^Tambahkan/ }).click();
     await page
         .getByRole("button", { name: "Lanjut pembayaran →", exact: true })
         .click();

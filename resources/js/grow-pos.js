@@ -260,36 +260,66 @@ export default () => ({
         const points = Number(this.pointsToRedeem) || 0;
         const step = Number(this.config?.pointRedemptionPoints) || 1;
         const value = Number(this.config?.pointRedemptionValue) || 0;
-        const pointsDiscount = this.canUsePoints && points > 0 && points % step === 0 && points <= this.maxRedeemablePoints
-            ? Math.floor(points / step) * value
-            : 0;
-        const stampDiscount = this.canUseStampReward && this.useStampReward
-            ? Number(this.config?.stampRewardValue) || 0
-            : 0;
+        const pointsDiscount =
+            this.canUsePoints &&
+            points > 0 &&
+            points % step === 0 &&
+            points <= this.maxRedeemablePoints
+                ? Math.floor(points / step) * value
+                : 0;
+        const stampDiscount =
+            this.canUseStampReward && this.useStampReward
+                ? Number(this.config?.stampRewardValue) || 0
+                : 0;
         const discount = pointsDiscount || stampDiscount;
 
-        return { ...amounts, loyaltyDiscount: discount, redeemStampReward: stampDiscount > 0, total: amounts.total - discount };
+        return {
+            ...amounts,
+            loyaltyDiscount: discount,
+            redeemStampReward: stampDiscount > 0,
+            total: amounts.total - discount,
+        };
     },
     get selectedCustomer() {
-        return this.customerOptions.find((person) => Number(person.id) === Number(this.customer)) || null;
+        return (
+            this.customerOptions.find(
+                (person) => Number(person.id) === Number(this.customer),
+            ) || null
+        );
     },
     get canUsePoints() {
-        return Boolean(this.online && this.config?.loyaltyProgramEnabled && this.config?.loyaltyProgramType === "points" && this.selectedCustomer?.is_member && this.method !== "credit");
+        return Boolean(
+            this.online &&
+                this.config?.loyaltyProgramEnabled &&
+                this.config?.loyaltyProgramType === "points" &&
+                this.selectedCustomer?.is_member &&
+                this.method !== "credit",
+        );
     },
     get canUseStampReward() {
         const goal = Number(this.config?.stampRewardGoal) || 0;
         const reward = Number(this.config?.stampRewardValue) || 0;
         const payable = totals(this.cart, this.config?.taxRate || 0).total;
 
-        return Boolean(this.online && this.config?.loyaltyProgramEnabled && this.config?.loyaltyProgramType === "stamps" && this.selectedCustomer?.is_member && this.method !== "credit" && Number(this.selectedCustomer?.stamp_balance || 0) >= goal && payable > reward);
+        return Boolean(
+            this.online &&
+                this.config?.loyaltyProgramEnabled &&
+                this.config?.loyaltyProgramType === "stamps" &&
+                this.selectedCustomer?.is_member &&
+                this.method !== "credit" &&
+                Number(this.selectedCustomer?.stamp_balance || 0) >= goal &&
+                payable > reward,
+        );
     },
     get maxRedeemablePoints() {
         if (!this.canUsePoints) return 0;
         const step = Number(this.config?.pointRedemptionPoints) || 1;
         const value = Number(this.config?.pointRedemptionValue) || 0;
-        const available = Math.floor(Number(this.selectedCustomer.points || 0) / step) * step;
+        const available =
+            Math.floor(Number(this.selectedCustomer.points || 0) / step) * step;
         const payable = totals(this.cart, this.config?.taxRate || 0).total;
-        const affordable = value > 0 ? Math.floor(Math.max(0, payable - 1) / value) * step : 0;
+        const affordable =
+            value > 0 ? Math.floor(Math.max(0, payable - 1) / value) * step : 0;
 
         return Math.min(available, affordable);
     },
@@ -584,15 +614,21 @@ export default () => ({
         this.customerCreateError = "";
         this.busy = true;
         try {
-            const response = await this.request(this.config.customerStore, "POST", {
-                name: this.newCustomerName,
-                phone: this.newCustomerPhone,
-                is_member: this.newCustomerMember,
-            });
+            const response = await this.request(
+                this.config.customerStore,
+                "POST",
+                {
+                    name: this.newCustomerName,
+                    phone: this.newCustomerPhone,
+                    is_member: this.newCustomerMember,
+                },
+            );
             const person = response.data;
             this.customerOptions = [
                 person,
-                ...this.customerOptions.filter((existing) => Number(existing.id) !== Number(person.id)),
+                ...this.customerOptions.filter(
+                    (existing) => Number(existing.id) !== Number(person.id),
+                ),
             ];
             this.customer = String(person.id);
             this.customerSearch = person.name;
@@ -684,8 +720,12 @@ export default () => ({
             sold_at: new Date().toISOString(),
             payment_method: this.method === "credit" ? "cash" : this.method,
             payment_status: this.method === "credit" ? "unpaid" : "paid",
-            points_to_redeem: this.method === "credit" ? 0 : Number(this.pointsToRedeem || 0),
-            redeem_stamp_reward: this.method !== "credit" && this.canUseStampReward && this.useStampReward,
+            points_to_redeem:
+                this.method === "credit" ? 0 : Number(this.pointsToRedeem || 0),
+            redeem_stamp_reward:
+                this.method !== "credit" &&
+                this.canUseStampReward &&
+                this.useStampReward,
             paid_amount: manual
                 ? total
                 : this.method === "cash"
@@ -841,7 +881,10 @@ export default () => ({
             await navigator.clipboard.writeText(this.receipt.loyalty_card_url);
             this.notice = "Tautan kartu member tersalin.";
         } catch {
-            window.prompt("Salin tautan kartu member", this.receipt.loyalty_card_url);
+            window.prompt(
+                "Salin tautan kartu member",
+                this.receipt.loyalty_card_url,
+            );
         }
     },
     trapFocus(event) {
@@ -878,13 +921,15 @@ export default () => ({
             const result = await this.request(
                 "/orders/" + this.payment.order_id + "/check-status",
             );
-            const paid = result.status === "paid" || result.payment_status === "paid";
+            const paid =
+                result.status === "paid" || result.payment_status === "paid";
             if (paid || result.status === "cancelled")
                 this.pendingPayments = this.pendingPayments.filter(
                     (p) => p.order_id !== this.payment.order_id,
                 );
             if (paid) {
-                this.receipt = result.payment_status === "paid" ? result : this.payment;
+                this.receipt =
+                    result.payment_status === "paid" ? result : this.payment;
                 this.modal = "receipt";
                 this.notice = "Pembayaran QRIS terkonfirmasi.";
             } else if (result.status === "cancelled") {

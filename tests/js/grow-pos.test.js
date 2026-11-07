@@ -80,6 +80,7 @@ test("loyalty redemption is unavailable while the POS is offline", () => {
     const pos = terminal();
     pos.config = {
         loyaltyProgramEnabled: true,
+        loyaltyProgramType: "points",
         pointRedemptionPoints: 100,
         pointRedemptionValue: 10000,
     };

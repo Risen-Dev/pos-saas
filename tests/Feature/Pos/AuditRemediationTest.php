@@ -23,7 +23,7 @@ class AuditRemediationTest extends PosTestCase
     private function invoice($user): Invoice
     {
         return Invoice::create(['tenant_id' => $user->tenant_id, 'plan_id' => Plan::where('slug', 'growth')->value('id'),
-            'invoice_number' => 'INV-SAAS-'.Str::uuid(), 'amount' => 100000, 'status' => 'pending', 'due_date' => now()->addDay()]);
+            'invoice_number' => 'INV-SAAS-'.Str::uuid(), 'amount' => 100000, 'duration_days' => 30, 'status' => 'pending', 'due_date' => now()->addDay()]);
     }
 
     private function settlement(Invoice $invoice): array
