@@ -8,6 +8,8 @@ Runbook untuk operator staging/production setelah kode perbaikan direview dan CI
 - Host Linux dengan PHP >=8.3 dan ekstensi Composer, Node >=22, Composer, Git, web server dan PHP-FPM. Worker dan scheduler dikelola service manager.
 - Aplikasi berjalan langsung dari `/var/www/pos-saas`; `.env`, storage, dan document root `/var/www/pos-saas/public` tetap digunakan. Ownership storage/bootstrap/cache harus cocok dengan user web/worker.
 - Environment: APP_ENV=production, APP_DEBUG=false, APP_URL HTTPS, SESSION_SECURE_COOKIE=true, queue persisten, email delivery, Midtrans sesuai environment, support contact. Jangan menaruh credentials dalam command log/Git.
+- Email produksi: set `MAIL_MAILER` dan kredensial SMTP/provider, lalu gunakan `MAIL_FROM_ADDRESS` pada domain yang dikendalikan GrowPOS. Publikasikan record SPF dan DKIM sesuai instruksi provider dan tambahkan kebijakan DMARC pada domain pengirim. Verifikasi status autentikasi pesan dengan provider sebelum mengirim ke pengguna; kode aplikasi tidak dapat mengatur reputasi domain atau memindahkan email dari Spam.
+- Semua instance web dan worker harus memakai `APP_KEY` yang sama dan stabil. Perubahan key membuat URL bertanda tangan yang masih aktif menjadi tidak valid.
 - Siapkan scheduler setiap menit menjalankan `php /var/www/pos-saas/artisan schedule:run` serta worker persisten.
 
 ## Menindaklanjuti `growpos:launch-check`
@@ -18,6 +20,9 @@ Untuk hasil yang dikirim operator pada 2026-11-03, nilai-nilai ini perlu disetel
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://trialpos.fdevsite.cloud
+MAIL_MAILER=smtp
+MAIL_FROM_ADDRESS=alamat-pengirim@domain-growpos-anda
+MAIL_FROM_NAME="GrowPOS"
 SESSION_SECURE_COOKIE=true
 MIDTRANS_IS_PRODUCTION=true
 GROWPOS_BACKUP_DISK=s3

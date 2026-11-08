@@ -30,8 +30,10 @@
                     {{-- Header --}}
                     <tr>
                         <td class="[background-color:#065f46] [padding:28px_32px] text-center">
-                            <img src="{{ config('app.url') }}/img/growpos_logo-bg.png" alt="GrowPOS"
-                                class="[height:40px] [width:40px] [border-radius:50%] block [margin:0_auto_8px]">
+                            @unless ($transactionalAuth ?? false)
+                                <img src="{{ config('app.url') }}/img/growpos_logo-bg.png" alt="GrowPOS"
+                                    class="[height:40px] [width:40px] [border-radius:50%] block [margin:0_auto_8px]">
+                            @endunless
                             <div class="[color:#ffffff] [font-size:16px] font-bold [letter-spacing:0.3px]">GrowPOS
                                 System</div>
                         </td>
@@ -134,13 +136,16 @@
                         <td
                             class="[background-color:#f9fafb] [padding:28px_32px] text-center [border-top:1px_solid_#e5e7eb]">
 
-                            <p class="[margin:0_0_12px] [font-size:13px] [color:#4b5563]">
-                                Butuh bantuan? <a
-                                    href="{{ config('app.support_url', $actionUrl ?? config('app.url')) }}"
-                                    class="[color:#059669] [text-decoration:none] font-semibold">Hubungi Tim Support
-                                    GrowPOS</a>
-                            </p>
+                            @unless ($transactionalAuth ?? false)
+                                <p class="[margin:0_0_12px] [font-size:13px] [color:#4b5563]">
+                                    Butuh bantuan? <a
+                                        href="{{ config('app.support_url', $actionUrl ?? config('app.url')) }}"
+                                        class="[color:#059669] [text-decoration:none] font-semibold">Hubungi Tim Support
+                                        GrowPOS</a>
+                                </p>
+                            @endunless
 
+                            @unless ($transactionalAuth ?? false)
                             <table role="presentation" cellpadding="0" cellspacing="0" class="[margin:0_auto_16px]">
                                 <tr>
                                     @if (config('services.social.instagram'))
@@ -163,6 +168,7 @@
                                     @endif
                                 </tr>
                             </table>
+                            @endunless
 
                             <p class="[margin:0_0_6px] [font-size:11px] [color:#9ca3af] [line-height:1.5]">
                                 {{ config('app.company_name', 'GrowPOS Indonesia') }}<br>
