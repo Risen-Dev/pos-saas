@@ -1,0 +1,20 @@
+{
+  "name": "growpos-art-of-selling",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "studio": "remotion studio src/index.jsx",
+    "render": "remotion render src/index.jsx GrowPOS-ArtOfSelling out/growpos-art-of-selling.mp4 --codec=h264 --crf=17",
+    "still": "remotion still src/index.jsx GrowPOS-ArtOfSelling"
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/plus-jakarta-sans": "^5.3.0",
+    "@remotion/cli": "4.0.541",
+    "@remotion/renderer": "4.0.541",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remotion": "4.0.541"
+  }
+}
