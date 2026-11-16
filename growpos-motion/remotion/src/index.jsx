@@ -1,13 +1,13 @@
 import React from 'react';
 import {Composition, registerRoot} from 'remotion';
-import {GrowPOSScene} from './scene.jsx';
+import {GrowPOSReel} from './reel.jsx';
 
 const Root = () => (
   <Composition
-    id="GrowPOS-ArtOfSelling"
-    component={GrowPOSScene}
-    durationInFrames={372}
-    fps={60}
+    id="GrowPOS-EverySaleMatters"
+    component={GrowPOSReel}
+    durationInFrames={900}
+    fps={30}
     width={1080}
     height={1920}
   />

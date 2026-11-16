@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "studio": "remotion studio src/index.jsx",
-    "render": "remotion render src/index.jsx GrowPOS-ArtOfSelling out/growpos-art-of-selling.mp4 --codec=h264 --crf=17",
-    "still": "remotion still src/index.jsx GrowPOS-ArtOfSelling"
+    "render": "remotion render src/index.jsx GrowPOS-EverySaleMatters ../growpos-reels-final.mp4 --codec=h264 --crf=17 --pixel-format=yuv420p",
+    "still": "remotion still src/index.jsx GrowPOS-EverySaleMatters 870 ../growpos-still.png"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.3.0",
