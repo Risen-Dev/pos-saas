@@ -7,7 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description"
         content="GrowPOS membantu usaha retail mencatat penjualan, mengelola stok, dan memantau bisnis dalam satu tempat.">
-    <title>GrowPOS01 — Kasir simpel untuk usaha yang terus tumbuh</title>
+    <title>GrowPOS — Kasir simpel untuk usaha yang terus tumbuh</title>
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
