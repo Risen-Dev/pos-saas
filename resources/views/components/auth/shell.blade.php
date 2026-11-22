@@ -28,7 +28,7 @@
             @if ($showcase)
                 <div class="max-w-lg overflow-hidden rounded-2xl border border-white/15 bg-white p-5 text-ink-900 shadow-2xl shadow-black/15 sm:p-7">
                     <div class="mb-7 flex items-center justify-between"><div><p class="text-xs font-semibold text-ink-400">RINGKASAN BISNIS</p><p class="mt-1 text-lg font-semibold tracking-tight">Overview</p></div><span class="rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700">Dashboard</span></div>
-                    <div class="grid grid-cols-2 gap-3"><div class="rounded-xl bg-surface-100 p-4"><p class="text-xs text-ink-400">Penjualan</p><p class="mt-2 text-xl font-bold">Rp 12,4 jt</p></div><div class="rounded-xl bg-surface-100 p-4"><p class="text-xs text-ink-400">Transaksi</p><p class="mt-2 text-xl font-bold">128</p></div></div>
+                    <div class="grid grid-cols-2 gap-3" data-motion-stagger><div class="rounded-xl bg-surface-100 p-4"><p class="text-xs text-ink-400">Penjualan</p><p class="mt-2 text-xl font-bold">Rp 12,4 jt</p></div><div class="rounded-xl bg-surface-100 p-4"><p class="text-xs text-ink-400">Transaksi</p><p class="mt-2 text-xl font-bold">128</p></div></div>
                     <div class="mt-5 flex h-24 items-end gap-2 border-b border-border-200 pb-1" aria-hidden="true">@foreach (['h-8','h-14','h-11','h-16','h-12','h-20','h-16','h-20','h-16','h-full','h-20','h-full'] as $bar)<span class="flex-1 rounded-t bg-primary-600/80 {{ $bar }}"></span>@endforeach</div>
                     <p class="mt-3 text-[11px] text-ink-400">Ilustrasi tampilan • Bukan data transaksi aktual</p>
                 </div>

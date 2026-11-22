@@ -39,7 +39,7 @@
                             state="showPassword" control="password" /></div>
                     <p class="mt-2 text-xs" :class="password.length >= 8 ? 'text-primary-600' : 'text-ink-400'">Minimal
                         8
-                        karakter <span x-show="password.length>=8">✓</span></p><x-input-error :messages="$errors->get('password')"
+                        karakter <x-icon x-show="password.length>=8" x-cloak class="[&[x-cloak]]:!hidden fa-solid fa-check" /></p><x-input-error :messages="$errors->get('password')"
                         class="mt-2" />
                 </div>
                 <div><label for="password_confirmation" class="block mb-2 text-sm font-medium">Konfirmasi kata
@@ -50,8 +50,10 @@
                             class="w-full px-4 py-3 pr-12 text-sm border outline-none rounded-xl border-border-200 bg-surface-0 focus:border-primary-600 focus:ring-4 focus:ring-primary-600/10"><x-password-toggle
                             state="showConfirmation" control="password_confirmation" /></div>
                     <p x-cloak x-show="confirmation.length" class="mt-2 text-xs"
-                        :class="confirmation === password ? 'text-primary-600' : 'text-red-600'"
-                        x-text="confirmation===password ? 'Kata sandi cocok ✓' : 'Kata sandi belum sama'"></p>
+                        :class="confirmation === password ? 'text-primary-600' : 'text-red-600'">
+                        <span x-show="confirmation===password"><x-icon class="fa-solid fa-check" /> Kata sandi cocok</span>
+                        <span x-show="confirmation!==password">Kata sandi belum sama</span>
+                    </p>
                     <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                 </div>
                 <button type="submit"

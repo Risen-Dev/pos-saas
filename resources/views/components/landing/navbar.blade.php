@@ -29,7 +29,8 @@ window.addEventListener('scroll', () => { scrolled = window.scrollY > 24 }, { pa
             class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-[#DCE7DF] bg-white/80 text-[#17372A] md:hidden"
             @click="open = !open" :aria-expanded="open.toString()" aria-controls="landing-mobile-menu"
             :aria-label="open ? 'Tutup menu' : 'Buka menu'">
-            <span x-text="open ? '✕' : '☰'" aria-hidden="true">☰</span>
+            <span x-show="!open"><x-icon class="fa-solid fa-bars" /></span>
+            <span x-show="open" x-cloak class="[&[x-cloak]]:!hidden"><x-icon class="fa-solid fa-xmark" /></span>
         </button>
     </div>
     <div id="landing-mobile-menu" x-show="open" x-cloak @keydown.escape.window="open=false"

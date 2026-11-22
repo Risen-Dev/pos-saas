@@ -21,9 +21,9 @@
     </div>
 
     <!-- Metrik Arus Kas (Grid 4 Kolom) -->
-    <div class="grid grid-cols-2 gap-3 lg:grid-cols-4 sm:gap-4">
+    <div class="grid grid-cols-2 gap-3 lg:grid-cols-4 sm:gap-4" data-motion-stagger>
         <!-- Penerimaan -->
-        <div class="p-3.5 rounded-lg border border-border-200 bg-surface-100/50 flex flex-col justify-between">
+        <div data-motion-item class="p-3.5 rounded-lg border border-border-200 bg-surface-100/50 flex flex-col justify-between">
             <div class="flex items-center justify-between mb-1 text-ink-700">
                 <span class="text-xs font-semibold">Penerimaan</span>
                 <x-icon class="text-xs fa-solid fa-arrow-down-left text-semantic-success" />
@@ -34,7 +34,7 @@
         </div>
 
         <!-- Refund -->
-        <div class="p-3.5 rounded-lg border border-border-200 bg-surface-100/50 flex flex-col justify-between">
+        <div data-motion-item class="p-3.5 rounded-lg border border-border-200 bg-surface-100/50 flex flex-col justify-between">
             <div class="flex items-center justify-between mb-1 text-ink-700">
                 <span class="text-xs font-semibold">Refund</span>
                 <x-icon class="text-xs fa-solid fa-rotate-left text-semantic-warning" />
@@ -45,7 +45,7 @@
         </div>
 
         <!-- Pengeluaran -->
-        <div class="p-3.5 rounded-lg border border-border-200 bg-surface-100/50 flex flex-col justify-between">
+        <div data-motion-item class="p-3.5 rounded-lg border border-border-200 bg-surface-100/50 flex flex-col justify-between">
             <div class="flex items-center justify-between mb-1 text-ink-700">
                 <span class="text-xs font-semibold">Pengeluaran</span>
                 <x-icon class="text-xs fa-solid fa-arrow-up-right text-semantic-danger" />
@@ -56,7 +56,7 @@
         </div>
 
         <!-- Perubahan Kas (Net) -->
-        <div class="p-3.5 rounded-lg border border-border-200 bg-surface-100/50 flex flex-col justify-between">
+        <div data-motion-item class="p-3.5 rounded-lg border border-border-200 bg-surface-100/50 flex flex-col justify-between">
             <div class="flex items-center justify-between mb-1 text-ink-700">
                 <span class="text-xs font-semibold">Perubahan Kas</span>
                 <x-icon class="text-xs fa-solid fa-scale-balanced text-primary-600" />

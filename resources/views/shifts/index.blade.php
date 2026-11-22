@@ -45,7 +45,7 @@
         </div>
 
         <!-- 4 Metric Cards Summary (GrowPOS Palette & IBM Plex Mono) -->
-        <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-2 lg:grid-cols-4 md:gap-6">
+        <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-2 lg:grid-cols-4 md:gap-6" data-motion-stagger>
 
             <!-- Card 1: Status Shift Berjalan -->
             <div

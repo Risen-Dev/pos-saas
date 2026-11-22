@@ -44,7 +44,7 @@
                     Fitur</a>
             </div>
             <div class="mt-9 flex flex-wrap gap-x-6 gap-y-2 text-xs font-semibold text-[#476C59] sm:text-sm">
-                <span>✓ Transaksi lebih rapi</span><span>✓ Stok terpantau</span><span>✓ Laporan mudah dibaca</span>
+                <span><x-icon class="fa-solid fa-check mr-1" />Transaksi lebih rapi</span><span><x-icon class="fa-solid fa-check mr-1" />Stok terpantau</span><span><x-icon class="fa-solid fa-check mr-1" />Laporan mudah dibaca</span>
             </div>
         </div>
     </div>

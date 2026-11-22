@@ -73,7 +73,7 @@
         </div>
 
         <!-- 3 Cards Metric Statistik -->
-        <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-3 md:gap-6">
+        <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-3 md:gap-6" data-motion-stagger>
             <div class="p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <p class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Total Bisnis Mitra</p>
                 <p class="mt-2 font-mono text-2xl font-semibold md:text-3xl text-ink-900">{{ $tenants->count() }}</p>

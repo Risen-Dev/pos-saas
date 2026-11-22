@@ -64,14 +64,14 @@
 
         <x-business-overview :overview="$overview" />
         @include('reports.partials.cash-summary')
-        <section class="grid gap-4 my-5 sm:grid-cols-2" aria-label="Ringkasan penjualan">
+        <section class="grid gap-4 my-5 sm:grid-cols-2" aria-label="Ringkasan penjualan" data-motion-stagger>
             <div class="p-5 bg-white border rounded-lg border-border-200"><h2 class="text-sm font-semibold">Penjualan lunas</h2><p class="mt-2 text-2xl font-bold">Rp {{ number_format($salesSummary->total_net, 0, ',', '.') }}</p><p class="mt-2 text-xs text-ink-700">Termasuk pajak, sebelum retur. Mengikuti tanggal transaksi.</p></div>
             <div class="p-5 bg-white border rounded-lg border-border-200"><h2 class="text-sm font-semibold">Transaksi lunas</h2><p class="mt-2 text-2xl font-bold">{{ number_format($salesSummary->total_transactions, 0, ',', '.') }}</p><p class="mt-2 text-xs text-ink-700">Bon yang belum lunas belum termasuk penjualan ini.</p></div>
         </section>
         <details class="my-5 p-4 border rounded-lg border-border-200">
             <summary class="font-semibold cursor-pointer">Rincian modal, estimasi laba & biaya</summary>
         <!-- Stat Summary Cards Grid (Ringkasan Keuangan & Laba Bersih) -->
-        <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-2 lg:grid-cols-3 md:gap-6">
+        <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-2 lg:grid-cols-3 md:gap-6" data-motion-stagger>
 
             <!-- Card 1: Pendapatan Bersih (Omzet Net) -->
             <div class="flex flex-col justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
@@ -186,7 +186,7 @@
 
         </details>
         <!-- 2 Column Breakdown: Aliran Dana & Top 5 Selling -->
-        <div class="grid grid-cols-1 gap-6 mb-8 lg:grid-cols-3">
+        <div class="grid grid-cols-1 gap-6 mb-8 lg:grid-cols-3" data-motion-stagger>
 
             <!-- Left Panel: Payment Method Breakdown -->
             <div class="p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200 lg:col-span-1">
@@ -370,15 +370,20 @@
         </div>
 
         <!-- Visual Analytics Chart Grid -->
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3" data-motion-stagger>
             <div class="p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200 lg:col-span-2">
                 <div class="mb-4">
                     <h3 class="text-base font-semibold font-heading text-ink-900">Tren Grafik Penjualan</h3>
                     <p class="font-body text-xs text-ink-700 mt-0.5">Pergerakan total omzet pada periode tanggal
                         terpilih.</p>
                 </div>
-                <div class="w-full h-64">
-                    <canvas id="trendChart"></canvas>
+                <div data-chart-state aria-busy="true" class="relative w-full h-64">
+                    <div data-chart-skeleton class="absolute inset-0">
+                        <x-skeleton variant="block" class="h-full w-full" />
+                        <span class="sr-only" role="status">Memuat grafik penjualan.</span>
+                    </div>
+                    <canvas id="trendChart" aria-label="Grafik penjualan"></canvas>
+                    <p data-chart-error hidden class="text-sm text-ink-700">Grafik belum dapat dimuat. Ringkasan angka tetap tersedia.</p>
                 </div>
             </div>
 
@@ -387,8 +392,13 @@
                     <h3 class="text-base font-semibold font-heading text-ink-900">Proporsi Kanal Pembayaran</h3>
                     <p class="font-body text-xs text-ink-700 mt-0.5">Perbandingan metode pembayaran pada transaksi lunas.</p>
                 </div>
-                <div class="relative flex items-center justify-center w-full h-64">
-                    <canvas id="paymentChart"></canvas>
+                <div data-chart-state aria-busy="true" class="relative flex items-center justify-center w-full h-64">
+                    <div data-chart-skeleton class="absolute inset-0">
+                        <x-skeleton variant="block" class="h-full w-full" />
+                        <span class="sr-only" role="status">Memuat grafik kanal pembayaran.</span>
+                    </div>
+                    <canvas id="paymentChart" aria-label="Grafik kanal pembayaran"></canvas>
+                    <p data-chart-error hidden class="text-sm text-ink-700">Grafik belum dapat dimuat. Ringkasan angka tetap tersedia.</p>
                 </div>
             </div>
         </div>
@@ -495,6 +505,19 @@
                     },
                     cutout: '70%'
                 }
+            });
+
+            document.querySelectorAll('[data-chart-state]').forEach(state => {
+                state.setAttribute('aria-busy', 'false');
+                state.querySelector('[data-chart-skeleton]').hidden = true;
+            });
+        });
+
+        window.addEventListener('growpos:charts-error', function() {
+            document.querySelectorAll('[data-chart-state]').forEach(state => {
+                state.setAttribute('aria-busy', 'false');
+                state.querySelector('[data-chart-skeleton]').hidden = true;
+                state.querySelector('[data-chart-error]').hidden = false;
             });
         });
     </script>

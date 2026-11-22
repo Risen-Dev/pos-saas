@@ -214,7 +214,7 @@
                 @if ($order->payment_status === 'paid')
                     <span
                         class="inline-flex items-center px-3 py-1 mb-3 text-xs font-bold rounded-full font-heading bg-primary-100 text-primary-700">
-                        ✓ LUNAS
+                        <x-icon class="mr-1 fa-solid fa-circle-check" /> LUNAS
                     </span>
                 @else
                     <span

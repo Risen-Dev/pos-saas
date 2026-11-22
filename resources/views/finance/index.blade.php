@@ -15,7 +15,7 @@
         </div>
 
         <!-- Grid 3 Kartu Ringkasan Saldo & Rekening -->
-        <div class="grid grid-cols-1 gap-4 mb-8 md:grid-cols-3 md:gap-6">
+        <div class="grid grid-cols-1 gap-4 mb-8 md:grid-cols-3 md:gap-6" data-motion-stagger>
 
             <!-- Kartu 1: Saldo Utama (Dapat Ditarik) -->
             <div

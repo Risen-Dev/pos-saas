@@ -5,10 +5,12 @@ import growPos from "./grow-pos.js";
 import connectionStatus from "./connection-status.js";
 import { initRupiahInputs } from "./currency-input.js";
 import { onDomReady } from "./dom-ready.js";
+import { initPageMotion } from "./motion.js";
 
 window.Alpine = Alpine;
 Alpine.data("growPos", growPos);
 Alpine.data("connectionStatus", connectionStatus);
+initPageMotion(document);
 Alpine.start();
 
 // Safari/Chrome may restore a page from the back-forward cache. Reloading a
@@ -46,6 +48,7 @@ onDomReady(() => {
                         "Grafik belum dapat dimuat. Ringkasan angka tetap tersedia.",
                     );
                 });
+                window.dispatchEvent(new Event("growpos:charts-error"));
             });
     }
 });

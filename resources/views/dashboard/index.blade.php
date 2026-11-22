@@ -78,9 +78,9 @@
         @include('reports.partials.cash-summary')
 
         <!-- Key Metrics Cards -->
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" data-motion-stagger>
             <!-- Metric 1: Revenue -->
-            <div class="flex flex-col justify-between p-5 border shadow-sm bg-surface-0 rounded-xl border-border-200">
+            <div data-motion-item class="flex flex-col justify-between p-5 border shadow-sm bg-surface-0 rounded-xl border-border-200">
                 <div>
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold tracking-wider uppercase text-ink-400">Penjualan Lunas</span>
@@ -95,7 +95,11 @@
                         <span class="text-ink-400">Belum ada pembanding</span>
                     @else
                         <span class="font-bold {{ $change >= 0 ? 'text-semantic-success' : 'text-semantic-danger' }}">
-                            <i class="fa-solid {{ $change >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }} text-[10px]"></i>
+                            @if ($change >= 0)
+                                <x-icon class="fa-solid fa-arrow-up text-[10px]" />
+                            @else
+                                <x-icon class="fa-solid fa-arrow-down text-[10px]" />
+                            @endif
                             {{ abs($change) }}%
                         </span>
                         <span class="text-ink-700"> vs periode lalu</span>
@@ -104,7 +108,7 @@
             </div>
 
             <!-- Metric 2: Orders -->
-            <div class="flex flex-col justify-between p-5 border shadow-sm bg-surface-0 rounded-xl border-border-200">
+            <div data-motion-item class="flex flex-col justify-between p-5 border shadow-sm bg-surface-0 rounded-xl border-border-200">
                 <div>
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold tracking-wider uppercase text-ink-400">Pesanan Selesai</span>
@@ -122,7 +126,7 @@
             </div>
 
             <!-- Metric 3: Gross Profit -->
-            <div class="flex flex-col justify-between p-5 border shadow-sm bg-surface-0 rounded-xl border-border-200">
+            <div data-motion-item class="flex flex-col justify-between p-5 border shadow-sm bg-surface-0 rounded-xl border-border-200">
                 <div>
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold tracking-wider uppercase text-ink-400">Estimasi Laba Kotor</span>
@@ -140,7 +144,7 @@
             </div>
 
             <!-- Metric 4: Cash Variance -->
-            <div class="flex flex-col justify-between p-5 border shadow-sm bg-surface-0 rounded-xl border-border-200">
+            <div data-motion-item class="flex flex-col justify-between p-5 border shadow-sm bg-surface-0 rounded-xl border-border-200">
                 <div>
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold tracking-wider uppercase text-ink-400">Selisih Kas Shift</span>
@@ -163,9 +167,9 @@
         </div>
 
         <!-- Section: Insights & Top Selling -->
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2" data-motion-stagger>
             <!-- Warnings & Alerts -->
-            <div class="flex flex-col justify-between p-6 border shadow-sm bg-surface-0 rounded-xl border-border-200">
+            <div data-motion-item class="flex flex-col justify-between p-6 border shadow-sm bg-surface-0 rounded-xl border-border-200">
                 <div>
                     <div class="flex items-center justify-between pb-4 mb-4 border-b border-border-200">
                         <div class="flex items-center gap-2">
@@ -239,7 +243,7 @@
             </div>
 
             <!-- Top Products -->
-            <div class="flex flex-col justify-between p-6 border shadow-sm bg-surface-0 rounded-xl border-border-200">
+            <div data-motion-item class="flex flex-col justify-between p-6 border shadow-sm bg-surface-0 rounded-xl border-border-200">
                 <div>
                     <div class="flex items-center justify-between pb-4 mb-4 border-b border-border-200">
                         <div class="flex items-center gap-2">
@@ -275,9 +279,9 @@
         </div>
 
         <!-- Section: Recent Transactions & Payment Channels -->
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2" data-motion-stagger>
             <!-- Recent Transactions -->
-            <div class="p-6 border shadow-sm bg-surface-0 rounded-xl border-border-200">
+            <div data-motion-item class="p-6 border shadow-sm bg-surface-0 rounded-xl border-border-200">
                 <div class="flex items-center justify-between pb-4 mb-4 border-b border-border-200">
                     <div class="flex items-center gap-2">
                         <x-icon class="fa-solid fa-clock-rotate-left text-ink-400" />
@@ -320,7 +324,7 @@
             </div>
 
             <!-- Payment Methods -->
-            <div class="flex flex-col justify-between p-6 border shadow-sm bg-surface-0 rounded-xl border-border-200">
+            <div data-motion-item class="flex flex-col justify-between p-6 border shadow-sm bg-surface-0 rounded-xl border-border-200">
                 <div>
                     <div class="flex items-center justify-between pb-4 mb-4 border-b border-border-200">
                         <div class="flex items-center gap-2">
@@ -337,8 +341,11 @@
                                 <div class="flex items-center gap-3">
                                     <span
                                         class="p-2 text-xs border rounded-lg bg-surface-0 border-border-200 text-primary-600">
-                                        <i
-                                            class="fa-solid {{ $method->payment_method === 'cash' ? 'fa-money-bill-wave' : 'fa-qrcode' }}"></i>
+                                        @if ($method->payment_method === 'cash')
+                                            <x-icon class="fa-solid fa-money-bill-wave" />
+                                        @else
+                                            <x-icon class="fa-solid fa-qrcode" />
+                                        @endif
                                     </span>
                                     <span class="text-xs font-bold text-ink-900">
                                         {{ \App\Support\PaymentMethod::label($method->payment_method) }}

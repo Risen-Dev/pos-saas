@@ -71,7 +71,7 @@
         </div>
 
         <!-- 3 Column Overview Grid -->
-        <div class="grid grid-cols-1 gap-6 mb-8 md:grid-cols-3">
+        <div class="grid grid-cols-1 gap-6 mb-8 md:grid-cols-3" data-motion-stagger>
 
             <!-- Card 1: Status Berlangganan (SaaS Status & Sisa Hari Integer) -->
             <div class="flex flex-col justify-between p-6 border rounded-lg shadow-sm bg-surface-0 border-border-200">
@@ -204,7 +204,7 @@
         </div>
 
         <!-- Quick Nav Buttons Grid -->
-        <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div class="grid grid-cols-2 gap-4 md:grid-cols-4" data-motion-stagger>
             <a href="{{ route('billing.index') }}"
                 class="p-4 text-center transition-colors border rounded-lg shadow-sm bg-surface-0 border-border-200 hover:border-amber-500 group">
                 <p

@@ -139,7 +139,7 @@
                 </div>
             @endif
 
-            <div class="grid items-stretch grid-cols-1 gap-6 md:grid-cols-3">
+            <div class="grid items-stretch grid-cols-1 gap-6 md:grid-cols-3" data-motion-stagger>
                 @forelse ($plans as $plan)
                     @php
                         $isCurrent =

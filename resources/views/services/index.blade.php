@@ -24,7 +24,7 @@
             @endforeach
         </div>
 
-        <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3" data-motion-stagger>
             @forelse($orders as $order)
                 @php($overdue = $order->service_due_at && $order->service_due_at->isPast() && $order->service_status !== 'completed')
                 <article class="overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">

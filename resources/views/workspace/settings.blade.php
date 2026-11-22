@@ -10,7 +10,7 @@
                 Pengaturan usaha dikelola oleh admin bisnis. Hubungi admin jika Anda memerlukan perubahan.
             </div>
         @else
-            <div class="mt-6 space-y-6">
+            <div class="mt-6 space-y-6" data-motion-stagger>
                 <section aria-labelledby="business-access-heading" class="p-5 bg-white border rounded-lg border-border-200">
                     <h2 id="business-access-heading" class="text-base font-semibold text-ink-900">Bisnis &amp; akses</h2>
                     <ul class="mt-3 divide-y divide-border-200">

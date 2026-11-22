@@ -24,7 +24,7 @@
         </div>
 
         <!-- Metric Stat Cards -->
-        <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-2 md:gap-6">
+        <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-2 md:gap-6" data-motion-stagger>
             <!-- Total Pelanggan Card -->
             <div
                 class="flex items-center justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">

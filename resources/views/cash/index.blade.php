@@ -46,7 +46,7 @@
             </div>
         @endif
 
-        <div class="grid grid-cols-1 gap-4 mb-6 sm:grid-cols-2 xl:grid-cols-4">
+        <div class="grid grid-cols-1 gap-4 mb-6 sm:grid-cols-2 xl:grid-cols-4" data-motion-stagger>
             <div class="p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-[10px] font-bold tracking-widest uppercase text-ink-400">Kas Shift Saat Ini</span>
@@ -84,7 +84,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3" data-motion-stagger>
             <section class="self-start p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200 lg:sticky lg:top-6">
                 <div class="flex items-start gap-3 pb-4 mb-5 border-b border-border-200">
                     <div class="flex items-center justify-center w-10 h-10 rounded-md bg-red-50 text-semantic-danger shrink-0"><x-icon class="fa-solid fa-receipt" /></div>

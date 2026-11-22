@@ -21,7 +21,7 @@
                     restock produk terlaris, analisis kombo menu otomatis, berdasarkan data transaksi yang tersedia.
                 </p>
 
-                <div class="grid max-w-xl grid-cols-1 gap-3 mx-auto mb-8 text-left sm:grid-cols-3">
+                <div class="grid max-w-xl grid-cols-1 gap-3 mx-auto mb-8 text-left sm:grid-cols-3" data-motion-stagger>
                     <div class="p-3 border border-purple-100 rounded-lg bg-surface-0">
                         <x-icon class="block mb-1 text-sm text-purple-600 fa-solid fa-chart-pie" />
                         <h4 class="text-xs font-bold text-ink-900">Executive Report</h4>
@@ -90,7 +90,7 @@
                 @endisset
 
                 <!-- Metric Stat Banner -->
-                <div class="grid grid-cols-2 gap-3 mb-6 lg:grid-cols-5">
+                <div class="grid grid-cols-2 gap-3 mb-6 lg:grid-cols-5" data-motion-stagger>
                     <div
                         class="bg-surface-0 p-3.5 rounded-lg border border-border-200 shadow-sm flex items-center justify-between">
                         <div>
@@ -209,7 +209,7 @@
                 @endisset
 
                 <!-- Split Screen Layout -->
-                <div class="grid items-start grid-cols-1 gap-6 lg:grid-cols-12">
+                <div class="grid items-start grid-cols-1 gap-6 lg:grid-cols-12" data-motion-stagger>
 
                     <!-- Left Panel: AI Executive Analysis Report -->
                     <div
@@ -275,15 +275,15 @@
                             <button type="button"
                                 @click="sendQuickPrompt('Bagaimana cara meningkatkan omzet toko saya?')"
                                 class="px-2.5 py-1 bg-surface-100 hover:bg-primary-50 hover:text-primary-700 border border-border-200 rounded-full font-body text-[11px] text-ink-700 transition-colors">
-                                💡 Cara naikkan omzet
+                                <x-icon class="fa-solid fa-chart-line" /> Cara naikkan omzet
                             </button>
                             <button type="button" @click="sendQuickPrompt('Menu mana yang sebaiknya didiskon?')"
                                 class="px-2.5 py-1 bg-surface-100 hover:bg-primary-50 hover:text-primary-700 border border-border-200 rounded-full font-body text-[11px] text-ink-700 transition-colors">
-                                🏷️ Rekomendasi Promo
+                                <x-icon class="fa-solid fa-tags" /> Rekomendasi Promo
                             </button>
                             <button type="button" @click="sendQuickPrompt('Apa bahan baku yang stoknya sedang kritis?')"
                                 class="px-2.5 py-1 bg-surface-100 hover:bg-primary-50 hover:text-primary-700 border border-border-200 rounded-full font-body text-[11px] text-ink-700 transition-colors">
-                                📦 Analisis Restock
+                                <x-icon class="fa-solid fa-box-open" /> Analisis Restock
                             </button>
                         </div>
 
@@ -330,18 +330,15 @@
                             </template>
 
                             <!-- Loading Indicator -->
-                            <div x-show="isLoading" class="flex items-center gap-2.5">
+                            <div x-show="isLoading" x-cloak class="[&[x-cloak]]:!hidden flex items-center gap-2.5" aria-live="polite" :aria-busy="isLoading.toString()" role="status">
                                 <div
                                     class="w-6 h-6 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-[10px] shrink-0">
                                     <x-icon class="fa-solid fa-robot" />
                                 </div>
-                                <div
-                                    class="bg-surface-100 p-2.5 rounded-lg border border-border-200 flex items-center gap-1.5 w-fit">
-                                    <span class="w-1.5 h-1.5 bg-primary-600 rounded-full animate-bounce"></span>
-                                    <span
-                                        class="w-1.5 h-1.5 bg-primary-600 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                                    <span
-                                        class="w-1.5 h-1.5 bg-primary-600 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                                <div class="bg-surface-100 p-3 rounded-lg border border-border-200 space-y-2 w-48" aria-label="AI sedang menyusun jawaban">
+                                    <span class="sr-only">AI sedang menyusun jawaban.</span>
+                                    <x-skeleton variant="text" class="h-3 w-32" />
+                                    <x-skeleton variant="text" class="h-3 w-40" />
                                 </div>
                             </div>
 

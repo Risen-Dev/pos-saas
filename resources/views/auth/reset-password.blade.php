@@ -9,8 +9,30 @@
                 @csrf
                 <input type="hidden" name="token" value="{{ $request->route('token') }}">
                 <x-auth.field name="email" label="Alamat email" type="email" :value="old('email', $request->email)" autocomplete="username" :autofocus="true" />
-                <div><label for="password" class="mb-2 block text-sm font-medium">Kata sandi baru</label><div class="relative"><input id="password" name="password" x-model="password" :type="showPassword ? 'text' : 'password'" autocomplete="new-password" required minlength="8" placeholder="Minimal 8 karakter" class="w-full rounded-xl border border-border-200 px-4 py-3 pr-12 text-sm outline-none focus:border-primary-600 focus:ring-4 focus:ring-primary-600/10"><x-password-toggle state="showPassword" control="password" /></div><p class="mt-2 text-xs" :class="password.length>=8 ? 'text-primary-600' : 'text-ink-400'">Minimal 8 karakter <span x-show="password.length>=8">✓</span></p><x-input-error :messages="$errors->get('password')" class="mt-2" /></div>
-                <div><label for="password_confirmation" class="mb-2 block text-sm font-medium">Konfirmasi kata sandi</label><div class="relative"><input id="password_confirmation" name="password_confirmation" x-model="confirmation" :type="showConfirmation ? 'text' : 'password'" autocomplete="new-password" required placeholder="Ulangi kata sandi" class="w-full rounded-xl border border-border-200 px-4 py-3 pr-12 text-sm outline-none focus:border-primary-600 focus:ring-4 focus:ring-primary-600/10"><x-password-toggle state="showConfirmation" control="password_confirmation" /></div><p x-cloak x-show="confirmation.length" class="mt-2 text-xs" :class="confirmation===password ? 'text-primary-600' : 'text-red-600'" x-text="confirmation===password ? 'Kata sandi cocok ✓' : 'Kata sandi belum sama'"></p><x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" /></div>
+                <div>
+                    <label for="password" class="mb-2 block text-sm font-medium">Kata sandi baru</label>
+                    <div class="relative">
+                        <input id="password" name="password" x-model="password" :type="showPassword ? 'text' : 'password'" autocomplete="new-password" required minlength="8" placeholder="Minimal 8 karakter" class="w-full rounded-xl border border-border-200 px-4 py-3 pr-12 text-sm outline-none focus:border-primary-600 focus:ring-4 focus:ring-primary-600/10">
+                        <x-password-toggle state="showPassword" control="password" />
+                    </div>
+                    <p class="mt-2 text-xs" :class="password.length>=8 ? 'text-primary-600' : 'text-ink-400'">
+                        Minimal 8 karakter
+                        <x-icon x-show="password.length>=8" x-cloak class="[&[x-cloak]]:!hidden fa-solid fa-check" />
+                    </p>
+                    <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                </div>
+                <div>
+                    <label for="password_confirmation" class="mb-2 block text-sm font-medium">Konfirmasi kata sandi</label>
+                    <div class="relative">
+                        <input id="password_confirmation" name="password_confirmation" x-model="confirmation" :type="showConfirmation ? 'text' : 'password'" autocomplete="new-password" required placeholder="Ulangi kata sandi" class="w-full rounded-xl border border-border-200 px-4 py-3 pr-12 text-sm outline-none focus:border-primary-600 focus:ring-4 focus:ring-primary-600/10">
+                        <x-password-toggle state="showConfirmation" control="password_confirmation" />
+                    </div>
+                    <p x-cloak x-show="confirmation.length" class="mt-2 text-xs" :class="confirmation===password ? 'text-primary-600' : 'text-red-600'">
+                        <span x-show="confirmation===password"><x-icon class="fa-solid fa-check" /> Kata sandi cocok</span>
+                        <span x-show="confirmation!==password">Kata sandi belum sama</span>
+                    </p>
+                    <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+                </div>
                 <button type="submit" :disabled="submitting || (password.length>0 && (password.length<8 || confirmation!==password))" class="w-full rounded-xl bg-primary-600 px-5 py-3.5 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-60"><span x-text="submitting ? 'Menyimpan...' : 'Simpan kata sandi baru →'"></span></button>
             </form>
             <p class="mt-7 text-center text-sm"><a href="{{ route('login') }}" class="font-semibold text-primary-600 hover:underline">Kembali ke halaman masuk</a></p>

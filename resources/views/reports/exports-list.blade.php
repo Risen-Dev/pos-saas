@@ -93,10 +93,15 @@
                                             <x-icon class="text-xs fa-solid fa-download" />
                                             <span>Unduh Excel</span>
                                         </a>
+                                    @elseif(in_array($export->status, ['pending', 'processing'], true))
+                                        <span aria-busy="true" class="inline-flex justify-center" role="status">
+                                            <span class="sr-only">Berkas sedang disiapkan.</span>
+                                            <x-skeleton variant="block" class="h-8 w-28 rounded-md" />
+                                        </span>
                                     @else
                                         <button disabled
                                             class="h-8 px-3 text-xs font-semibold border rounded-md cursor-not-allowed text-ink-400 bg-surface-100 border-border-200">
-                                            Belum Siap
+                                            Gagal disiapkan
                                         </button>
                                     @endif
                                 </td>
@@ -141,7 +146,7 @@
                                     badgeArea.innerHTML =
                                         `<span class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full">Selesai</span>`;
                                     buttonArea.innerHTML =
-                                        `<a href="${item.download_url}" class="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md transition-colors"><x-icon class="text-xs fa-solid fa-download" /> Unduh Excel</a>`;
+                                        `<a href="${item.download_url}" class="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md transition-colors">Unduh Excel</a>`;
                                 } else if (item.status === 'processing') {
                                     badgeArea.innerHTML =
                                         `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-primary-600 animate-pulse"></span> Sedang Diproses</span>`;

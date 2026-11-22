@@ -98,7 +98,7 @@
                     <p class="max-w-xs text-sm leading-7 text-[#65766B]">Mulai dari transaksi di kasir hingga laporan
                         yang membantu Anda mengambil keputusan.</p>
                 </div>
-                <div class="grid gap-4 lg:grid-cols-12">
+                <div class="grid gap-4 lg:grid-cols-12" data-motion-stagger>
                     <div class="lg:col-span-7"><x-landing.feature-card variant="large" eyebrow="01 / PENJUALAN"
                             title="Kasir yang mengikuti ritme toko."
                             desc="Cari produk, catat pembayaran, dan lanjutkan ke pelanggan berikutnya."
@@ -135,7 +135,7 @@
                             <p class="text-xs text-[#65766B]">Bayar di muka sesuai periode. Tidak ada perpanjangan otomatis.</p>
                         </div>
                     @endif
-                    <div class="mx-auto grid max-w-6xl items-stretch gap-5 md:grid-cols-{{ min($plans->count(), 3) }}">
+                    <div class="mx-auto grid max-w-6xl items-stretch gap-5 md:grid-cols-{{ min($plans->count(), 3) }}" data-motion-stagger>
                         @foreach ($plans as $plan)
                             <x-landing.pricing-card :plan-id="$plan->id" :popular="$plan->slug === 'growth'" :title="$plan->name"
                                 :desc="$plan->description" :monthly-price="$plan->price" :price="$plan->price == 0

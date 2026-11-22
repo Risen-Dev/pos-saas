@@ -400,7 +400,7 @@
                     class="inline-flex items-center justify-center gap-2 min-h-11 [padding:10px_17px] [border:1px_solid_#dae4dd] rounded-md bg-white [color:#234a3b] [font-size:13px] font-semibold cursor-pointer hover:[background:#f1f7f3] disabled:[opacity:0.45] disabled:cursor-wait focus-visible:[outline:3px_solid_#90b9a5] focus-visible:[outline-offset:3px]"
                     :class="category === 'favorites' &&
                         '![background:#17694d] !text-white ![border-color:#17694d] hover:![background:#12523d]'"
-                    @click="category='favorites'">★ Favorit</button>
+                    @click="category='favorites'"><x-icon class="fa-solid fa-star" /> Favorit</button>
                 @foreach ($categories as $category)
                     <button
                         class="inline-flex items-center justify-center gap-2 min-h-11 [padding:10px_17px] [border:1px_solid_#dae4dd] rounded-md bg-white [color:#234a3b] [font-size:13px] font-semibold cursor-pointer hover:[background:#f1f7f3] disabled:[opacity:0.45] disabled:cursor-wait focus-visible:[outline:3px_solid_#90b9a5] focus-visible:[outline-offset:3px]"
@@ -425,8 +425,10 @@
                             class="absolute [top:8px] [right:8px] [width:30px] [height:30px] rounded-full bg-white [color:#a1813e] [z-index:1]"
                             @click="favorite(p.id)"
                             :aria-label="(favorites.includes(p.id) ? 'Hapus favorit ' : 'Jadikan favorit ') + p.name"
-                            :aria-pressed="favorites.includes(p.id)"
-                            x-text="favorites.includes(p.id)?'★':'☆'"></button><button
+                            :aria-pressed="favorites.includes(p.id)">
+                            <x-icon x-show="favorites.includes(p.id)" x-cloak class="[&[x-cloak]]:!hidden fa-solid fa-star" />
+                            <x-icon x-show="!favorites.includes(p.id)" x-cloak class="[&[x-cloak]]:!hidden fa-regular fa-star" />
+                        </button><button
                             class="block w-full text-left p-3.5 [min-height:173px] max-[701px]:p-3"
                             @click="pick(p)">
                             <div
@@ -790,7 +792,7 @@
                         <div x-show="selected.allow_fraction"
                             class="mt-4 [padding:9px_11px] rounded-md [background:#edf5ee] [font-size:12px] [color:#356649]">
 
-                            ✓ Bisa dibeli dalam jumlah pecahan,
+                            <x-icon class="mr-1 fa-solid fa-circle-check" /> Bisa dibeli dalam jumlah pecahan,
                             misalnya 0,5 atau 1,5
                             <span x-text="selected.base_unit || 'pcs'"></span>.
 
@@ -823,7 +825,7 @@
 
                                     <div>
                                         <div class="text-xs font-bold [color:#17694d]">
-                                            ✓ Harga grosir diterapkan
+                                            <x-icon class="mr-1 fa-solid fa-circle-check" /> Harga grosir diterapkan
                                         </div>
 
                                         <div class="mt-1 [font-size:11px] [color:#65796f]"
@@ -1091,7 +1093,7 @@
                             ulang</button>
                     </div>
                 </template>
-                <p class="[padding:36px_18px] text-center [color:#75867b] [font-size:13px]" x-show="!queue.length">✓
+                <p class="[padding:36px_18px] text-center [color:#75867b] [font-size:13px]" x-show="!queue.length"><x-icon class="mr-1 fa-solid fa-circle-check" />
                     Semua transaksi sudah tersinkron.</p><a
                     class="inline-flex items-center justify-center gap-2 min-h-11 [padding:10px_17px] [border:1px_solid_#dae4dd] rounded-md bg-white [color:#234a3b] [font-size:13px] font-semibold cursor-pointer hover:[background:#f1f7f3] disabled:[opacity:0.45] disabled:cursor-wait focus-visible:[outline:3px_solid_#90b9a5] focus-visible:[outline-offset:3px] mt-4"
                     href="{{ route('help') }}">Cara menangani antrean tertahan</a>

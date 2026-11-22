@@ -21,7 +21,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <div class="grid grid-cols-1 gap-5 lg:grid-cols-3" data-motion-stagger>
             @foreach($columns as $status => $meta)
                 <section class="min-w-0">
                     <div class="flex items-center justify-between p-4 mb-3 border rounded-lg bg-surface-0 border-border-200">

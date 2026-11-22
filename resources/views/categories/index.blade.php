@@ -14,7 +14,7 @@
         </div>
 
         <!-- 2 Column Grid Layout -->
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3" data-motion-stagger>
 
             <!-- Column 1: Form Tambah Kategori Sidebar -->
             <div class="lg:col-span-1">

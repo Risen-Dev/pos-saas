@@ -59,7 +59,7 @@
                 'flex items-start gap-3 text-sm leading-6',
                 'opacity-45' => !$enabled,
             ])><span class="mt-0.5 font-bold"
-                    aria-hidden="true">{{ $enabled ? '✓' : '–' }}</span><span>{{ $label }}</span></li>
+                    aria-hidden="true"><x-icon class="fa-solid {{ $enabled ? 'fa-check' : 'fa-xmark' }}" /></span><span>{{ $label }}</span></li>
         @endforeach
     </ul>
     @auth
