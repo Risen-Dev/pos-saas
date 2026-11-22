@@ -78,7 +78,7 @@
 
     <div class="flex items-center justify-between h-16 px-4 border-b border-border-200 shrink-0">
         <div class="flex items-center min-w-0 gap-3">
-            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 min-w-0" aria-label="Ringkasan usaha">
+            <a href="{{ route('dashboard') }}" data-turbo-frame="app-content" class="flex items-center gap-3 min-w-0" aria-label="Ringkasan usaha">
                 @if ($tenant?->img_logo)
                     <span class="flex items-center justify-center w-10 h-10 overflow-hidden border rounded-md border-border-200 bg-surface-100 shrink-0">
                         <img src="{{ asset('storage/' . $tenant->img_logo) }}" alt="" class="object-cover w-full h-full">
@@ -100,7 +100,7 @@
     </div>
 
     @if ($isAdmin && $businessCount > 1)
-        <a href="{{ route('tenants.index') }}" :class="{ 'lg:hidden': sidebarCollapsed }"
+        <a href="{{ route('tenants.index') }}" data-turbo-frame="app-content" :class="{ 'lg:hidden': sidebarCollapsed }"
             class="flex items-center justify-between gap-2 px-3 py-2 mx-3 mt-3 text-xs font-semibold rounded-md bg-surface-100 text-ink-700 hover:bg-primary-50 hover:text-primary-700"
             aria-label="Pilih bisnis aktif: {{ $tenant?->name }}">
             <span class="truncate">{{ $tenant?->name ?? 'Pilih bisnis' }}</span>
@@ -109,7 +109,7 @@
     @endif
 
     <div class="px-3 pt-3 shrink-0">
-        <a href="{{ route('pos.index') }}"
+        <a href="{{ route('pos.index') }}" data-turbo-frame="_top"
             @if (request()->route()?->getName() === 'pos.index') aria-current="page" @endif
             :title="sidebarCollapsed ? 'Kasir' : ''"
             class="flex items-center justify-center gap-3 h-11 px-3 text-sm font-semibold text-white rounded-md bg-primary-700 hover:bg-primary-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
@@ -122,7 +122,8 @@
         x-init="$nextTick(() => { $refs.sidebarNav.scrollTop = Number(sessionStorage.getItem('growpos:sidebar-scroll') || 0) })"
         @scroll.debounce.100ms="sessionStorage.setItem('growpos:sidebar-scroll', $refs.sidebarNav.scrollTop)"
         class="flex flex-col flex-1 min-h-0 px-3 py-3 space-y-4 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
-        <a href="{{ route('dashboard') }}"
+        <a href="{{ route('dashboard') }}" data-turbo-frame="app-content" data-nav-patterns="dashboard"
+            data-nav-active-class="bg-primary-50 text-primary-700" data-nav-idle-class="text-ink-700 hover:bg-surface-100"
             @if (request()->route()?->getName() === 'dashboard') aria-current="page" @endif
             :title="sidebarCollapsed ? 'Ringkasan' : ''"
             class="flex items-center gap-3 h-10 px-3 text-sm font-semibold rounded-md transition-colors {{ request()->routeIs('dashboard') ? 'bg-primary-50 text-primary-700' : 'text-ink-700 hover:bg-surface-100' }}">
@@ -144,10 +145,11 @@
                                 $panelId = 'sidebar-group-' . $groupIndex . '-' . $itemIndex;
                             @endphp
                             @if (isset($item['children']))
-                                <div x-data="{ open: @js($active) }" class="space-y-0.5">
+                                <div x-data="{ open: @js($active) }" data-sidebar-group-patterns="{{ implode(',', $item['patterns']) }}" class="space-y-0.5">
                                     <button type="button" aria-controls="{{ $panelId }}"
                                         :aria-expanded="open.toString()" @click="open = !open"
                                         :title="sidebarCollapsed ? 'Buka ' + @js($item['label']) : ''"
+                                        data-nav-patterns="{{ implode(',', $item['patterns']) }}" data-nav-active-class="bg-primary-50 text-primary-700" data-nav-idle-class="text-ink-700 hover:bg-surface-100"
                                         class="flex items-center w-full gap-3 h-10 px-3 text-sm font-medium text-left rounded-md transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-600 {{ $active ? 'bg-primary-50 text-primary-700' : 'text-ink-700 hover:bg-surface-100' }}">
                                         <x-icon class="w-5 text-center fa-solid {{ $item['icon'] }}" />
                                         <span class="flex-1 truncate" :class="{ 'lg:hidden': sidebarCollapsed }">{{ $item['label'] }}</span>
@@ -164,7 +166,8 @@
                                         @foreach ($item['children'] as $child)
                                             @if ($child['visible'] ?? true)
                                                 @php($childActive = request()->routeIs(...$child['patterns']))
-                                                <a href="{{ route($child['route']) }}"
+                                                <a href="{{ route($child['route']) }}" data-turbo-frame="app-content" data-nav-patterns="{{ implode(',', $child['patterns']) }}"
+                                                    data-nav-active-class="bg-primary-50 text-primary-700" data-nav-idle-class="text-ink-700 hover:bg-surface-100"
                                                     @if ($childActive) aria-current="page" @endif
                                                     :title="sidebarCollapsed ? @js($child['label']) : ''"
                                                     class="flex items-center gap-2.5 min-h-9 px-2.5 text-xs font-medium rounded-md transition-colors {{ $childActive ? 'bg-primary-50 text-primary-700' : 'text-ink-700 hover:bg-surface-100' }}">
@@ -176,7 +179,8 @@
                                     </div>
                                 </div>
                             @else
-                                <a href="{{ route($item['route']) }}"
+                                <a href="{{ route($item['route']) }}" data-turbo-frame="app-content" data-nav-patterns="{{ implode(',', $item['patterns']) }}"
+                                    data-nav-active-class="bg-primary-50 text-primary-700" data-nav-idle-class="text-ink-700 hover:bg-surface-100"
                                     @if ($active) aria-current="page" @endif
                                     :title="sidebarCollapsed ? @js($item['label']) : ''"
                                     class="flex items-center gap-3 h-10 px-3 text-sm font-medium rounded-md transition-colors {{ $active ? 'bg-primary-50 text-primary-700' : 'text-ink-700 hover:bg-surface-100' }}">
@@ -193,7 +197,8 @@
         @if ($platformAdmin)
             <section aria-label="Konsol platform">
                 <h2 :class="{ 'lg:hidden': sidebarCollapsed }" class="px-3 mb-1 text-[11px] font-bold text-ink-400">Konsol platform</h2>
-                <a href="{{ route('admin.withdrawals.index') }}"
+                <a href="{{ route('admin.withdrawals.index') }}" data-turbo-frame="app-content" data-nav-patterns="admin.withdrawals.*"
+                    data-nav-active-class="bg-primary-50 text-primary-700" data-nav-idle-class="text-ink-700 hover:bg-surface-100"
                     @if (request()->routeIs('admin.withdrawals.*')) aria-current="page" @endif
                     :title="sidebarCollapsed ? 'Pencairan' : ''"
                     class="flex items-center gap-3 h-10 px-3 text-sm font-medium rounded-md transition-colors {{ request()->routeIs('admin.withdrawals.*') ? 'bg-primary-50 text-primary-700' : 'text-ink-700 hover:bg-surface-100' }}">

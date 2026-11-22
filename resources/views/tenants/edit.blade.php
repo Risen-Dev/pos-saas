@@ -20,7 +20,7 @@
         </x-page-header>
 
         <div x-data="{ isSubmitting: false }">
-            <form action="{{ route('tenants.update', $tenant->id) }}" method="POST" enctype="multipart/form-data"
+            <form action="{{ route('tenants.update', $tenant->id) }}" method="POST" data-turbo-frame="_top" enctype="multipart/form-data"
                 class="space-y-4" @submit="isSubmitting = true">
                 @csrf
                 @method('PUT')

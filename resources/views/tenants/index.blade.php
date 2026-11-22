@@ -156,7 +156,7 @@
                                 <td class="px-5 py-3 text-center">
                                     <div class="flex items-center justify-center gap-2">
                                         @if (auth()->user()->tenant_id != $tenant->id)
-                                            <form action="{{ route('tenants.switch', ['tenant' => $tenant->id]) }}"
+                                            <form action="{{ route('tenants.switch', ['tenant' => $tenant->id]) }}" data-turbo-frame="_top"
                                                 method="POST">
                                                 @csrf
                                                 <button type="submit"
@@ -227,7 +227,7 @@
                         Batal
                     </button>
 
-                    <form :action="deleteUrl" method="POST" class="flex-1">
+                    <form :action="deleteUrl" method="POST" data-turbo-frame="_top" class="flex-1">
                         @csrf
                         @method('DELETE')
                         <button type="submit"

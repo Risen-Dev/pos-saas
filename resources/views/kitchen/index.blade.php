@@ -16,8 +16,8 @@
                 <p class="max-w-2xl mt-1 text-xs leading-relaxed text-ink-700 md:text-sm">Pesanan lunas yang membutuhkan persiapan. Halaman diperbarui otomatis setiap 20 detik saat tidak sedang mengisi form.</p>
             </div>
             <div class="flex flex-wrap gap-2">
-                <a href="{{ route('kitchen.index') }}" class="inline-flex items-center justify-center h-10 gap-2 px-4 text-xs font-semibold border rounded-md border-border-200 text-ink-700 bg-surface-0 hover:bg-surface-100"><x-icon class="fa-solid fa-rotate-right" /> Perbarui</a>
-                <a href="{{ route('pos.index') }}" class="inline-flex items-center justify-center h-10 gap-2 px-4 text-xs font-semibold text-white rounded-md shadow-sm bg-primary-600 hover:bg-primary-700"><x-icon class="fa-solid fa-cash-register" /> Buka Kasir</a>
+                <a href="{{ route('kitchen.index') }}" data-turbo-frame="app-content" class="inline-flex items-center justify-center h-10 gap-2 px-4 text-xs font-semibold border rounded-md border-border-200 text-ink-700 bg-surface-0 hover:bg-surface-100"><x-icon class="fa-solid fa-rotate-right" /> Perbarui</a>
+                <a href="{{ route('pos.index') }}" data-turbo-frame="_top" class="inline-flex items-center justify-center h-10 gap-2 px-4 text-xs font-semibold text-white rounded-md shadow-sm bg-primary-600 hover:bg-primary-700"><x-icon class="fa-solid fa-cash-register" /> Buka Kasir</a>
             </div>
         </x-page-header>
 
@@ -80,8 +80,11 @@
     </div>
 
     <script>
-        setInterval(() => {
-            if (!document.hidden && !document.activeElement?.closest('form')) window.location.reload();
+        const kitchenRefreshInterval = setInterval(() => {
+            if (!document.hidden && !document.activeElement?.closest('form')) {
+                window.Turbo?.visit(window.location.href, { frame: 'app-content', action: 'replace' });
+            }
         }, 20000);
+        window.registerGrowposPageCleanup?.(() => clearInterval(kitchenRefreshInterval));
     </script>
 </x-app-layout>

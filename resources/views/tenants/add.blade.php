@@ -8,7 +8,7 @@
     </x-page-header>
     @php($plan = auth()->user()->tenant?->currentPlan())
     <p class="p-4 mt-4 text-sm rounded-md bg-primary-50">{{ auth()->user()->tenants()->count() }} bisnis dikelola oleh akun ini. {{ $plan ? 'Paket aktif mengizinkan maksimal '.$plan->max_outlets.' bisnis per akun. Data tiap bisnis tetap terpisah.' : 'Aktifkan paket untuk menambah bisnis.' }}</p>
-    <form action="{{ route('tenants.store-additional') }}" method="post" enctype="multipart/form-data" class="p-6 mt-5 space-y-5 bg-white border rounded-lg border-border-200" x-data="{ submitting: false }" @submit="submitting = true">
+    <form action="{{ route('tenants.store-additional') }}" method="post" data-turbo-frame="_top" enctype="multipart/form-data" class="p-6 mt-5 space-y-5 bg-white border rounded-lg border-border-200" x-data="{ submitting: false }" @submit="submitting = true">
         @include('tenants.partials-form')
         <div class="flex flex-wrap items-center gap-4">
             <button :disabled="submitting" class="min-h-11 px-5 py-3 font-semibold text-white rounded-md bg-primary-600 disabled:opacity-50" x-text="submitting ? 'Menyimpan…' : 'Tambah bisnis'">Tambah bisnis</button>

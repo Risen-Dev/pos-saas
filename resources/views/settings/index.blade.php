@@ -224,7 +224,7 @@
     <!-- Script Dynamic Help Label -->
     @can('feature-loyalty')
         <script>
-            document.addEventListener("DOMContentLoaded", function() {
+            (() => {
                 const pointModeSelect = document.getElementById('point_mode');
                 const programSelect = document.getElementById('loyalty_program_type');
                 const pointsFields = document.getElementById('points-program-fields');
@@ -297,7 +297,7 @@
                 pointModeSelect.addEventListener('change', updatePointHelp);
                 programSelect.addEventListener('change', updateProgramFields);
                 updateProgramFields();
-            });
+            })();
         </script>
     @endcan
 </x-app-layout>

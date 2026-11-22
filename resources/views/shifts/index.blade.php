@@ -28,13 +28,13 @@
 
                 <!-- Active Shift Action Switcher -->
                 @if ($activeShift)
-                    <a href="{{ route('pos.index') }}"
+                    <a href="{{ route('pos.index') }}" data-turbo-frame="_top"
                         class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-semantic-danger hover:bg-red-700 font-body md:text-sm">
                         <x-icon class="text-xs fa-solid fa-power-off" />
                         <span>Tutup Shift Aktif (POS)</span>
                     </a>
                 @else
-                    <a href="{{ route('pos.index') }}"
+                    <a href="{{ route('pos.index') }}" data-turbo-frame="_top"
                         class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm">
                         <x-icon class="text-xs fa-solid fa-cash-register" />
                         <span>Buka Shift Baru</span>

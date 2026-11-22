@@ -73,7 +73,7 @@ export function initDialogs(root = document) {
             attributeFilter: ["class", "style", "hidden"],
         });
     }
-    document.addEventListener("keydown", (event) => {
+    const onKeydown = (event) => {
         if (!active) return;
         if (event.key === "Escape") {
             const close = [...active.querySelectorAll("button")].find(
@@ -107,6 +107,14 @@ export function initDialogs(root = document) {
                 first.focus();
             }
         }
-    });
+    };
+    document.addEventListener("keydown", onKeydown);
     update();
+
+    return () => {
+        observer.disconnect();
+        document.removeEventListener("keydown", onKeydown);
+        if (active) restore();
+        active = null;
+    };
 }

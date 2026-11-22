@@ -10,7 +10,7 @@
             Sistem penginputan transaksi baru dialihkan ke Terminal Kasir GrowPOS yang dilengkapi fitur katalog cepat &
             kalkulasi otomatis.
         </p>
-        <a href="{{ route('pos.index') }}"
+        <a href="{{ route('pos.index') }}" data-turbo-frame="_top"
             class="inline-flex items-center justify-center w-full gap-2 px-6 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 font-body">
             <x-icon class="fa-solid fa-store" />
             <span>Buka POS Kasir Sekarang</span>

@@ -106,7 +106,7 @@
                                 <!-- Action Buttons -->
                                 <div class="flex items-center gap-1.5 shrink-0">
                                     @if (auth()->user()->tenant_id != $tenantItem->id)
-                                        <form action="{{ route('tenants.switch', $tenantItem->id) }}" method="POST">
+                                        <form action="{{ route('tenants.switch', $tenantItem->id) }}" method="POST" data-turbo-frame="_top">
                                             @csrf
                                             <button type="submit"
                                                 class="p-2 transition-colors border rounded-md text-ink-700 hover:text-primary-600 bg-surface-0 border-border-200 hover:bg-primary-50"
@@ -122,7 +122,7 @@
                                         <x-icon class="text-xs fa-solid fa-pen-to-square" />
                                     </a>
 
-                                    <form action="{{ route('tenants.destroy', $tenantItem->id) }}" method="POST"
+                                    <form action="{{ route('tenants.destroy', $tenantItem->id) }}" method="POST" data-turbo-frame="_top"
                                         onsubmit="return confirm('Hapus bisnis ini? Semua data penjualan di dalamnya akan hilang!')">
                                         @csrf @method('DELETE')
                                         <button type="submit"

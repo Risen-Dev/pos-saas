@@ -3,11 +3,11 @@ export function initPageMotion(root = document) {
         window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ||
         typeof window.IntersectionObserver !== "function"
     ) {
-        return;
+        return () => {};
     }
 
     const groups = root.querySelectorAll("[data-motion-stagger]");
-    if (!groups.length) return;
+    if (!groups.length) return () => {};
 
     const observer = new IntersectionObserver(
         (entries) => {
@@ -36,4 +36,6 @@ export function initPageMotion(root = document) {
             observer.observe(item);
         });
     }
+
+    return () => observer.disconnect();
 }

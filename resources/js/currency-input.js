@@ -27,4 +27,5 @@ export function initRupiahInputs(root) {
             input.value = rupiahDigits(input.value);
         });
     });
+    return () => {};
 }

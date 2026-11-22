@@ -33,7 +33,7 @@
         <span>Koneksi terputus. Buka layar kasir untuk melihat draft dan antrean transaksi di perangkat ini.</span>
     </div>
 
-    <div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: false, sidebarCollapsed: localStorage.getItem('growpos:sidebar-collapsed') === '1' }" x-init="$watch('sidebarCollapsed', value => localStorage.setItem('growpos:sidebar-collapsed', value ? '1' : '0'))" @keydown.escape.window="sidebarOpen = false">
+    <div id="app-shell" class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: false, sidebarCollapsed: localStorage.getItem('growpos:sidebar-collapsed') === '1' }" x-init="$watch('sidebarCollapsed', value => localStorage.setItem('growpos:sidebar-collapsed', value ? '1' : '0'))" @keydown.escape.window="sidebarOpen = false">
 
         <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false"
             class="fixed inset-0 z-40 bg-black/30 lg:hidden" aria-hidden="true"></div>
@@ -55,7 +55,7 @@
                         <x-icon class="fa-solid fa-bars" />
                     </button>
                     <div class="min-w-0">
-                        <p class="text-sm font-bold truncate text-ink-900">@yield('title', 'Operasional')</p>
+                        <p data-shell-page-title class="text-sm font-bold truncate text-ink-900">@yield('title', 'Operasional')</p>
                         <p class="text-xs text-ink-700">{{ auth()->user()->tenant?->name ?? 'GrowPOS' }} · Mode Kasir</p>
                     </div>
                     <div class="ml-auto">
@@ -67,7 +67,9 @@
             <!-- Main Content Area -->
             <main id="main-content"
                 class="flex-1 overflow-y-auto scroll-smooth focus:outline-none bg-surface-100 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
-                <div class="h-full">
+                <turbo-frame id="app-content" data-turbo-action="advance" class="block min-h-full">
+                    <div data-page-context data-route-name="{{ request()->route()?->getName() }}"
+                        data-page-title="GrowPOS - @yield('title', 'SaaS POS UMKM')" class="min-h-full">
 
                     @if ($errors->any())
                         <div role="alert" class="p-4 m-4 border border-red-200 rounded-lg bg-red-50">
@@ -84,7 +86,8 @@
 
                     {{ $slot ?? ($slot ?? '') }}
                     @yield('content')
-                </div>
+                    </div>
+                </turbo-frame>
             </main>
         </div>
     </div>

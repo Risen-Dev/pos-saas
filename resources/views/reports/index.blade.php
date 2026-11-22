@@ -39,7 +39,7 @@
 
                 {{-- DILINDUNGI GATE EXPORT EXCEL (Khusus Paket Growth & Scale) --}}
                 @can('feature-crm')
-                    <a href="{{ route('reports.export-excel', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
+                    <a href="{{ route('reports.export-excel', ['start_date' => $startDate, 'end_date' => $endDate]) }}" data-turbo="false"
                         class="h-10 px-4 inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-body font-semibold text-xs rounded-sm shadow-sm transition-colors">
                         <x-icon class="text-xs fa-solid fa-file-excel" />
                         <span>Export Excel</span>
@@ -407,13 +407,23 @@
 
 
     <script>
+        (() => {
+        const controller = new AbortController();
+        const charts = [];
+        window.registerGrowposPageCleanup?.(() => {
+            controller.abort();
+            charts.forEach((chart) => chart.destroy());
+        });
         window.addEventListener("growpos:charts-ready", function() {
+            const trendCanvas = document.getElementById('trendChart');
+            const paymentCanvas = document.getElementById('paymentChart');
+            if (!trendCanvas || !paymentCanvas || !window.Chart) return;
             // 1. Chart Omzet Penjualan (GrowPOS Colors: Emerald Green #16805F)
-            const ctxTrend = document.getElementById('trendChart').getContext('2d');
+            const ctxTrend = trendCanvas.getContext('2d');
             const trendLabels = {!! json_encode($chartLabels) !!};
             const trendData = {!! json_encode($chartValues) !!};
 
-            new Chart(ctxTrend, {
+            charts.push(new Chart(ctxTrend, {
                 type: 'bar',
                 data: {
                     labels: trendLabels.length > 0 ? trendLabels : ['Tidak Ada Data'],
@@ -464,10 +474,10 @@
                         }
                     }
                 }
-            });
+            }));
 
             // 2. Chart Proporsi Pembayaran
-            const ctxPayment = document.getElementById('paymentChart').getContext('2d');
+            const ctxPayment = paymentCanvas.getContext('2d');
             let pmLabels = [];
             let pmValues = [];
             @foreach ($paymentMethods as $pm)
@@ -475,7 +485,7 @@
                 pmValues.push({{ $pm->total_amount }});
             @endforeach
 
-            new Chart(ctxPayment, {
+            charts.push(new Chart(ctxPayment, {
                 type: 'doughnut',
                 data: {
                     labels: pmLabels.length > 0 ? pmLabels : ['Belum Ada Transaksi'],
@@ -504,13 +514,13 @@
                     },
                     cutout: '70%'
                 }
-            });
+            }));
 
             document.querySelectorAll('[data-chart-state]').forEach(state => {
                 state.setAttribute('aria-busy', 'false');
                 state.querySelector('[data-chart-skeleton]').hidden = true;
             });
-        });
+        }, { signal: controller.signal });
 
         window.addEventListener('growpos:charts-error', function() {
             document.querySelectorAll('[data-chart-state]').forEach(state => {
@@ -518,6 +528,7 @@
                 state.querySelector('[data-chart-skeleton]').hidden = true;
                 state.querySelector('[data-chart-error]').hidden = false;
             });
-        });
+        }, { signal: controller.signal });
+        })();
     </script>
 </x-app-layout>

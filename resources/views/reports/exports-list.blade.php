@@ -88,7 +88,7 @@
                                 <!-- Download Button Action -->
                                 <td class="px-5 py-3 text-center action-button-area">
                                     @if ($export->status === 'completed')
-                                        <a href="{{ route('reports.download-file', $export->id) }}"
+                                        <a href="{{ route('reports.download-file', $export->id) }}" data-turbo="false"
                                             class="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md transition-colors">
                                             <x-icon class="text-xs fa-solid fa-download" />
                                             <span>Unduh Excel</span>
@@ -124,7 +124,7 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        (() => {
             const checkInterval = setInterval(function() {
                 const activeJobs = document.querySelectorAll('.animate-pulse');
                 if (activeJobs.length === 0) {
@@ -146,7 +146,7 @@
                                     badgeArea.innerHTML =
                                         `<span class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full">Selesai</span>`;
                                     buttonArea.innerHTML =
-                                        `<a href="${item.download_url}" class="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md transition-colors">Unduh Excel</a>`;
+                                        `<a href="${item.download_url}" data-turbo="false" class="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md transition-colors">Unduh Excel</a>`;
                                 } else if (item.status === 'processing') {
                                     badgeArea.innerHTML =
                                         `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-primary-600 animate-pulse"></span> Sedang Diproses</span>`;
@@ -161,6 +161,7 @@
                     })
                     .catch(error => console.error('Gagal memperbarui status antrean:', error));
             }, 3000);
-        });
+            window.registerGrowposPageCleanup?.(() => clearInterval(checkInterval));
+        })();
     </script>
 </x-app-layout>

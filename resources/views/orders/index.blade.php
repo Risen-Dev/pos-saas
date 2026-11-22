@@ -14,7 +14,7 @@
                 </p>
             </div>
 
-            <a href="{{ route('pos.index') }}"
+            <a href="{{ route('pos.index') }}" data-turbo-frame="_top"
                 class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm shrink-0">
                 <x-icon class="text-xs fa-solid fa-plus" />
                 <span>Transaksi Baru (POS)</span>

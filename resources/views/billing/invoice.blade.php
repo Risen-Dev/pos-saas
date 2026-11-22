@@ -117,7 +117,7 @@
                         <div class="w-full p-4 border bg-emerald-50 text-emerald-800 rounded-xl border-emerald-200">
                             <x-icon class="mb-2 text-3xl fa-solid fa-circle-check text-emerald-600" />
                             <p class="text-sm font-bold">Pembayaran Berhasil / Lunas</p>
-                            <a href="{{ route('dashboard') }}"
+                            <a href="{{ route('dashboard') }}" data-turbo-frame="app-content"
                                 class="inline-block px-4 py-2 mt-3 text-xs font-bold text-white rounded-lg bg-emerald-600">
                                 Kembali ke Dashboard
                             </a>
@@ -140,6 +140,7 @@
             data-client-key="{{ config('services.midtrans.client_key') }}"></script>
     @endif
         <script>
+            (() => {
             const snapToken = @json($invoice->snap_token);
             let pollInterval = null;
 
@@ -177,6 +178,9 @@
                 if (pollInterval) return;
                 pollInterval = setInterval(() => checkInvoiceStatus(true), 5000);
             }
+            window.registerGrowposPageCleanup?.(() => {
+                if (pollInterval) clearInterval(pollInterval);
+            });
 
             async function checkInvoiceStatus(isAuto = false) {
                 const btn = document.getElementById('btnCheckStatus');
@@ -196,7 +200,7 @@
                     if (data.status === 'paid') {
                         if (pollInterval) clearInterval(pollInterval);
                         window.growposToast('Pembayaran berhasil diverifikasi.', 'success', { persistOnReload: true, defer: true });
-                        window.location.href = "{{ route('billing.index') }}?status=success";
+                        window.Turbo?.visit("{{ route('billing.index') }}?status=success", { frame: 'app-content', action: 'replace' });
                     } else if (!isAuto) {
                         notifyPayment('Pembayaran belum terdeteksi. Selesaikan pembayaran atau periksa status sebelum mencoba lagi.');
                     }
@@ -209,5 +213,7 @@
                     }
                 }
             }
+            window.checkInvoiceStatus = checkInvoiceStatus;
+            })();
         </script>
 </x-app-layout>

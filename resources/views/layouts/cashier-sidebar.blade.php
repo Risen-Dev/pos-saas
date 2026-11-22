@@ -38,7 +38,7 @@
             </li>
             @if (auth()->user()->tenant?->hasBusinessModule('food'))
                 <li>
-                    <a href="{{ route('kitchen.index') }}" class="flex items-center gap-3 h-11 px-3 text-sm font-semibold rounded-md {{ request()->routeIs('kitchen.*') ? 'bg-primary-50 text-primary-700' : 'text-ink-700 hover:bg-surface-100' }}"
+                    <a href="{{ route('kitchen.index') }}" data-turbo-frame="app-content" data-nav-patterns="kitchen.*" data-nav-active-class="bg-primary-50 text-primary-700" data-nav-idle-class="text-ink-700 hover:bg-surface-100" class="flex items-center gap-3 h-11 px-3 text-sm font-semibold rounded-md {{ request()->routeIs('kitchen.*') ? 'bg-primary-50 text-primary-700' : 'text-ink-700 hover:bg-surface-100' }}"
                         @if (request()->routeIs('kitchen.*')) aria-current="page" @endif>
                         <x-icon class="w-5 text-center fa-solid fa-utensils" />
                         <span>Dapur</span>
@@ -47,7 +47,7 @@
             @endif
             @if (auth()->user()->tenant?->hasBusinessModule('services'))
                 <li>
-                    <a href="{{ route('services.index') }}" class="flex items-center gap-3 h-11 px-3 text-sm font-semibold rounded-md {{ request()->routeIs('services.*') ? 'bg-primary-50 text-primary-700' : 'text-ink-700 hover:bg-surface-100' }}"
+                    <a href="{{ route('services.index') }}" data-turbo-frame="app-content" data-nav-patterns="services.*" data-nav-active-class="bg-primary-50 text-primary-700" data-nav-idle-class="text-ink-700 hover:bg-surface-100" class="flex items-center gap-3 h-11 px-3 text-sm font-semibold rounded-md {{ request()->routeIs('services.*') ? 'bg-primary-50 text-primary-700' : 'text-ink-700 hover:bg-surface-100' }}"
                         @if (request()->routeIs('services.*')) aria-current="page" @endif>
                         <x-icon class="w-5 text-center fa-solid fa-screwdriver-wrench" />
                         <span>Pengerjaan jasa</span>

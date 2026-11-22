@@ -23,7 +23,8 @@
             <ul class="space-y-0.5">
                 @if (auth()->user()->role === 'admin')
                     <li>
-                        <a href="{{ route('workspace.settings') }}"
+                        <a href="{{ route('workspace.settings') }}" data-turbo-frame="app-content" data-nav-patterns="workspace.settings,business.*,employees.*,settings.*,tenants.*,billing.*,activity-logs.*"
+                            data-nav-active-class="bg-primary-50 text-primary-700" data-nav-idle-class="text-ink-700 hover:bg-surface-100"
                             @if (request()->routeIs('workspace.settings', 'business.*', 'employees.*', 'settings.*', 'tenants.*', 'billing.*', 'activity-logs.*')) aria-current="page" @endif
                             @click="userMenu = false"
                             class="flex items-center gap-2.5 min-h-11 px-3 text-xs font-medium rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-600 {{ request()->routeIs('workspace.settings', 'business.*', 'employees.*', 'settings.*', 'tenants.*', 'billing.*', 'activity-logs.*') ? 'bg-primary-50 text-primary-700' : 'text-ink-700 hover:bg-surface-100' }}">
@@ -33,7 +34,7 @@
                     </li>
                 @endif
                 <li>
-                    <a href="{{ route('help') }}" @if (request()->routeIs('help')) aria-current="page" @endif
+                    <a href="{{ route('help') }}" data-turbo-frame="app-content" data-nav-patterns="help" data-nav-active-class="bg-primary-50 text-primary-700" data-nav-idle-class="text-ink-700 hover:bg-surface-100" @if (request()->routeIs('help')) aria-current="page" @endif
                         @click="userMenu = false"
                         class="flex items-center gap-2.5 min-h-11 px-3 text-xs font-medium rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-600 {{ request()->routeIs('help') ? 'bg-primary-50 text-primary-700' : 'text-ink-700 hover:bg-surface-100' }}">
                         <x-icon class="w-4 text-center fa-regular fa-circle-question" />
@@ -41,7 +42,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('profile.index') }}" @if (request()->routeIs('profile.*')) aria-current="page" @endif
+                    <a href="{{ route('profile.index') }}" data-turbo-frame="app-content" data-nav-patterns="profile.*" data-nav-active-class="bg-primary-50 text-primary-700" data-nav-idle-class="text-ink-700 hover:bg-surface-100" @if (request()->routeIs('profile.*')) aria-current="page" @endif
                         @click="userMenu = false"
                         class="flex items-center gap-2.5 min-h-11 px-3 text-xs font-medium rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-600 {{ request()->routeIs('profile.*') ? 'bg-primary-50 text-primary-700' : 'text-ink-700 hover:bg-surface-100' }}">
                         <x-icon class="w-4 text-center fa-regular fa-user" />

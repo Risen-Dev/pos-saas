@@ -157,7 +157,7 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        (() => {
             const masterCheckbox = document.getElementById('selectAllProducts');
             const checkboxes = document.querySelectorAll('.product-checkbox');
 
@@ -171,6 +171,6 @@
                     }
                 });
             });
-        });
+        })();
     </script>
 </x-app-layout>

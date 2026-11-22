@@ -12,7 +12,7 @@
                 <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900">Pengerjaan Jasa</h1>
                 <p class="max-w-2xl mt-1 text-xs leading-relaxed text-ink-700 md:text-sm">Tetapkan petugas, estimasi selesai, dan progres setiap order jasa. Status pengerjaan tidak mengubah status pembayaran.</p>
             </div>
-            <a href="{{ route('pos.index') }}" class="inline-flex items-center justify-center h-10 gap-2 px-4 text-xs font-semibold text-white rounded-md shadow-sm bg-primary-600 hover:bg-primary-700"><x-icon class="fa-solid fa-plus" /> Transaksi Baru</a>
+        <a href="{{ route('pos.index') }}" data-turbo-frame="_top" class="inline-flex items-center justify-center h-10 gap-2 px-4 text-xs font-semibold text-white rounded-md shadow-sm bg-primary-600 hover:bg-primary-700"><x-icon class="fa-solid fa-plus" /> Transaksi Baru</a>
         </x-page-header>
 
         <div class="flex gap-2 pb-2 mb-6 overflow-x-auto">

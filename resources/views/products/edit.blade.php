@@ -227,7 +227,7 @@
             document.getElementById('sku_input').value = res;
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        (() => {
             const typeSelect = document.getElementById('type_select');
             const manageStock = document.getElementById('manage_stock');
             const inventoryFields = document.getElementById('inventory_fields');
@@ -275,6 +275,6 @@
             });
 
             updateUI();
-        });
+        })();
     </script>
 </x-app-layout>

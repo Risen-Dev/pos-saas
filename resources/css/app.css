@@ -50,6 +50,47 @@
     animation: 200ms cubic-bezier(0.2, 0.7, 0.2, 1) both growpos-page-enter;
 }
 
+#app-content {
+    position: relative;
+}
+
+#app-content[busy]::after {
+    position: fixed;
+    z-index: 120;
+    top: 0;
+    left: 0;
+    width: 34%;
+    height: 3px;
+    content: "";
+    background: linear-gradient(90deg, #12845f, #56c69b);
+    transform-origin: left;
+    animation: growpos-navigation-progress 1s ease-in-out infinite alternate;
+}
+
+#app-content > [data-page-context] {
+    animation: growpos-content-enter 150ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes growpos-navigation-progress {
+    from {
+        transform: scaleX(0.35);
+    }
+    to {
+        transform: scaleX(2.8);
+    }
+}
+
+@keyframes growpos-content-enter {
+    from {
+        opacity: 0.75;
+        transform: translateY(3px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 [data-motion-item][data-motion-state="pending"] {
     opacity: 0;
     transform: translateY(8px);

@@ -292,7 +292,7 @@
                         </div>
 
                         {{-- Form BARU Di Dalam Modal --}}
-                        <form action="{{ route('billing.subscribe') }}" method="POST" class="pt-2">
+                        <form action="{{ route('billing.subscribe') }}" method="POST" data-turbo-frame="_top" class="pt-2">
                             @csrf
                             <input type="hidden" name="plan_id" :value="selectedPlan.id">
                             <input type="hidden" name="billing_period" :value="Number(selectedPlan.price) === 0 ? 'monthly' : billingPeriod">

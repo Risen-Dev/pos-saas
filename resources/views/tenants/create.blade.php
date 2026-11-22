@@ -7,7 +7,7 @@
             <h1 class="mt-3 text-2xl font-bold">Siapkan bisnis pertama Anda</h1>
             <p class="mt-2 mb-6 text-sm text-ink-700">Akun Anda sudah siap. Lengkapi bisnis, lalu tambahkan katalog dan mulai berjualan.</p>
             @if($errors->any())<div role="alert" class="p-4 mb-5 bg-red-50 text-red-800 rounded-md"><ul class="pl-4 list-disc">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
-            <form action="{{ route('tenants.store') }}" method="post" enctype="multipart/form-data" x-data="{ submitting: false }" @submit="submitting = true">
+            <form action="{{ route('tenants.store') }}" method="post" data-turbo-frame="_top" enctype="multipart/form-data" x-data="{ submitting: false }" @submit="submitting = true">
                 @include('tenants.partials-form')
                 <button :disabled="submitting" class="w-full min-h-11 px-4 py-3 mt-6 font-semibold text-white rounded-md bg-primary-600 disabled:opacity-50" x-text="submitting ? 'Menyimpan…' : 'Simpan & lanjutkan'">Simpan & lanjutkan</button>
             </form>
