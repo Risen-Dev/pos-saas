@@ -151,7 +151,7 @@
                                         class="flex items-center w-full gap-3 h-10 px-3 text-sm font-medium text-left rounded-md transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-600 {{ $active ? 'bg-primary-50 text-primary-700' : 'text-ink-700 hover:bg-surface-100' }}">
                                         <x-icon class="w-5 text-center fa-solid {{ $item['icon'] }}" />
                                         <span class="flex-1 truncate" :class="{ 'lg:hidden': sidebarCollapsed }">{{ $item['label'] }}</span>
-                                        <x-icon class="text-[10px] transition-transform duration-150 fa-solid fa-chevron-down" :class="open ? 'rotate-180' : ''" />
+                                        <x-icon class="text-[10px] transition-transform duration-150 fa-solid fa-chevron-down" ::class="open ? 'rotate-180' : ''" />
                                     </button>
                                     <div id="{{ $panelId }}" x-show="open" x-cloak
                                         x-transition:enter="transition ease-out duration-150"
