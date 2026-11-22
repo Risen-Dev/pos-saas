@@ -56,8 +56,7 @@
         </div>
 
         <!-- Header Halaman & Action Button -->
-        <div
-            class="flex flex-col justify-between gap-4 pb-6 mb-8 border-b sm:flex-row sm:items-center border-border-200">
+        <x-page-header split>
             <div>
                 <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
                     Daftar Produk & Stok
@@ -80,7 +79,7 @@
                     <span>Tambah Produk Baru</span>
                 </a>
             @endif
-        </div>
+        </x-page-header>
 
         <!-- Metric Stat Cards Produk & Stok -->
         <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-3 md:gap-6" data-motion-stagger>
@@ -163,6 +162,7 @@
                                         @if ($product->image)
                                             <img src="{{ asset('storage/' . $product->image) }}"
                                                 alt="{{ $product->product_name }}"
+                                                loading="lazy" decoding="async"
                                                 class="object-cover border rounded-md w-9 h-9 border-border-200 shrink-0">
                                         @else
                                             <div

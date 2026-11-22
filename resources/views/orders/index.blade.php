@@ -4,8 +4,7 @@
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop">
 
         <!-- Header Page Section -->
-        <div
-            class="flex flex-col justify-between gap-4 pb-6 mb-8 border-b sm:flex-row sm:items-center border-border-200">
+        <x-page-header split>
             <div>
                 <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
                     Riwayat Transaksi
@@ -20,7 +19,7 @@
                 <x-icon class="text-xs fa-solid fa-plus" />
                 <span>Transaksi Baru (POS)</span>
             </a>
-        </div>
+        </x-page-header>
 
         <!-- Table Container (Spesifikasi GrowPOS: Row Height 48px) -->
         <div class="mb-6 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">

@@ -1,9 +1,13 @@
 <x-app-layout>
 @section('title', 'Pengaturan usaha')
 <div class="[max-width:1280px] [margin:auto] p-7 [color:#18372d] max-[701px]:[padding:20px_16px]">
-    <div class="[font-size:11px] font-bold [letter-spacing:0.14em] uppercase [color:#647c72]">GROWPOS UNTUK USAHAMU</div>
-    <h1 class="[font-size:clamp(24px,_3vw,_34px)] font-bold [letter-spacing:-0.04em] [line-height:1.2] [margin:8px_0]">Satu usaha, fitur sesuai kebutuhan.</h1>
-    <p class="[color:#65796f] [font-size:13px] [line-height:1.6]">Jenis usaha mengatur istilah dan contoh katalog. Pilih fitur operasional secara terpisah; barang dan jasa tetap bisa dijual bersama. Perubahan ini tidak menghapus data lama.</p>
+    <x-page-header>
+        <div>
+            <div class="[font-size:11px] font-bold [letter-spacing:0.14em] uppercase [color:#647c72]">GROWPOS UNTUK USAHAMU</div>
+            <h1 class="[font-size:clamp(24px,_3vw,_34px)] font-bold [letter-spacing:-0.04em] [line-height:1.2] [margin:8px_0]">Satu usaha, fitur sesuai kebutuhan.</h1>
+            <p class="[color:#65796f] [font-size:13px] [line-height:1.6]">Jenis usaha mengatur istilah dan contoh katalog. Pilih fitur operasional secara terpisah; barang dan jasa tetap bisa dijual bersama. Perubahan ini tidak menghapus data lama.</p>
+        </div>
+    </x-page-header>
     <form method="post" action="{{ route('business.update') }}" class="bg-white [border:1px_solid_#e1e9e4] rounded-lg [padding:22px] [box-shadow:0_2px_5px_#17392c03] max-[701px]:[padding:18px] mt-6 grid [gap:18px]">
         @csrf @method('PUT')
         <label class="block [font-size:12px] font-semibold [color:#536b5e] [&_input]:block [&_input]:w-full [&_input]:[margin-top:7px] [&_input]:[border:1px_solid_#dce5de] [&_input]:[border-radius:9px] [&_input]:[padding:11px] [&_input]:bg-white [&_input]:[font-size:14px] [&_input]:[color:#18372d] [&_input]:min-h-11 [&_select]:block [&_select]:w-full [&_select]:[margin-top:7px] [&_select]:[border:1px_solid_#dce5de] [&_select]:[border-radius:9px] [&_select]:[padding:11px] [&_select]:bg-white [&_select]:[font-size:14px] [&_select]:[color:#18372d] [&_select]:min-h-11 [&_textarea]:block [&_textarea]:w-full [&_textarea]:[margin-top:7px] [&_textarea]:[border:1px_solid_#dce5de] [&_textarea]:[border-radius:9px] [&_textarea]:[padding:11px] [&_textarea]:bg-white [&_textarea]:[font-size:14px] [&_textarea]:[color:#18372d] [&_textarea]:min-h-11">Jenis usaha<select name="business_type" required>

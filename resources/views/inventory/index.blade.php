@@ -22,16 +22,16 @@
     </details>
 </section>
 <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between mb-8">
+        <x-page-header split>
             <div>
                 <h2 class="text-lg font-bold text-ink-900">Daftar stok barang</h2>
                 <p class="font-medium text-gray-500">Pantau ketersediaan barang di gudang Anda.</p>
             </div>
             <a href="{{ route('inventory.history') }}"
-                class="px-6 py-3 font-bold text-gray-700 transition bg-gray-100 rounded-2xl hover:bg-gray-200">
+                class="inline-flex items-center justify-center min-h-11 px-4 py-2 font-semibold text-sm text-primary-700 transition-colors bg-primary-50 rounded-md hover:bg-primary-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-600">
                 Riwayat Mutasi
             </a>
-        </div>
+        </x-page-header>
 
         <div class="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-x-auto">
             <table class="w-full text-left">

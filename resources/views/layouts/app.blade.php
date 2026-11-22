@@ -58,6 +58,9 @@
                         <p class="text-sm font-bold truncate text-ink-900">@yield('title', 'Operasional')</p>
                         <p class="text-xs text-ink-700">{{ auth()->user()->tenant?->name ?? 'GrowPOS' }} · Mode Kasir</p>
                     </div>
+                    <div class="ml-auto">
+                        @include('layouts.user-menu')
+                    </div>
                 </header>
             @endif
 

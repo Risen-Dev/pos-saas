@@ -1,13 +1,13 @@
 <x-app-layout>
     @section('title', 'Panduan usaha')
     <div class="[max-width:1280px] [margin:auto] p-7 [color:#18372d] max-[701px]:[padding:20px_16px]">
-        <div class="[font-size:11px] font-bold [letter-spacing:0.14em] uppercase [color:#647c72]">TEMAN OPERASIONALMU
+        <x-page-header>
+        <div>
+            <div class="[font-size:11px] font-bold [letter-spacing:0.14em] uppercase [color:#647c72]">TEMAN OPERASIONALMU</div>
+            <h1 class="[font-size:clamp(24px,_3vw,_34px)] font-bold [letter-spacing:-0.04em] [line-height:1.2] [margin:8px_0]">Panduan singkat GrowPOS.</h1>
+            <p class="[color:#65796f] [font-size:13px] [line-height:1.6]">Jawaban yang bisa langsung dipakai saat usaha sedang beroperasi.</p>
         </div>
-        <h1
-            class="[font-size:clamp(24px,_3vw,_34px)] font-bold [letter-spacing:-0.04em] [line-height:1.2] [margin:8px_0]">
-            Panduan singkat GrowPOS.</h1>
-        <p class="[color:#65796f] [font-size:13px] [line-height:1.6]">Jawaban yang bisa langsung dipakai saat usaha
-            sedang beroperasi.</p>
+        </x-page-header>
         <div class="grid [gap:18px] mt-6 [max-width:850px]">
             @foreach ([
         ['Mulai berjualan', 'Masukkan produk/layanan atau impor Excel dari halaman Mulai berjualan. Periksa harga, modal, pajak, dan stok. Di kasir, buka shift dengan jumlah uang awal di laci.'],

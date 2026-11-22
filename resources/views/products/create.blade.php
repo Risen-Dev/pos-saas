@@ -2,9 +2,11 @@
 @section('title', 'Tambah katalog')
 @php($tenant = auth()->user()->tenant)
 <div class="max-w-3xl px-4 py-6 mx-auto sm:px-6">
+    <x-page-header>
     <a href="{{ route('products.index') }}" class="text-sm font-semibold text-primary-600">← Kembali ke {{ strtolower($tenant->catalogLabel()) }}</a>
     <h1 class="mt-4 text-2xl font-bold">Tambah {{ strtolower($tenant->catalogLabel()) }}</h1>
     <p class="mt-2 text-sm text-ink-700">Isi nama dan harga jual. Pengaturan lainnya bisa dilengkapi nanti.</p>
+    </x-page-header>
     <form method="post" action="{{ route('products.store') }}" enctype="multipart/form-data" class="mt-6 space-y-5" x-data="{ type: @js(old('type', $tenant->businessType() === 'service' ? 'service' : 'product')), tracked: @js((bool) old('manage_stock', $tenant->businessType() !== 'food' && $tenant->businessType() !== 'service')), newCategory: @js((bool) old('category_name')), saving: false }" @submit="saving = true">
         @csrf
         <section class="p-5 space-y-5 bg-white border rounded-lg border-border-200">

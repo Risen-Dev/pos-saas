@@ -6,14 +6,14 @@
     @endphp
 
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop">
-        <div class="flex flex-col justify-between gap-4 pb-6 mb-6 border-b md:flex-row md:items-center border-border-200">
+        <x-page-header split>
             <div>
                 <div class="flex items-center gap-2 mb-2 text-[10px] font-bold tracking-widest uppercase text-primary-600"><x-icon class="fa-solid fa-screwdriver-wrench" /> Layanan Pelanggan</div>
                 <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900">Pengerjaan Jasa</h1>
                 <p class="max-w-2xl mt-1 text-xs leading-relaxed text-ink-700 md:text-sm">Tetapkan petugas, estimasi selesai, dan progres setiap order jasa. Status pengerjaan tidak mengubah status pembayaran.</p>
             </div>
             <a href="{{ route('pos.index') }}" class="inline-flex items-center justify-center h-10 gap-2 px-4 text-xs font-semibold text-white rounded-md shadow-sm bg-primary-600 hover:bg-primary-700"><x-icon class="fa-solid fa-plus" /> Transaksi Baru</a>
-        </div>
+        </x-page-header>
 
         @if(session('success'))<div role="status" class="flex items-center gap-2 p-4 mb-5 text-sm border rounded-lg bg-primary-50 border-primary-100 text-primary-700"><x-icon class="fa-solid fa-circle-check" />{{ session('success') }}</div>@endif
         @if($errors->any())<div role="alert" class="p-4 mb-5 text-xs border rounded-lg bg-red-50 border-red-100 text-semantic-danger">{{ $errors->first() }}</div>@endif

@@ -21,7 +21,7 @@
         @endif
 
         <!-- Header Halaman -->
-        <div class="pb-6 mb-8 border-b border-border-200">
+        <x-page-header>
             <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
                 Sistem Pengaturan Toko
             </h1>
@@ -29,7 +29,7 @@
                 Atur konfigurasi Pajak Restoran (PB1/PPN), kalkulasi poin loyalitas pelanggan, dan kebijakan operasional
                 bisnis aktif.
             </p>
-        </div>
+        </x-page-header>
 
         <form action="{{ route('settings.store') }}" method="POST" class="space-y-6">
             @csrf

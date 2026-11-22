@@ -12,14 +12,14 @@
         @endphp
 
         <!-- Header Halaman -->
-        <div class="pb-6 mb-8 border-b border-border-200">
+        <x-page-header>
             <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
                 Pengaturan Akun & Bisnis
             </h1>
             <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
                 Perbarui informasi pribadi, keamanan kata sandi, serta manajemen unit bisnis (tenant) Anda.
             </p>
-        </div>
+        </x-page-header>
 
         <!-- 2 Column Split Screen Grid -->
         <div class="grid items-start grid-cols-1 gap-6 lg:grid-cols-12">

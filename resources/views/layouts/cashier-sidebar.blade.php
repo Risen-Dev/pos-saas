@@ -57,21 +57,4 @@
         </ul>
     </nav>
 
-    <div class="p-3 space-y-1 border-t border-border-200 shrink-0">
-        <a href="{{ route('help') }}" class="flex items-center gap-3 h-11 px-3 text-sm font-medium rounded-md text-ink-700 hover:bg-surface-100">
-            <x-icon class="w-5 text-center fa-regular fa-circle-question" />
-            <span>Bantuan</span>
-        </a>
-        <a href="{{ route('profile.index') }}" class="flex items-center gap-3 h-11 px-3 text-sm font-medium rounded-md text-ink-700 hover:bg-surface-100">
-            <x-icon class="w-5 text-center fa-regular fa-user" />
-            <span>Akun</span>
-        </a>
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" class="flex items-center gap-3 w-full h-11 px-3 text-sm font-semibold rounded-md text-semantic-danger hover:bg-red-50">
-                <x-icon class="w-5 text-center fa-solid fa-right-from-bracket" />
-                <span>Keluar</span>
-            </button>
-        </form>
-    </div>
 </aside>

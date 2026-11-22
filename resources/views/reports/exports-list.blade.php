@@ -4,7 +4,7 @@
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop">
 
         <!-- Header Halaman -->
-        <div class="flex items-center justify-between pb-6 mb-8 border-b border-border-200">
+        <x-page-header split>
             <div>
                 <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
                     Laci Unduhan Laporan
@@ -18,7 +18,7 @@
                 <x-icon class="text-xs fa-solid fa-arrow-left" />
                 <span>Kembali ke Laporan</span>
             </a>
-        </div>
+        </x-page-header>
 
         <!-- Table Container -->
         <div class="mb-6 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">

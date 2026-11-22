@@ -1,7 +1,7 @@
 <x-app-layout>
     @section('title', 'Transaksi Baru')
 
-    <div class="px-4 py-12 mx-auto text-center max-w-modal-sm">
+    <x-page-header class="max-w-modal-sm mx-auto text-center" split>
         <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-primary-50 text-primary-600">
             <x-icon class="text-2xl fa-solid fa-cash-register" />
         </div>
@@ -15,7 +15,7 @@
             <x-icon class="fa-solid fa-store" />
             <span>Buka POS Kasir Sekarang</span>
         </a>
-    </div>
+    </x-page-header>
 
     <script>
         // Redirect otomatis ke terminal POS utama GrowPOS

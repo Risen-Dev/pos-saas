@@ -50,8 +50,7 @@
             <div x-data="aiChatHandler()">
 
                 <!-- Header Halaman -->
-                <div
-                    class="flex flex-col justify-between gap-4 pb-4 mb-6 border-b sm:flex-row sm:items-center border-border-200">
+                <x-page-header split>
                     <div class="flex items-center gap-3">
                         <div
                             class="flex items-center justify-center w-10 h-10 text-lg text-white rounded-md shadow-sm bg-primary-600 shrink-0">
@@ -75,7 +74,7 @@
                             AI Engine Active
                         </span>
                     </div>
-                </div>
+                </x-page-header>
 
                 {{-- Disclaimer data terbatas --}}
                 @isset($dataCukup)

@@ -4,7 +4,7 @@
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-modal-lg">
 
         <!-- Header & Breadcrumb -->
-        <div class="mb-6">
+        <x-page-header>
             <a href="{{ route('products.index') }}"
                 class="inline-flex items-center gap-2 mb-2 text-xs font-semibold font-body text-primary-600 hover:text-primary-700">
                 <x-icon class="text-xs fa-solid fa-arrow-left" />
@@ -17,7 +17,7 @@
                 Memperbarui informasi rincian produk: <span
                     class="font-semibold text-ink-900">{{ $product->product_name }}</span>
             </p>
-        </div>
+        </x-page-header>
 
         <form action="{{ route('products.update', $product->id) }}" method="POST" enctype="multipart/form-data"
             class="space-y-6">

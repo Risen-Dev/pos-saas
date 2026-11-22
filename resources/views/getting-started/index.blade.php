@@ -2,10 +2,14 @@
 @section('title', 'Mulai berjualan')
 @php($tenant = auth()->user()->tenant)
 <div class="[max-width:1280px] [margin:auto] p-7 [color:#18372d] max-[701px]:[padding:20px_16px]">
-    <div class="[font-size:11px] font-bold [letter-spacing:0.14em] uppercase [color:#647c72]">SELAMAT DATANG DI GROWPOS</div>
-    <h1 class="[font-size:clamp(24px,_3vw,_34px)] font-bold [letter-spacing:-0.04em] [line-height:1.2] [margin:8px_0]">Dari katalog pertama,<br>ke pelanggan pertama.</h1>
-    <p class="[color:#65796f] [font-size:13px] [line-height:1.6]">Siapkan {{ $tenant->name }} sesuai kebutuhan {{ \App\Support\BusinessProfile::TYPES[$tenant->businessType()] }}.</p>
-    @if(auth()->user()->role === 'admin')<a class="inline-flex items-center justify-center gap-2 min-h-11 [padding:10px_17px] [border:1px_solid_#dae4dd] rounded-md bg-white [color:#234a3b] [font-size:13px] font-semibold cursor-pointer hover:[background:#f1f7f3] disabled:[opacity:0.45] disabled:cursor-wait focus-visible:[outline:3px_solid_#90b9a5] focus-visible:[outline-offset:3px] mt-4" href="{{ route('business.edit') }}">Atur jenis usaha & fitur</a>@endif
+    <x-page-header split>
+        <div>
+            <div class="[font-size:11px] font-bold [letter-spacing:0.14em] uppercase [color:#647c72]">SELAMAT DATANG DI GROWPOS</div>
+            <h1 class="[font-size:clamp(24px,_3vw,_34px)] font-bold [letter-spacing:-0.04em] [line-height:1.2] [margin:8px_0]">Dari katalog pertama,<br>ke pelanggan pertama.</h1>
+            <p class="[color:#65796f] [font-size:13px] [line-height:1.6]">Siapkan {{ $tenant->name }} sesuai kebutuhan {{ \App\Support\BusinessProfile::TYPES[$tenant->businessType()] }}.</p>
+        </div>
+        @if(auth()->user()->role === 'admin')<a class="inline-flex items-center justify-center gap-2 min-h-11 [padding:10px_17px] [border:1px_solid_#dae4dd] rounded-md bg-white [color:#234a3b] [font-size:13px] font-semibold cursor-pointer hover:[background:#f1f7f3] disabled:[opacity:0.45] disabled:cursor-wait focus-visible:[outline:3px_solid_#90b9a5] focus-visible:[outline-offset:3px]" href="{{ route('business.edit') }}">Atur jenis usaha & fitur</a>@endif
+    </x-page-header>
     @if(!$tenant->currentPlan())<div class="[padding:13px_16px] rounded-md [background:#fff6df] [color:#81591c] [font-size:13px] [line-height:1.6] mt-6">Pilih paket untuk mengaktifkan katalog dan transaksi. <a class="underline" href="{{ route('billing.index') }}">Lihat paket →</a></div>@endif
     <div class="grid [gap:18px] mt-6 [grid-template-columns:repeat(auto-fit,minmax(230px,1fr))]" data-motion-stagger>
         @foreach([[$tenant->catalogLabel(), 'Tambahkan barang atau layanan beserta harga yang benar.', $hasMenu, route('products.create'), 'Isi katalog'], ['Mulai jualan', 'Isi uang awal laci. Jika tidak ada uang awal, isi 0.', $hasShift, route('pos.index'), 'Buka kasir'], ['Transaksi pertama', 'Pilih barang atau jasa, terima pembayaran, lalu cetak struk.', $hasSale, route('pos.index'), 'Mulai transaksi']] as $step)

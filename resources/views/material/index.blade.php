@@ -4,8 +4,7 @@
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop">
 
         <!-- Header Halaman & Action Buttons -->
-        <div
-            class="flex flex-col justify-between gap-4 pb-6 mb-8 border-b sm:flex-row sm:items-center border-border-200">
+        <x-page-header split>
             <div>
                 <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
                     Bahan Baku & Inventori
@@ -21,7 +20,7 @@
                 <x-icon class="text-xs fa-solid fa-plus" />
                 <span>Tambah Bahan Baku</span>
             </button>
-        </div>
+        </x-page-header>
 
         <!-- Metric Stat Cards Ringkasan Stok -->
         <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-3 md:gap-6" data-motion-stagger>

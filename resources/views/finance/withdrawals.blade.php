@@ -6,12 +6,12 @@
     <div x-data="withdrawalPage()" class="px-4 py-6 mx-auto space-y-6 max-w-desktop md:px-6">
 
         {{-- Header --}}
-        <div class="flex items-center justify-between">
+        <x-page-header>
             <div>
                 <h1 class="font-sans text-xl font-bold text-ink-900">Dompet & Penarikan Dana</h1>
                 <p class="text-sm text-ink-700 mt-0.5">Kelola saldo toko dan ajukan penarikan ke rekening bank Anda.</p>
             </div>
-        </div>
+        </x-page-header>
 
         {{-- Kartu Saldo --}}
         <div class="p-6 text-white rounded-lg shadow-md bg-gradient-to-br from-primary-600 to-primary-700">

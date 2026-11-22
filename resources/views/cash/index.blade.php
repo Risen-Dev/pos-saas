@@ -11,7 +11,7 @@
     @endphp
 
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop">
-        <div class="flex flex-col justify-between gap-4 pb-6 mb-6 border-b md:flex-row md:items-center border-border-200">
+        <x-page-header split>
             <div>
                 <div class="flex items-center gap-2 mb-2 text-[10px] font-bold tracking-widest uppercase text-primary-600">
                     <x-icon class="fa-solid fa-book-open" />
@@ -28,7 +28,7 @@
                 <x-icon class="fa-solid fa-user-clock" />
                 Sesi kasir
             </a>
-        </div>
+        </x-page-header>
 
         @if (session('success'))
             <div role="status" class="flex items-start gap-3 p-4 mb-5 text-sm border rounded-lg bg-primary-50 border-primary-100 text-primary-700">

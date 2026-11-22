@@ -53,7 +53,7 @@
                 <div class="lg:col-span-7">
                     <div class="group relative aspect-video overflow-hidden rounded-2xl border border-[#DCE7DF] bg-[#E7F0E9] shadow-[0_24px_70px_-32px_rgba(23,55,42,.42)] sm:rounded-[1.75rem]">
                         @if ($demoVideoUrl !== '')
-                            <video class="h-full w-full object-cover" controls playsinline preload="metadata"
+                            <video class="h-full w-full object-cover" controls playsinline preload="none"
                                 poster="{{ asset('img/growpos-retail-1920.webp') }}">
                                 <source src="{{ $demoVideoUrl }}" type="{{ $demoVideoType }}">
                                 Browser Anda tidak mendukung pemutar video.

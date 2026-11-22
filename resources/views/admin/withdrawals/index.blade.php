@@ -5,10 +5,10 @@
 @section('content')
     <div class="px-4 py-6 mx-auto space-y-6 max-w-desktop md:px-6">
 
-        <div>
+        <x-page-header>
             <h1 class="font-sans text-xl font-bold text-ink-900">Pengajuan Penarikan Dana</h1>
             <p class="text-sm text-ink-700 mt-0.5">Tinjau dan proses permintaan penarikan dana dari seluruh tenant.</p>
-        </div>
+        </x-page-header>
 
         <div class="overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
             <div class="overflow-x-auto">

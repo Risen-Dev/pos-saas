@@ -5,7 +5,7 @@
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-modal-lg">
 
         <!-- Navigation Top Bar -->
-        <div class="flex items-center justify-between mb-6 no-print-area">
+        <x-page-header split class="no-print-area">
             <a href="{{ route('orders.index') }}"
                 class="inline-flex items-center gap-2 text-xs font-semibold transition-colors font-body text-ink-700 hover:text-primary-600">
                 <x-icon class="text-xs fa-solid fa-arrow-left" />
@@ -17,7 +17,7 @@
                 <x-icon class="fa-solid fa-print" />
                 <span>Cetak Struk Belanja</span>
             </button>
-        </div>
+        </x-page-header>
 
 
         <section class="max-w-xl mx-auto my-6 space-y-4 no-print-area">

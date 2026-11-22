@@ -1,17 +1,24 @@
-import "./bootstrap";
 import Alpine from "alpinejs";
 import { initDialogs } from "./dialogs.js";
-import growPos from "./grow-pos.js";
 import connectionStatus from "./connection-status.js";
 import { initRupiahInputs } from "./currency-input.js";
 import { onDomReady } from "./dom-ready.js";
 import { initPageMotion } from "./motion.js";
 
 window.Alpine = Alpine;
-Alpine.data("growPos", growPos);
 Alpine.data("connectionStatus", connectionStatus);
 initPageMotion(document);
-Alpine.start();
+
+async function startAlpine() {
+    if (document.querySelector('[x-data="growPos"]')) {
+        const { default: growPos } = await import("./grow-pos.js");
+        Alpine.data("growPos", growPos);
+    }
+
+    Alpine.start();
+}
+
+startAlpine();
 
 // Safari/Chrome may restore a page from the back-forward cache. Reloading a
 // restored page forces Laravel auth/tenant middleware to validate the session.

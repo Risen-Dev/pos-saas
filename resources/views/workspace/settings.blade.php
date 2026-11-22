@@ -2,8 +2,12 @@
     @section('title', 'Pengaturan usaha')
 
     <div class="max-w-4xl px-4 py-6 mx-auto sm:px-6">
-        <h1 class="text-2xl font-bold text-ink-900">Pengaturan usaha</h1>
-        <p class="mt-2 text-sm text-ink-700">Atur bisnis aktif, akses tim, dan konfigurasi penjualan.</p>
+        <x-page-header>
+            <div>
+                <h1 class="text-2xl font-bold text-ink-900">Pengaturan usaha</h1>
+                <p class="mt-2 text-sm text-ink-700">Atur bisnis aktif, akses tim, dan konfigurasi penjualan.</p>
+            </div>
+        </x-page-header>
 
         @if (auth()->user()->role !== 'admin')
             <div class="p-4 mt-6 text-sm border rounded-md bg-surface-0 border-border-200 text-ink-700">

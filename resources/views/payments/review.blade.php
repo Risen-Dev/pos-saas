@@ -1,7 +1,11 @@
 <x-app-layout>
     <div class="[max-width:1280px] [margin:auto] p-7 [color:#18372d] max-[701px]:[padding:20px_16px]">
-        <h1 class="[font-size:clamp(24px,_3vw,_34px)] font-bold [letter-spacing:-0.04em] [line-height:1.2] [margin:8px_0]">Pemeriksaan pembayaran</h1>
-        <p class="[color:#65796f] [font-size:13px] [line-height:1.6]">Nota QRIS yang belum lunas atau memerlukan pemeriksaan. Tombol ini hanya memeriksa referensi lama, tidak membuat tagihan baru.</p>
+        <x-page-header>
+            <div>
+                <h1 class="[font-size:clamp(24px,_3vw,_34px)] font-bold [letter-spacing:-0.04em] [line-height:1.2] [margin:8px_0]">Pemeriksaan pembayaran</h1>
+                <p class="[color:#65796f] [font-size:13px] [line-height:1.6]">Nota QRIS yang belum lunas atau memerlukan pemeriksaan. Tombol ini hanya memeriksa referensi lama, tidak membuat tagihan baru.</p>
+            </div>
+        </x-page-header>
         @if(session('success'))<p class="[padding:13px_16px] rounded-md [background:#fff6df] [color:#81591c] [font-size:13px] [line-height:1.6] mt-4">{{ session('success') }}</p>@endif
         @foreach($errors->all() as $error)<p role="alert" class="[padding:13px_16px] rounded-md [background:#fff6df] [color:#81591c] [font-size:13px] [line-height:1.6] mt-4">{{ $error }}</p>@endforeach
         @forelse($orders as $order)

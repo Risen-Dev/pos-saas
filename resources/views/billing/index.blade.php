@@ -12,13 +12,13 @@
     }">
 
         {{-- Header Section --}}
-        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <x-page-header>
             <div>
                 <h1 class="text-2xl font-bold font-heading text-ink-900">Langganan & Penagihan</h1>
                 <p class="text-sm font-body text-ink-600">Kelola paket berlangganan toko Anda untuk menikmati seluruh
                     fitur operasional GrowPOS.</p>
             </div>
-        </div>
+        </x-page-header>
 
 
         {{-- Banner Tagihan Unpaid / Pending (Jika Ada Tagihan yang Belum Dibayar) --}}

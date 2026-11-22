@@ -1,9 +1,9 @@
 <x-app-layout>
     <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <div class="mb-8">
+        <x-page-header>
             <h1 class="text-3xl font-black tracking-tight text-gray-900">Riwayat Mutasi Stok</h1>
             <p class="font-medium text-gray-500">Log aktivitas keluar masuk barang & bahan baku.</p>
-        </div>
+        </x-page-header>
 
         <div class="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
             <table class="w-full text-left">

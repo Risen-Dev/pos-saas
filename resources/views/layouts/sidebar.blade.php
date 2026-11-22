@@ -136,34 +136,5 @@
             </section>
         @endif
 
-        <div class="pt-3 mt-auto space-y-1 border-t border-border-200">
-            @if ($isAdmin)
-                <a href="{{ route('workspace.settings') }}"
-                    @if (request()->route()?->getName() === 'workspace.settings') aria-current="page" @endif
-                    :title="sidebarCollapsed ? 'Pengaturan usaha' : ''"
-                    class="flex items-center gap-3 h-10 px-3 text-sm font-medium rounded-md {{ request()->routeIs('workspace.settings', 'business.*', 'employees.*', 'settings.*', 'tenants.*', 'billing.*', 'activity-logs.*') ? 'bg-primary-50 text-primary-700' : 'text-ink-700 hover:bg-surface-100' }}">
-                    <x-icon class="w-5 text-center fa-solid fa-gears" />
-                    <span :class="{ 'lg:hidden': sidebarCollapsed }">Pengaturan usaha</span>
-                </a>
-            @endif
-            <a href="{{ route('help') }}"
-                @if (request()->route()?->getName() === 'help') aria-current="page" @endif
-                :title="sidebarCollapsed ? 'Bantuan' : ''"
-                class="flex items-center gap-3 h-10 px-3 text-sm font-medium rounded-md {{ request()->routeIs('help') ? 'bg-primary-50 text-primary-700' : 'text-ink-700 hover:bg-surface-100' }}">
-                <x-icon class="w-5 text-center fa-regular fa-circle-question" />
-                <span :class="{ 'lg:hidden': sidebarCollapsed }">Bantuan</span>
-            </a>
-            <a href="{{ route('profile.index') }}"
-                @if (request()->route()?->getName() === 'profile.index') aria-current="page" @endif
-                :title="sidebarCollapsed ? 'Akun' : ''"
-                class="flex items-center gap-3 h-10 px-3 text-sm font-medium rounded-md {{ request()->routeIs('profile.*') ? 'bg-primary-50 text-primary-700' : 'text-ink-700 hover:bg-surface-100' }}">
-                <x-icon class="w-5 text-center fa-regular fa-user" />
-                <span :class="{ 'lg:hidden': sidebarCollapsed }">Akun</span>
-            </a>
-            <div x-data="connectionStatus" class="px-3 pt-2">
-                <p class="text-xs font-semibold" x-text="label" role="status"></p>
-                <p x-show="!sidebarCollapsed" class="mt-1 text-xs text-ink-700">Status koneksi perangkat</p>
-            </div>
-        </div>
     </nav>
 </aside>

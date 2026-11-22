@@ -4,7 +4,7 @@
     <div class="min-h-screen px-4 py-8 mx-auto space-y-8 max-w-7xl sm:px-6 lg:px-8 bg-surface-100">
 
         <!-- Header & Quick CTA -->
-        <div class="flex flex-col gap-4 md:flex-row md:items-center">
+        <x-page-header split>
             <div>
                 <div class="flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-ink-400">
                     <span>{{ auth()->user()->tenant->name }}</span>
@@ -21,7 +21,7 @@
                     <span class="text-ink-700">Transaksi lunas, diperbarui saat dimuat.</span>
                 </p>
             </div>
-        </div>
+        </x-page-header>
 
         <!-- Onboarding Banner -->
         @if (!$hasMenu || !$hasSale)

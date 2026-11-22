@@ -4,7 +4,7 @@
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-modal-lg">
 
         <!-- Breadcrumb & Title Section -->
-        <div class="mb-6">
+        <x-page-header>
             <a href="{{ route('tenants.index') }}"
                 class="inline-flex items-center gap-2 mb-2 text-xs font-semibold font-body text-primary-600 hover:text-primary-700">
                 <x-icon class="text-xs fa-solid fa-arrow-left" />
@@ -17,7 +17,7 @@
                 Perbarui rincian profil dan kontak operasional untuk bisnis <span
                     class="font-semibold text-ink-900">{{ $tenant->name }}</span>.
             </p>
-        </div>
+        </x-page-header>
 
         <div x-data="{ isSubmitting: false }">
             <form action="{{ route('tenants.update', $tenant->id) }}" method="POST" enctype="multipart/form-data"

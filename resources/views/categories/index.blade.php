@@ -4,14 +4,14 @@
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop" x-data="{ showDeleteModal: false, deleteUrl: '', categoryName: '' }">
 
         <!-- Header Halaman -->
-        <div class="pb-6 mb-8 border-b border-border-200">
+        <x-page-header>
             <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
                 Kategori Produk
             </h1>
             <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
                 Kelola pengelompokan menu & item barang untuk mempercepat navigasi pencarian di Kasir.
             </p>
-        </div>
+        </x-page-header>
 
         <!-- 2 Column Grid Layout -->
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-3" data-motion-stagger>

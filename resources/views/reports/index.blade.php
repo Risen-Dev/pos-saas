@@ -4,8 +4,7 @@
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop">
 
         <!-- Header Halaman & Form Filter Tanggal -->
-        <div
-            class="flex flex-col justify-between gap-4 pb-6 mb-8 border-b lg:flex-row lg:items-center border-border-200">
+        <x-page-header split>
             <div>
                 <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
                     Laporan Operasional
@@ -55,7 +54,7 @@
                     </a>
                 @endcan
             </form>
-        </div>
+        </x-page-header>
 
         @php
             $calculatedNetProfit = $netProfit;

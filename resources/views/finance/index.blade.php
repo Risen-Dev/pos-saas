@@ -4,7 +4,7 @@
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop">
 
         <!-- Header Halaman -->
-        <div class="pb-6 mb-8 border-b border-border-200">
+        <x-page-header>
             <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
                 Keuangan & Dompet Toko
             </h1>
@@ -12,7 +12,7 @@
                 Kelola saldo dompet digital toko, pengaturan rekening bank penampung, dan pengajuan penarikan dana
                 (payout).
             </p>
-        </div>
+        </x-page-header>
 
         <!-- Grid 3 Kartu Ringkasan Saldo & Rekening -->
         <div class="grid grid-cols-1 gap-4 mb-8 md:grid-cols-3 md:gap-6" data-motion-stagger>

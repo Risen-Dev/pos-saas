@@ -4,8 +4,7 @@
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop" x-data="{ showExportDropdown: false }">
 
         <!-- Header Halaman & Action Buttons -->
-        <div
-            class="flex flex-col justify-between gap-4 pb-6 mb-8 border-b sm:flex-row sm:items-center border-border-200">
+        <x-page-header split>
             <div>
                 <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
                     Manajemen Shift Kasir
@@ -42,7 +41,7 @@
                     </a>
                 @endif
             </div>
-        </div>
+        </x-page-header>
 
         <!-- 4 Metric Cards Summary (GrowPOS Palette & IBM Plex Mono) -->
         <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-2 lg:grid-cols-4 md:gap-6" data-motion-stagger>

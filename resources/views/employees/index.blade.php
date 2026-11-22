@@ -56,8 +56,7 @@
         </div>
 
         <!-- Header Halaman & Action Button -->
-        <div
-            class="flex flex-col justify-between gap-4 pb-6 mb-8 border-b sm:flex-row sm:items-center border-border-200">
+        <x-page-header split>
             <div>
                 <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
                     Manajemen Pegawai & Akses
@@ -80,7 +79,7 @@
                     <span>Tambah Pegawai Baru</span>
                 </button>
             @endif
-        </div>
+        </x-page-header>
 
         <!-- Metric Stat Summary Cards -->
         <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-3 md:gap-6" data-motion-stagger>

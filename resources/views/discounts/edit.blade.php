@@ -4,7 +4,7 @@
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-modal-lg">
 
         <!-- Breadcrumb & Header -->
-        <div class="mb-6">
+        <x-page-header>
             <a href="{{ route('discounts.index') }}"
                 class="inline-flex items-center gap-2 mb-2 text-xs font-semibold font-body text-primary-600 hover:text-primary-700">
                 <x-icon class="text-xs fa-solid fa-arrow-left" />
@@ -22,7 +22,7 @@
             <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
                 Perbarui detail potongan promo, jam aktif, atau produk yang terhubung dengan event ini.
             </p>
-        </div>
+        </x-page-header>
 
         <!-- Form Card Container -->
         <div class="p-6 border rounded-lg shadow-sm bg-surface-0 border-border-200">
