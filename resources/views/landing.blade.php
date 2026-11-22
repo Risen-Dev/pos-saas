@@ -146,7 +146,7 @@
                                         : 'Langganan Sekarang')
                                     : 'Mulai Sekarang'"
                                 :capacity="$plan->max_outlets .
-                                    ' outlet · ' .
+                                    ' bisnis per akun · ' .
                                     $plan->max_users .
                                     ' pengguna · ' .
                                     $plan->max_products .

@@ -41,6 +41,7 @@ class Plan extends Model
     public function advertisedFeatures(): array
     {
         $features = array_diff_key($this->features ?? [], array_flip(['Support 24/7 Chat', 'Account Manager Pribadi', 'Integrasi API Terbuka', '100 Transaksi / Bulan', 'CRM & Loyalitas']));
+        unset($features['Hingga 10 Outlet']);
         if (in_array($this->slug, ['starter', 'growth', 'scale'], true)) {
             $features = ['Transaksi Tanpa Batas' => true, 'Pelanggan & Bon' => true, 'Transfer & QRIS Manual' => true] + $features;
         }
@@ -53,7 +54,7 @@ class Plan extends Model
 
     public function getDescriptionAttribute(?string $value): ?string
     {
-        return $this->slug === 'scale' ? 'Untuk UMKM dengan beberapa outlet dan tim lebih besar.' : $value;
+        return $this->slug === 'scale' ? 'Untuk pemilik yang mengelola beberapa bisnis dan tim yang lebih besar.' : $value;
     }
 
     public function subscriptions(): HasMany

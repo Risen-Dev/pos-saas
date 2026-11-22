@@ -6,9 +6,9 @@
         @php
             $tenant = auth()->user()->tenant;
             $currentPlan = $tenant?->currentPlan();
-            $maxOutlets = $currentPlan?->max_outlets ?? 1;
+            $maxBusinesses = $currentPlan?->max_outlets ?? 1;
             $ownedTenantsCount = count($tenants);
-            $isOutletFull = $ownedTenantsCount >= $maxOutlets;
+            $isBusinessQuotaFull = $ownedTenantsCount >= $maxBusinesses;
         @endphp
 
         <!-- Header Halaman -->
@@ -53,23 +53,23 @@
                             </h3>
                             <p class="font-body text-xs text-ink-700 mt-0.5">
                                 Terpakai <strong
-                                    class="{{ $isOutletFull ? 'text-semantic-danger' : 'text-primary-600' }}">{{ $ownedTenantsCount }}</strong>
-                                dari {{ $maxOutlets }} kuota cabang (Paket {{ $currentPlan?->name ?? 'Starter' }}).
+                                    class="{{ $isBusinessQuotaFull ? 'text-semantic-danger' : 'text-primary-600' }}">{{ $ownedTenantsCount }}</strong>
+                                dari {{ $maxBusinesses }} bisnis per akun (Paket {{ $currentPlan?->name ?? 'Starter' }}).
                             </p>
                         </div>
 
-                        @if ($isOutletFull)
+                        @if ($isBusinessQuotaFull)
                             <a href="{{ route('billing.index') }}"
                                 class="inline-flex items-center justify-center gap-2 px-4 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-amber-600 hover:bg-amber-700 font-body shrink-0"
-                                title="Kuota cabang penuh, upgrade paket Anda">
+                                title="Kuota bisnis penuh, ubah paket Anda">
                                 <x-icon class="text-xs fa-solid fa-arrow-up-right-from-square" />
-                                <span>Upgrade Cabang</span>
+                                <span>Ubah paket</span>
                             </a>
                         @else
                             <a href="{{ route('tenants.add') }}"
                                 class="inline-flex items-center justify-center gap-2 px-4 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body shrink-0">
                                 <x-icon class="text-xs fa-solid fa-plus" />
-                                <span>Tambah Tenant</span>
+                                <span>Tambah bisnis</span>
                             </a>
                         @endif
                     </div>
@@ -118,16 +118,16 @@
 
                                     <a href="{{ route('tenants.edit', $tenantItem->id) }}"
                                         class="p-2 transition-colors border rounded-md text-ink-700 hover:text-primary-600 bg-surface-0 border-border-200 hover:bg-primary-50"
-                                        title="Edit Tenant">
+                                        title="Edit bisnis">
                                         <x-icon class="text-xs fa-solid fa-pen-to-square" />
                                     </a>
 
                                     <form action="{{ route('tenants.destroy', $tenantItem->id) }}" method="POST"
-                                        onsubmit="return confirm('Hapus tenant ini? Semua data penjualan di dalamnya akan hilang!')">
+                                        onsubmit="return confirm('Hapus bisnis ini? Semua data penjualan di dalamnya akan hilang!')">
                                         @csrf @method('DELETE')
                                         <button type="submit"
                                             class="p-2 transition-colors border rounded-md text-ink-700 hover:text-semantic-danger bg-surface-0 border-border-200 hover:bg-red-50"
-                                            title="Hapus Tenant">
+                                            title="Hapus bisnis">
                                             <x-icon class="text-xs fa-solid fa-trash-can" />
                                         </button>
                                     </form>
@@ -137,23 +137,21 @@
                     </div>
                 </div>
 
-                <!-- Info Multi-Outlet Box -->
                 <div class="relative p-6 overflow-hidden text-white rounded-lg shadow-sm bg-primary-600">
                     <div class="relative z-10 max-w-md">
-                        <h4 class="mb-1 text-lg font-semibold font-heading">Dukungan Kelola Multi-Outlet</h4>
+                        <h4 class="mb-1 text-lg font-semibold font-heading">Beberapa bisnis dalam satu akun</h4>
                         <p class="mb-4 text-xs leading-relaxed font-body text-white/80">
-                            Satu akun pemilik dapat mendaftarkan dan berpindah cabang toko dengan mudah tanpa perlu
-                            login ulang.
+                            Anda dapat mendaftarkan dan berpindah bisnis tanpa login ulang. Katalog, transaksi, stok, dan laporan tiap bisnis tetap terpisah.
                         </p>
-                        @if ($isOutletFull)
+                        @if ($isBusinessQuotaFull)
                             <a href="{{ route('billing.index') }}"
                                 class="inline-flex items-center justify-center px-4 text-xs font-semibold text-white transition-colors rounded-md h-9 bg-amber-500 hover:bg-amber-600 font-body">
-                                <x-icon class="fa-solid fa-crown mr-1.5 text-[10px]" /> Upgrade Kuota Cabang
+                                <x-icon class="fa-solid fa-crown mr-1.5 text-[10px]" /> Lihat paket bisnis
                             </a>
                         @else
                             <a href="{{ route('tenants.add') }}"
                                 class="inline-flex items-center justify-center px-4 text-xs font-semibold transition-colors rounded-md h-9 bg-surface-0 hover:bg-surface-100 text-primary-600 font-body">
-                                + Tambah Cabang Baru
+                                + Tambah bisnis
                             </a>
                         @endif
                     </div>

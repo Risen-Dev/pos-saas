@@ -10,9 +10,9 @@
     ];
 @endphp
 @if(auth()->user()->role !== 'kasir')
-<nav aria-label="Menu {{ $section }}" class="flex flex-wrap gap-2 px-4 py-3 border-b bg-white border-border-200">
+<nav aria-label="Menu {{ $section }}" class="flex flex-nowrap gap-2 px-4 py-3 overflow-x-auto border-b bg-white border-border-200 overscroll-x-contain">
     @foreach($groups[$section] ?? [] as [$target, $label, $visible])
-        @if($visible)<a href="{{ route($target) }}" class="min-h-11 px-3 py-3 text-sm font-semibold rounded-md {{ request()->routeIs($target) ? 'text-primary-700 bg-primary-50' : 'text-ink-700 hover:bg-surface-100' }}" @if(request()->routeIs($target)) aria-current="page" @endif>{{ $label }}</a>@endif
+        @if($visible)<a href="{{ route($target) }}" class="inline-flex min-h-11 shrink-0 items-center whitespace-nowrap px-3 py-2 text-sm font-semibold rounded-md {{ request()->routeIs($target) ? 'text-primary-700 bg-primary-50' : 'text-ink-700 hover:bg-surface-100' }}" @if(request()->route()?->getName() === $target) aria-current="page" @endif>{{ $label }}</a>@endif
     @endforeach
 </nav>
 @endif

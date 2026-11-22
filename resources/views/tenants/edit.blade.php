@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('title', 'Edit Informasi Tenant')
+    @section('title', 'Edit bisnis')
 
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-modal-lg">
 
@@ -8,13 +8,13 @@
             <a href="{{ route('tenants.index') }}"
                 class="inline-flex items-center gap-2 mb-2 text-xs font-semibold font-body text-primary-600 hover:text-primary-700">
                 <x-icon class="text-xs fa-solid fa-arrow-left" />
-                <span>Kembali ke Manajemen Tenant</span>
+                <span>Kembali ke bisnis yang saya kelola</span>
             </a>
             <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
-                Edit Profil Tenant
+                Edit profil bisnis
             </h1>
             <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
-                Perbarui rincian profil & kontak operasional untuk outlet <span
+                Perbarui rincian profil dan kontak operasional untuk bisnis <span
                     class="font-semibold text-ink-900">{{ $tenant->name }}</span>.
             </p>
         </div>
@@ -31,7 +31,7 @@
                     <!-- Logo Upload Field -->
                     <div x-data="{ imgPreview: '{{ $tenant->img_logo ? asset('storage/' . $tenant->img_logo) : null }}' }">
                         <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
-                            Logo Toko / Outlet (Opsional)
+                            Logo bisnis (opsional)
                         </label>
 
                         <div
@@ -61,7 +61,7 @@
                     <!-- Nama Toko Field (Height 44px, Radius-sm = 6px) -->
                     <div>
                         <label for="field-name" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
-                            Nama Bisnis / Outlet <span class="text-semantic-danger">*</span>
+                            Nama bisnis <span class="text-semantic-danger">*</span>
                         </label>
                         <input id="field-name" type="text" name="name" value="{{ old('name', $tenant->name) }}"
                             class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100"
@@ -102,14 +102,13 @@
                         </div>
                     </div>
 
-                    <!-- Alamat Outlet -->
                     <div>
                         <label for="field-address" class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
-                            Alamat Operasional Outlet <span class="text-semantic-danger">*</span>
+                            Alamat bisnis <span class="text-semantic-danger">*</span>
                         </label>
                         <textarea id="field-address" name="address" rows="3" required
                             class="w-full p-3 text-xs transition-all border rounded-sm outline-none font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100"
-                            placeholder="Alamat lengkap outlet bisnis Anda...">{{ old('address', $tenant->address) }}</textarea>
+                            placeholder="Alamat lengkap bisnis Anda...">{{ old('address', $tenant->address) }}</textarea>
                     </div>
                 </div>
 

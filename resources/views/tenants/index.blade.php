@@ -6,8 +6,8 @@
         @php
             $tenantCount = $tenants->count();
             $currentPlan = auth()->user()->tenant?->currentPlan();
-            $maxOutlets = $currentPlan?->max_outlets ?? 1;
-            $isOutletFull = $tenantCount >= $maxOutlets;
+            $maxBusinesses = $currentPlan?->max_outlets ?? 1;
+            $isBusinessQuotaFull = $tenantCount >= $maxBusinesses;
         @endphp
 
         <!-- Banner Flash Status/Notification -->
@@ -19,7 +19,6 @@
             </div>
         @endif
 
-        <!-- Banner Kuota Cabang/Bisnis -->
         <div
             class="flex flex-col justify-between gap-3 p-4 mb-6 border rounded-lg shadow-sm sm:flex-row sm:items-center bg-surface-0 border-border-200">
             <div class="flex items-center gap-3">
@@ -28,21 +27,20 @@
                     <x-icon class="fa-solid fa-store" />
                 </div>
                 <div>
-                    <h4 class="text-xs font-bold text-ink-900">Kuota Cabang Bisnis (Paket
-                        {{ $currentPlan?->name ?? 'Starter' }})</h4>
+                    <h4 class="text-xs font-bold text-ink-900">Kuota bisnis pada paket {{ $currentPlan?->name ?? 'Starter' }}</h4>
                     <p class="text-[11px] text-ink-700 mt-0.5">
                         Anda telah mendaftarkan <strong
-                            class="{{ $isOutletFull ? 'text-semantic-danger' : 'text-primary-600' }}">{{ $tenantCount }}</strong>
-                        dari maksimal <strong class="text-ink-900">{{ $maxOutlets }}</strong> cabang/toko.
+                            class="{{ $isBusinessQuotaFull ? 'text-semantic-danger' : 'text-primary-600' }}">{{ $tenantCount }}</strong>
+                        dari maksimal <strong class="text-ink-900">{{ $maxBusinesses }}</strong> bisnis dalam akun ini.
                     </p>
                 </div>
             </div>
 
-            @if ($isOutletFull)
+            @if ($isBusinessQuotaFull)
                 <a href="{{ route('billing.index') }}"
                     class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-md transition shrink-0">
                     <x-icon class="fa-solid fa-arrow-up-right-from-square text-[10px]" />
-                    <span>Upgrade Cabang</span>
+                    <span>Ubah paket</span>
                 </a>
             @endif
         </div>
@@ -52,18 +50,18 @@
             class="flex flex-col justify-between gap-4 pb-6 mb-8 border-b sm:flex-row sm:items-center border-border-200">
             <div>
                 <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
-                    Manajemen Bisnis (Cabang & Toko)
+                    Bisnis yang saya kelola
                 </h1>
                 <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
-                    Kelola outlet/cabang bisnis mitra atau buat tenant baru dalam ekosistem GrowPOS.
+                    Kelola bisnis yang terhubung ke akun ini. Data penjualan, katalog, stok, dan laporan tetap terpisah di setiap bisnis.
                 </p>
             </div>
 
-            @if ($isOutletFull)
-                <button disabled title="Kuota cabang paket {{ $currentPlan?->name }} sudah penuh"
+            @if ($isBusinessQuotaFull)
+                <button disabled title="Kuota bisnis pada paket {{ $currentPlan?->name }} sudah penuh"
                     class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold border rounded-md cursor-not-allowed text-ink-400 bg-surface-100 border-border-200 h-11 opacity-60 font-body md:text-sm shrink-0">
                     <x-icon class="text-xs fa-solid fa-lock" />
-                    <span>Kuota Cabang Penuh</span>
+                    <span>Kuota bisnis penuh</span>
                 </button>
             @else
                 <a href="{{ route('tenants.add') }}"
@@ -104,7 +102,7 @@
                     <thead>
                         <tr
                             class="h-12 text-xs font-semibold tracking-wider uppercase border-b bg-surface-100 border-border-200 font-heading text-ink-700">
-                            <th class="px-5 py-3">Nama Toko / Mitra</th>
+                            <th class="px-5 py-3">Nama bisnis</th>
                             <th class="px-5 py-3">Tipe Bisnis</th>
                             <th class="px-5 py-3 text-center">Jumlah Staf</th>
                             <th class="px-5 py-3 text-center">Status Sesi</th>
@@ -172,7 +170,7 @@
                                                 @csrf
                                                 <button type="submit"
                                                     class="h-8 px-3 text-xs font-semibold transition-colors rounded-md text-primary-700 bg-primary-100 hover:bg-primary-600 hover:text-white">
-                                                    Ganti Toko
+                                                    Ganti bisnis
                                                 </button>
                                             </form>
                                         @endif
@@ -197,10 +195,8 @@
                                 <td colspan="5" class="px-6 py-12 text-center">
                                     <div class="flex flex-col items-center justify-center">
                                         <x-icon class="mb-2 text-3xl fa-solid fa-store-slash text-ink-400" />
-                                        <p class="text-sm font-semibold font-body text-ink-900">Belum ada tenant
-                                            terdaftar</p>
-                                        <p class="font-body text-xs text-ink-700 mt-0.5">Mulai dengan menambahkan outlet
-                                            atau bisnis pertama Anda.</p>
+                                        <p class="text-sm font-semibold font-body text-ink-900">Belum ada bisnis terdaftar</p>
+                                        <p class="font-body text-xs text-ink-700 mt-0.5">Tambahkan bisnis pertama ke akun Anda untuk mulai berjualan.</p>
                                     </div>
                                 </td>
                             </tr>
@@ -226,10 +222,10 @@
                 </div>
 
                 <div class="mb-6 text-center">
-                    <h3 class="text-lg font-semibold font-heading text-ink-900">Hapus Cabang Bisnis?</h3>
+                    <h3 class="text-lg font-semibold font-heading text-ink-900">Hapus bisnis?</h3>
                     <p class="mt-2 text-xs leading-relaxed font-body text-ink-700">
                         Apakah Anda yakin ingin menghapus <span class="font-semibold text-ink-900"
-                            x-text="tenantName"></span>? Seluruh data produk, kategori, dan histori transaksi toko ini
+                            x-text="tenantName"></span>? Seluruh data produk, kategori, dan histori transaksi bisnis ini
                         akan terhapus secara permanen.
                     </p>
                 </div>

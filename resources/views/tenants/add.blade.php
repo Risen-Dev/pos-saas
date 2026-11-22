@@ -5,7 +5,7 @@
     <h1 class="mt-4 text-2xl font-bold">Tambah bisnis</h1>
     <p class="mt-2 text-sm text-ink-700">Kelola bisnis lain dari akun yang sama. Setelah disimpan, bisnis baru menjadi bisnis aktif. Katalog, transaksi, dan langganannya terpisah.</p>
     @php($plan = auth()->user()->tenant?->currentPlan())
-    <p class="p-4 mt-4 text-sm rounded-md bg-primary-50">{{ auth()->user()->tenants()->count() }} bisnis dimiliki. {{ $plan ? 'Paket bisnis aktif mengizinkan maksimal '.$plan->max_outlets.' bisnis/outlet.' : 'Aktifkan paket bisnis saat ini sebelum menambah bisnis.' }}</p>
+    <p class="p-4 mt-4 text-sm rounded-md bg-primary-50">{{ auth()->user()->tenants()->count() }} bisnis dikelola oleh akun ini. {{ $plan ? 'Paket aktif mengizinkan maksimal '.$plan->max_outlets.' bisnis per akun. Data tiap bisnis tetap terpisah.' : 'Aktifkan paket untuk menambah bisnis.' }}</p>
     <form action="{{ route('tenants.store-additional') }}" method="post" enctype="multipart/form-data" class="p-6 mt-5 space-y-5 bg-white border rounded-lg border-border-200" x-data="{ submitting: false }" @submit="submitting = true">
         @include('tenants.partials-form')
         <div class="flex flex-wrap items-center gap-4">

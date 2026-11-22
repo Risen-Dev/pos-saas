@@ -146,7 +146,7 @@ class SimplificationTest extends PosTestCase
         $user = $this->shop();
         $user->tenant->update(['business_type' => 'service', 'business_modules' => ['services']]);
         $this->actingAs($user)->get('/dashboard')->assertOk()->assertDontSee('href="'.route('inventory.index').'"', false)->assertSee('Pengerjaan jasa');
-        $this->get('/workspace/settings')->assertOk()->assertSee('Bisnis saya');
+        $this->get('/workspace/settings')->assertOk()->assertSee('Bisnis yang dikelola');
         $cashier = $this->shop('kasir');
         $this->actingAs($cashier)->get('/tenants/create')->assertRedirect('/pos');
         $this->get('/workspace/settings')->assertRedirect('/pos');

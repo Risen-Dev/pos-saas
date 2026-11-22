@@ -33,12 +33,13 @@
         <span>Koneksi terputus. Buka layar kasir untuk melihat draft dan antrean transaksi di perangkat ini.</span>
     </div>
 
-    <div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: false, sidebarCollapsed: localStorage.getItem('growpos:sidebar-collapsed') === '1' }" x-init="$watch('sidebarCollapsed', value => localStorage.setItem('growpos:sidebar-collapsed', value ? '1' : '0'))">
+    <div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: false, sidebarCollapsed: localStorage.getItem('growpos:sidebar-collapsed') === '1' }" x-init="$watch('sidebarCollapsed', value => localStorage.setItem('growpos:sidebar-collapsed', value ? '1' : '0'))" @keydown.escape.window="sidebarOpen = false">
 
-        @if (auth()->user()->role !== 'kasir')
-            <!-- Back-office navigation is never rendered for cashier accounts. -->
-            <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false"
-                class="fixed inset-0 z-40 bg-black/30 lg:hidden" aria-hidden="true"></div>
+        <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false"
+            class="fixed inset-0 z-40 bg-black/30 lg:hidden" aria-hidden="true"></div>
+        @if (auth()->user()->role === 'kasir')
+            @include('layouts.cashier-sidebar')
+        @else
             @include('layouts.sidebar')
         @endif
 
@@ -47,38 +48,16 @@
             @if (auth()->user()->role !== 'kasir')
                 @include('layouts.navbar')
             @else
-                <header
-                    class="flex items-center justify-between h-16 gap-3 px-4 border-b bg-surface-0 border-border-200 shrink-0">
-                    <div class="flex items-center min-w-0 gap-2">
-                        <a href="{{ route('pos.index') }}"
-                            class="inline-flex items-center justify-center rounded-md w-9 h-9 bg-primary-50 text-primary-600"
-                            aria-label="Kembali ke kasir"><x-icon class="fa-solid fa-cash-register" /></a>
-                        <div class="min-w-0">
-                            <p class="text-sm font-bold truncate text-ink-900">
-                                {{ auth()->user()->tenant?->name ?? 'GrowPOS' }}</p>
-                            <p class="text-[10px] font-semibold uppercase tracking-wider text-primary-600">Mode Kasir
-                            </p>
-                        </div>
+                <header class="flex items-center h-16 gap-3 px-4 border-b bg-surface-0 border-border-200 shrink-0">
+                    <button type="button" aria-label="Buka navigasi kasir" aria-controls="cashier-navigation"
+                        :aria-expanded="sidebarOpen.toString()" @click="sidebarOpen = true"
+                        class="inline-flex items-center justify-center w-10 h-10 rounded-md text-ink-700 hover:bg-surface-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-600 lg:hidden">
+                        <x-icon class="fa-solid fa-bars" />
+                    </button>
+                    <div class="min-w-0">
+                        <p class="text-sm font-bold truncate text-ink-900">@yield('title', 'Operasional')</p>
+                        <p class="text-xs text-ink-700">{{ auth()->user()->tenant?->name ?? 'GrowPOS' }} · Mode Kasir</p>
                     </div>
-                    <nav class="flex items-center gap-1 sm:gap-2" aria-label="Navigasi kasir">
-                        <a href="{{ route('pos.index') }}"
-                            class="px-3 py-2 text-xs font-semibold rounded-md text-ink-700 hover:bg-surface-100">Kasir</a>
-                        @if (auth()->user()->tenant?->hasBusinessModule('services'))
-                            <a href="{{ route('services.index') }}"
-                                class="hidden px-3 py-2 text-xs font-semibold rounded-md sm:inline-flex text-ink-700 hover:bg-surface-100">Pengerjaan
-                                jasa</a>
-                        @endif
-                        @if (auth()->user()->tenant?->hasBusinessModule('food'))
-                            <a href="{{ route('kitchen.index') }}"
-                                class="hidden px-3 py-2 text-xs font-semibold rounded-md sm:inline-flex text-ink-700 hover:bg-surface-100">Dapur</a>
-                        @endif
-                        <a href="{{ route('profile.index') }}"
-                            class="inline-flex items-center justify-center rounded-md w-9 h-9 text-ink-700 hover:bg-surface-100"
-                            aria-label="Akun"><x-icon class="fa-solid fa-user" /></a>
-                        <form method="POST" action="{{ route('logout') }}">@csrf<button
-                                class="inline-flex items-center justify-center rounded-md w-9 h-9 text-semantic-danger hover:bg-red-50"
-                                aria-label="Keluar"><x-icon class="fa-solid fa-right-from-bracket" /></button></form>
-                    </nav>
                 </header>
             @endif
 

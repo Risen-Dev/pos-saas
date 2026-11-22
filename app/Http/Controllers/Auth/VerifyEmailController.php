@@ -22,7 +22,7 @@ class VerifyEmailController extends Controller
         // Jika user belum punya toko, arahkan ke setup bisnis dengan pesan sukses verifikasi
         if (! $request->user()->tenant_id) {
             return redirect()->route('tenants.create')
-                ->with('status', 'Email Anda berhasil diverifikasi! Silakan mendaftarkan bisnis/outlet GrowPOS Anda.');
+                ->with('status', 'Email Anda berhasil diverifikasi! Silakan daftarkan bisnis pertama Anda di GrowPOS.');
         }
 
         return redirect()->intended(route('dashboard', absolute: false).'?verified=1')

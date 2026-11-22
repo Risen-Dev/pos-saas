@@ -204,7 +204,7 @@
                                 </li>
                                 <li class="flex items-center gap-2">
                                     <x-icon class="fa-solid fa-check text-emerald-600" />
-                                    <span>Maksimal <strong>{{ $plan->max_outlets }}</strong> bisnis / outlet</span>
+                                    <span>Maksimal <strong>{{ $plan->max_outlets }}</strong> bisnis per akun, dengan data yang terpisah</span>
                                 </li>
                                 @foreach($plan->advertisedFeatures() as $feature => $included)
                                     @if($included)<li class="flex items-center gap-2"><x-icon class="fa-solid fa-check text-emerald-600" /><span>{{ $feature }}</span></li>@endif
@@ -273,9 +273,9 @@
                                     x-text="selectedPlan.max_products + ' SKU'"></strong>
                             </div>
                             <div class="p-3 border rounded-lg bg-surface-0 border-border-200">
-                                <span class="text-ink-500 block mb-0.5">Maksimal Toko/Cabang</span>
+                                <span class="text-ink-500 block mb-0.5">Bisnis per akun</span>
                                 <strong class="text-sm text-ink-900"
-                                    x-text="selectedPlan.max_outlets + ' Outlet'"></strong>
+                                    x-text="selectedPlan.max_outlets + ' bisnis'"></strong>
                             </div>
                             <div class="p-3 border rounded-lg bg-surface-0 border-border-200">
                                 <span class="text-ink-500 block mb-0.5">Masa Aktif Paket</span>

@@ -15,7 +15,7 @@
                 : null;
 
             $currentPlan = $currentSubscription?->plan ?? $tenant?->currentPlan();
-            $maxOutlets = $currentPlan?->max_outlets ?? 1;
+            $maxBusinesses = $currentPlan?->max_outlets ?? 1;
             $ownedTenantsCount = auth()->user()->tenants()->count();
 
             // Perhitungan Sisa Hari Integer Presisi (Tanpa Koma)
@@ -120,11 +120,11 @@
                 </div>
             </div>
 
-            <!-- Card 2: Bisnis Aktif & Kuota Cabang -->
+            <!-- Card 2: Bisnis Aktif & Kuota Akun -->
             <div class="flex flex-col justify-between p-6 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <div>
                     <div class="flex items-center justify-between pb-4 mb-4 border-b border-border-200">
-                        <h3 class="text-base font-semibold font-heading text-ink-900">Bisnis & Outlet Aktif</h3>
+                        <h3 class="text-base font-semibold font-heading text-ink-900">Bisnis aktif</h3>
                         <div
                             class="flex items-center justify-center w-8 h-8 text-xs rounded-md bg-primary-50 text-primary-600">
                             <x-icon class="fa-solid fa-store" />
@@ -152,9 +152,9 @@
                 </div>
 
                 <div class="flex items-center justify-between pt-4 mt-6 text-xs border-t border-border-200 font-body">
-                    <span class="text-ink-700">Penggunaan Outlet:</span>
+                    <span class="text-ink-700">Bisnis dalam akun:</span>
                     <span class="font-mono font-semibold text-ink-900">
-                        {{ $ownedTenantsCount }} / {{ $maxOutlets }} Kuota Cabang
+                        {{ $ownedTenantsCount }} / {{ $maxBusinesses }} bisnis
                     </span>
                 </div>
             </div>
@@ -220,7 +220,7 @@
                     class="font-heading text-[11px] font-semibold text-ink-400 group-hover:text-primary-600 uppercase tracking-wider">
                     Kelola
                 </p>
-                <p class="mt-1 text-sm font-semibold font-heading text-ink-900">Tenant & Outlet</p>
+                <p class="mt-1 text-sm font-semibold font-heading text-ink-900">Bisnis yang dikelola</p>
             </a>
 
             <a href="{{ route('tenants.index') }}"
@@ -229,7 +229,7 @@
                     class="font-heading text-[11px] font-semibold text-ink-400 group-hover:text-primary-600 uppercase tracking-wider">
                     Daftar
                 </p>
-                <p class="mt-1 text-sm font-semibold font-heading text-ink-900">Manajemen Toko</p>
+                <p class="mt-1 text-sm font-semibold font-heading text-ink-900">Daftar bisnis</p>
             </a>
 
             <div

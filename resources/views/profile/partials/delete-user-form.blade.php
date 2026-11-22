@@ -4,7 +4,7 @@
             Hapus Akun Pengguna
         </h3>
         <p class="font-body text-xs text-ink-700 mt-0.5">
-            Setelah akun Anda dihapus, semua riwayat data dan akses outlet akan terhapus secara permanen.
+            Setelah akun Anda dihapus, semua riwayat dan akses ke bisnis yang Anda kelola akan terhapus secara permanen.
         </p>
     </div>
 

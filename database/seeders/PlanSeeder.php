@@ -58,19 +58,18 @@ class PlanSeeder extends Seeder
             ]
         );
 
-        // 3. Paket Scale (Multi-Cabang / Enterprise)
+        // 3. Paket Scale (beberapa bisnis dan tim lebih besar)
         Plan::updateOrCreate(
             ['slug' => 'scale'],
             [
                 'name' => 'Scale',
-                'description' => 'Untuk UMKM dengan beberapa outlet dan tim lebih besar.',
+                'description' => 'Untuk pemilik yang mengelola beberapa bisnis dan tim yang lebih besar.',
                 'price' => 499000,
                 'duration_days' => 30,
                 'max_users' => 20,
                 'max_products' => 5000,
                 'max_outlets' => 10,
                 'features' => [
-                    'Hingga 10 Outlet' => true,
                     'Analitik AI Eksklusif' => true,
                     'Ekspor Laporan' => true,
                     'Manajemen Kas dan Shift' => true,

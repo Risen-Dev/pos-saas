@@ -19,6 +19,12 @@ class CashierWorkspaceTest extends PosTestCase
         $this->get('/services')
             ->assertOk()
             ->assertSee('Mode Kasir')
+            ->assertSee('Navigasi kasir')
+            ->assertSee('Jual')
+            ->assertSee('Riwayat')
+            ->assertSee('Shift')
+            ->assertSee('/pos?panel=history')
+            ->assertSee('/pos?panel=shift')
             ->assertSee($order->invoice_number)
             ->assertDontSee('SaaS Management')
             ->assertDontSee('Produk & Stok')
@@ -42,6 +48,15 @@ class CashierWorkspaceTest extends PosTestCase
         $this->get('/shifts')->assertRedirect('/pos');
         $this->getJson('/service-orders')->assertForbidden();
         $this->deleteJson('/profile', ['password' => 'password'])->assertForbidden();
+    }
+
+    public function test_cashier_shift_shortcut_opens_the_shift_control_in_pos(): void
+    {
+        $cashier = $this->shop('kasir');
+
+        $this->actingAs($cashier)->get('/pos?panel=shift')
+            ->assertOk()
+            ->assertSee("shift ? prepareClose() : modal = 'openShift'", false);
     }
 
     public function test_cashier_can_still_advance_service_workflow_without_payment_side_effects(): void

@@ -27,7 +27,7 @@
             </h1>
             <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
                 Atur konfigurasi Pajak Restoran (PB1/PPN), kalkulasi poin loyalitas pelanggan, dan kebijakan operasional
-                outlet.
+                bisnis aktif.
             </p>
         </div>
 

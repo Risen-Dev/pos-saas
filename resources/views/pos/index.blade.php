@@ -99,6 +99,9 @@
     @if (request('panel') === 'history')
         <div x-init="$nextTick(() => modal = 'history')"></div>
     @endif
+    @if (request('panel') === 'shift')
+        <div x-init="$nextTick(() => shift ? prepareClose() : modal = 'openShift')"></div>
+    @endif
     <header
         class="min-h-[76px] bg-white border-b border-[#e2e9df]
            px-6 py-3
