@@ -9,6 +9,11 @@ export function initPageMotion(root = document) {
     const groups = root.querySelectorAll("[data-motion-stagger]");
     if (!groups.length) return () => {};
 
+    const scrollRoot =
+        root instanceof Element
+            ? root.closest("#main-content")
+            : document.querySelector("#main-content");
+
     const observer = new IntersectionObserver(
         (entries) => {
             for (const entry of entries) {
@@ -18,7 +23,11 @@ export function initPageMotion(root = document) {
                 observer.unobserve(entry.target);
             }
         },
-        { threshold: 0.08, rootMargin: "0px 0px -24px 0px" },
+        {
+            root: scrollRoot,
+            threshold: 0.08,
+            rootMargin: "0px 0px -24px 0px",
+        },
     );
 
     for (const group of groups) {

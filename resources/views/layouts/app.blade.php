@@ -17,6 +17,12 @@
     <!-- Google Fonts Google Jakarta Sans, Inter, IBM Plex Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script>
+        window.growposPageCleanups ??= [];
+        window.registerGrowposPageCleanup ??= (cleanup) => {
+            if (typeof cleanup === 'function') window.growposPageCleanups.push(cleanup);
+        };
+    </script>
     <link
         href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@600&family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700&display=swap"
         rel="stylesheet">

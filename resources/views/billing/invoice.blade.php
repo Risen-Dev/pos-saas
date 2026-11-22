@@ -142,9 +142,12 @@
         <script>
             (() => {
             const snapToken = @json($invoice->snap_token);
-            let pollInterval = null;
+            const controller = new AbortController();
+            let pollTimeout = null;
+            let active = true;
 
             function notifyPayment(message, type = 'warning') {
+                if (!active) return;
                 const feedback = document.querySelector('[data-payment-feedback]');
                 if (feedback) {
                     feedback.textContent = message;
@@ -154,20 +157,21 @@
             }
 
             function openSnap() {
+                if (!active || !window.snap) return;
                 snap.pay(snapToken, {
                     onSuccess: function() {
-                        checkInvoiceStatus(true);
+                        if (active) checkInvoiceStatus(true);
                     },
                     onPending: function() {
                         // Status resmi diupdate via webhook server Midtrans.
                         // Polling ini cuma fallback biar UI ikut update tanpa refresh manual.
-                        startPollingFallback();
+                        if (active) startPollingFallback();
                     },
                     onError: function() {
-                        notifyPayment('Terjadi kesalahan saat memproses pembayaran. Periksa status sebelum mencoba membayar lagi.', 'error');
+                        if (active) notifyPayment('Terjadi kesalahan saat memproses pembayaran. Periksa status sebelum mencoba membayar lagi.', 'error');
                     },
                     onClose: function() {
-                        startPollingFallback();
+                        if (active) startPollingFallback();
                     }
                 });
             }
@@ -175,14 +179,24 @@
             document.getElementById('btnPay')?.addEventListener('click', openSnap);
 
             function startPollingFallback() {
-                if (pollInterval) return;
-                pollInterval = setInterval(() => checkInvoiceStatus(true), 5000);
+                if (!active || pollTimeout !== null) return;
+                pollTimeout = window.setTimeout(async () => {
+                    pollTimeout = null;
+                    await checkInvoiceStatus(true);
+                    if (active) startPollingFallback();
+                }, 5000);
             }
             window.registerGrowposPageCleanup?.(() => {
-                if (pollInterval) clearInterval(pollInterval);
+                active = false;
+                if (pollTimeout !== null) window.clearTimeout(pollTimeout);
+                controller.abort();
+                if (window.checkInvoiceStatus === checkInvoiceStatus) {
+                    delete window.checkInvoiceStatus;
+                }
             });
 
             async function checkInvoiceStatus(isAuto = false) {
+                if (!active) return;
                 const btn = document.getElementById('btnCheckStatus');
                 if (!isAuto && btn) {
                     btn.disabled = true;
@@ -190,24 +204,29 @@
                 }
 
                 try {
-                    const response = await fetch("{{ route('billing.check-status', $invoice->id) }}", {headers: {Accept: 'application/json'}});
+                    const response = await fetch("{{ route('billing.check-status', $invoice->id) }}", {
+                        headers: { Accept: 'application/json' },
+                        signal: controller.signal,
+                    });
                     const data = await response.json();
+                    if (!active) return;
 
                     if (!response.ok) {
                         if (!isAuto) notifyPayment((data.message || 'Status belum dapat diperiksa.') + ' Periksa status sebelum membayar ulang.');
                         return;
                     }
                     if (data.status === 'paid') {
-                        if (pollInterval) clearInterval(pollInterval);
+                        active = false;
+                        if (pollTimeout !== null) window.clearTimeout(pollTimeout);
                         window.growposToast('Pembayaran berhasil diverifikasi.', 'success', { persistOnReload: true, defer: true });
                         window.Turbo?.visit("{{ route('billing.index') }}?status=success", { frame: 'app-content', action: 'replace' });
                     } else if (!isAuto) {
                         notifyPayment('Pembayaran belum terdeteksi. Selesaikan pembayaran atau periksa status sebelum mencoba lagi.');
                     }
                 } catch (e) {
-                    if (!isAuto) notifyPayment('Koneksi terputus. Periksa status sebelum membayar ulang.');
+                    if (active && e.name !== 'AbortError' && !isAuto) notifyPayment('Koneksi terputus. Periksa status sebelum membayar ulang.');
                 } finally {
-                    if (!isAuto && btn) {
+                    if (active && !isAuto && btn?.isConnected) {
                         btn.disabled = false;
                         btn.innerText = 'Sudah bayar? Cek status manual';
                     }

@@ -29,7 +29,7 @@ window.addEventListener("pageshow", (event) => {
     }
 });
 
-let pageCleanups = [];
+const pageCleanups = (window.growposPageCleanups ??= []);
 let chartLoadVersion = 0;
 
 window.registerGrowposPageCleanup = (cleanup) => {

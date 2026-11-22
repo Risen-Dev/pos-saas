@@ -26,12 +26,10 @@
 
 @keyframes growpos-card-enter {
     from {
-        opacity: 0;
         transform: translateY(8px);
     }
 
     to {
-        opacity: 1;
         transform: translateY(0);
     }
 }
@@ -89,11 +87,6 @@
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-[data-motion-item][data-motion-state="pending"] {
-    opacity: 0;
-    transform: translateY(8px);
 }
 
 [data-motion-item][data-motion-state="visible"] {

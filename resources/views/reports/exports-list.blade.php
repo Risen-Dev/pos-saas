@@ -125,43 +125,69 @@
 
     <script>
         (() => {
-            const checkInterval = setInterval(function() {
-                const activeJobs = document.querySelectorAll('.animate-pulse');
-                if (activeJobs.length === 0) {
-                    clearInterval(checkInterval);
-                    return;
+            const page = document.getElementById('app-content');
+            const controller = new AbortController();
+            let timeoutId = null;
+
+            async function refreshStatuses() {
+                if (!page?.isConnected || !page.querySelector('.animate-pulse')) return;
+
+                try {
+                    const response = await fetch("{{ route('reports.exports-status-json') }}", {
+                        headers: { Accept: 'application/json' },
+                        signal: controller.signal,
+                    });
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                    const data = await response.json();
+                    if (controller.signal.aborted || !page.isConnected) return;
+                    for (const item of data) {
+                        const row = page.querySelector(`tr[data-id="${item.id}"]`);
+                        const badgeArea = row?.querySelector('.status-badge-area');
+                        const buttonArea = row?.querySelector('.action-button-area');
+                        if (!badgeArea || !buttonArea) continue;
+
+                        if (item.status === 'completed' && !buttonArea.querySelector('a')) {
+                            badgeArea.innerHTML =
+                                '<span class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full">Selesai</span>';
+                            const link = document.createElement('a');
+                            link.href = item.download_url;
+                            link.dataset.turbo = 'false';
+                            link.className = 'inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md transition-colors';
+                            link.textContent = 'Unduh Excel';
+                            buttonArea.replaceChildren(link);
+                        } else if (item.status === 'processing') {
+                            badgeArea.innerHTML =
+                                '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-primary-600 animate-pulse"></span> Sedang Diproses</span>';
+                        } else if (item.status === 'failed') {
+                            badgeArea.innerHTML =
+                                '<span class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-semantic-danger bg-red-50 rounded-full">Gagal</span>';
+                            const button = document.createElement('button');
+                            button.disabled = true;
+                            button.className = 'h-8 px-3 text-xs font-semibold rounded-md cursor-not-allowed text-ink-400 bg-surface-100';
+                            button.textContent = 'Gagal';
+                            buttonArea.replaceChildren(button);
+                        }
+                    }
+                } catch (error) {
+                    if (error.name !== 'AbortError') {
+                        console.error('Gagal memperbarui status antrean:', error);
+                    }
                 }
 
-                fetch("{{ route('reports.exports-status-json') }}")
-                    .then(response => response.json())
-                    .then(data => {
-                        data.forEach(item => {
-                            const row = document.querySelector(`tr[data-id="${item.id}"]`);
-                            if (row) {
-                                const badgeArea = row.querySelector('.status-badge-area');
-                                const buttonArea = row.querySelector('.action-button-area');
+                if (!controller.signal.aborted && page?.isConnected && page.querySelector('.animate-pulse')) {
+                    timeoutId = window.setTimeout(refreshStatuses, 3000);
+                }
+            }
 
-                                if (item.status === 'completed' && !buttonArea.querySelector(
-                                        'a')) {
-                                    badgeArea.innerHTML =
-                                        `<span class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full">Selesai</span>`;
-                                    buttonArea.innerHTML =
-                                        `<a href="${item.download_url}" data-turbo="false" class="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md transition-colors">Unduh Excel</a>`;
-                                } else if (item.status === 'processing') {
-                                    badgeArea.innerHTML =
-                                        `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-primary-600 animate-pulse"></span> Sedang Diproses</span>`;
-                                } else if (item.status === 'failed') {
-                                    badgeArea.innerHTML =
-                                        `<span class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-semantic-danger bg-red-50 rounded-full">Gagal</span>`;
-                                    buttonArea.innerHTML =
-                                        `<button disabled class="h-8 px-3 text-xs font-semibold rounded-md cursor-not-allowed text-ink-400 bg-surface-100">Gagal</button>`;
-                                }
-                            }
-                        });
-                    })
-                    .catch(error => console.error('Gagal memperbarui status antrean:', error));
-            }, 3000);
-            window.registerGrowposPageCleanup?.(() => clearInterval(checkInterval));
+            if (page?.querySelector('.animate-pulse')) {
+                timeoutId = window.setTimeout(refreshStatuses, 3000);
+            }
+
+            window.registerGrowposPageCleanup?.(() => {
+                if (timeoutId !== null) window.clearTimeout(timeoutId);
+                controller.abort();
+            });
         })();
     </script>
 </x-app-layout>
