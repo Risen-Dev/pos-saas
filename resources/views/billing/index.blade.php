@@ -1,7 +1,7 @@
 <x-app-layout>
     @section('title', 'Langganan & Penagihan')
 
-    <div class="w-full px-4 py-8 mx-auto space-y-8 sm:px-6 lg:px-8 max-w-7xl" x-data="{
+    <div class="w-full px-4 py-8 mx-auto space-y-6 sm:px-6 lg:px-8 max-w-7xl" x-data="{
         showConfirmModal: false,
         selectedPlan: null,
         billingPeriod: 'monthly',
@@ -12,7 +12,7 @@
     }">
 
         {{-- Header Section --}}
-        <x-page-header>
+        <x-page-header stacked>
             <div>
                 <h1 class="text-2xl font-bold font-heading text-ink-900">Langganan & Penagihan</h1>
                 <p class="text-sm font-body text-ink-600">Kelola paket berlangganan toko Anda untuk menikmati seluruh

@@ -24,6 +24,7 @@
 
     {{-- Slot konten akan merender grid full screen dari login.blade.php --}}
     {{ $slot }}
+    <x-toast-stack />
 
 </body>
 

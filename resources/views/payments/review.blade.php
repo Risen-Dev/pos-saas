@@ -6,8 +6,6 @@
                 <p class="[color:#65796f] [font-size:13px] [line-height:1.6]">Nota QRIS yang belum lunas atau memerlukan pemeriksaan. Tombol ini hanya memeriksa referensi lama, tidak membuat tagihan baru.</p>
             </div>
         </x-page-header>
-        @if(session('success'))<p class="[padding:13px_16px] rounded-md [background:#fff6df] [color:#81591c] [font-size:13px] [line-height:1.6] mt-4">{{ session('success') }}</p>@endif
-        @foreach($errors->all() as $error)<p role="alert" class="[padding:13px_16px] rounded-md [background:#fff6df] [color:#81591c] [font-size:13px] [line-height:1.6] mt-4">{{ $error }}</p>@endforeach
         @forelse($orders as $order)
             <article class="bg-white [border:1px_solid_#e1e9e4] rounded-lg [padding:22px] [box-shadow:0_2px_5px_#17392c03] max-[701px]:[padding:18px] mt-4">
                 <a class="underline break-all" href="{{ route('orders.show', $order) }}">{{ $order->invoice_number }}</a>

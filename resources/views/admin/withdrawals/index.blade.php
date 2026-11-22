@@ -3,9 +3,9 @@
 @section('title', 'Kelola Penarikan Dana')
 
 @section('content')
-    <div class="px-4 py-6 mx-auto space-y-6 max-w-desktop md:px-6">
+    <div class="px-4 py-6 mx-auto space-y-4 max-w-desktop md:px-6">
 
-        <x-page-header>
+        <x-page-header stacked>
             <h1 class="font-sans text-xl font-bold text-ink-900">Pengajuan Penarikan Dana</h1>
             <p class="text-sm text-ink-700 mt-0.5">Tinjau dan proses permintaan penarikan dana dari seluruh tenant.</p>
         </x-page-header>

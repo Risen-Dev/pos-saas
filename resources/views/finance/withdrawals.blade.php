@@ -3,10 +3,10 @@
 @section('title', 'Dompet & Penarikan Dana')
 
 @section('content')
-    <div x-data="withdrawalPage()" class="px-4 py-6 mx-auto space-y-6 max-w-desktop md:px-6">
+    <div x-data="withdrawalPage()" class="px-4 py-6 mx-auto space-y-4 max-w-desktop md:px-6">
 
         {{-- Header --}}
-        <x-page-header>
+        <x-page-header stacked>
             <div>
                 <h1 class="font-sans text-xl font-bold text-ink-900">Dompet & Penarikan Dana</h1>
                 <p class="text-sm text-ink-700 mt-0.5">Kelola saldo toko dan ajukan penarikan ke rekening bank Anda.</p>

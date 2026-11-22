@@ -365,9 +365,6 @@
     <div class="[&[x-cloak]]:!hidden mx-4 mt-4 [padding:13px_16px] rounded-md [background:#fff6df] [color:#81591c] [font-size:13px] [line-height:1.6]"
         x-show="!online" x-cloak>Offline. Transaksi tunai disimpan di perangkat ini dan diperiksa server saat tersambung
         kembali. QRIS otomatis dan pembayaran manual memerlukan koneksi.</div>
-    <div class="[&[x-cloak]]:!hidden mx-4 mt-4 [padding:13px_16px] rounded-md [background:#fff6df] [color:#81591c] [font-size:13px] [line-height:1.6]"
-        x-show="notice" x-cloak role="status"><span x-text="notice"></span><button class="float-right ml-4"
-            @click="notice=''" aria-label="Tutup pemberitahuan">×</button></div>
     <div class="[&[x-cloak]]:!hidden mx-4 mt-4 [padding:13px_16px] rounded-md [background:#fff6df] [color:#81591c] [font-size:13px] [line-height:1.6] ![background:#fff0ee] ![color:#a23225]"
         x-show="error" x-cloak role="alert"><span x-text="error"></span><button class="float-right ml-4"
             @click="error=''" aria-label="Tutup kesalahan">×</button></div>
@@ -1188,6 +1185,7 @@
             </section>
         </div>
     </div>
+    <x-toast-stack />
 </body>
 
 </html>

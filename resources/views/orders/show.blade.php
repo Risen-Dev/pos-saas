@@ -21,18 +21,6 @@
 
 
         <section class="max-w-xl mx-auto my-6 space-y-4 no-print-area">
-            @if(session('success'))
-                <div role="status" class="flex items-start gap-3 p-4 text-sm border rounded-lg bg-primary-50 border-primary-100 text-primary-700">
-                    <x-icon class="mt-0.5 fa-solid fa-circle-check" /><div><strong>Berhasil.</strong> {{ session('success') }}</div>
-                </div>
-            @endif
-            @if($errors->any())
-                <div role="alert" class="p-4 text-sm border rounded-lg bg-red-50 border-red-100 text-semantic-danger">
-                    <div class="flex items-center gap-2 mb-2 font-semibold"><x-icon class="fa-solid fa-circle-exclamation" /> Tindakan belum dapat diproses</div>
-                    <ul class="pl-5 space-y-1 text-xs list-disc">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
-                </div>
-            @endif
-
             @if($order->order_status === 'cancelled')
                 <div class="flex items-start gap-3 p-4 border rounded-lg bg-red-50 border-red-100 text-semantic-danger">
                     <span class="flex items-center justify-center w-9 h-9 rounded-md bg-white/70 shrink-0"><x-icon class="fa-solid fa-ban" /></span>

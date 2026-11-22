@@ -20,7 +20,7 @@
         </x-page-header>
 
         <form action="{{ route('products.update', $product->id) }}" method="POST" enctype="multipart/form-data"
-            class="space-y-6">
+            class="space-y-4">
             @csrf
             <details class="p-4 border rounded-lg border-border-200" @if($errors->any()) open @endif><summary class="font-semibold cursor-pointer">Satuan, kemasan & harga grosir</summary>@include('products.partials.retail')</details>
             @method('PUT')
@@ -221,7 +221,7 @@
         function generateSKU() {
             const name = document.getElementById('product_name').value;
             const cat = document.getElementById('category_id').value;
-            if (!name) return alert('Ketik nama produk terlebih dahulu');
+            if (!name) return window.growposToast('Ketik nama produk terlebih dahulu.', 'warning');
             const res =
                 `${name.substring(0,3).toUpperCase()}-${(cat || '0').padStart(2,'0')}-${Math.floor(1000+Math.random()*9000)}`;
             document.getElementById('sku_input').value = res;

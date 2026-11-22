@@ -10,15 +10,6 @@
             $isBusinessQuotaFull = $tenantCount >= $maxBusinesses;
         @endphp
 
-        <!-- Banner Flash Status/Notification -->
-        @if (session('status'))
-            <div
-                class="flex items-center gap-3 p-4 mb-6 text-sm font-medium border-l-4 rounded-md shadow-sm bg-primary-50 border-primary-600 text-ink-900">
-                <x-icon class="text-base fa-solid fa-circle-check text-primary-600" />
-                <span>{{ session('status') }}</span>
-            </div>
-        @endif
-
         <div
             class="flex flex-col justify-between gap-3 p-4 mb-6 border rounded-lg shadow-sm sm:flex-row sm:items-center bg-surface-0 border-border-200">
             <div class="flex items-center gap-3">

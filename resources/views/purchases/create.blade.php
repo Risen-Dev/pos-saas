@@ -1,8 +1,8 @@
 <x-app-layout>
     @section('title', 'Buat Purchase Order')
-    <div class="max-w-5xl p-4 mx-auto space-y-6 sm:p-6">
-        <x-page-header><h1 class="text-2xl font-bold">Buat Purchase Order</h1><p class="mt-1 text-sm text-ink-700">Catat pembelian dalam satuan dasar produk. HPP rata-rata diperbarui saat barang diterima.</p></x-page-header>
-        <form method="POST" action="{{ route('purchases.store') }}" class="space-y-5" x-data="{ rows: @js(old('items', [['product_id'=>'','quantity'=>1,'unit_cost'=>0]])), get total() { return this.rows.reduce((sum,row) => sum + Number(row.quantity || 0) * Number(row.unit_cost || 0), 0); }, formatRupiah(value) { return 'Rp ' + new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(Number(value || 0)); }, setUnitCost(row, event) { const digits = event.target.value.replace(/\D/g, ''); row.unit_cost = digits ? Number(digits) : 0; event.target.value = digits ? this.formatRupiah(row.unit_cost) : ''; } }">
+    <div class="max-w-5xl p-4 mx-auto space-y-4 sm:p-6">
+        <x-page-header stacked><h1 class="text-2xl font-bold">Buat Purchase Order</h1><p class="mt-1 text-sm text-ink-700">Catat pembelian dalam satuan dasar produk. HPP rata-rata diperbarui saat barang diterima.</p></x-page-header>
+        <form method="POST" action="{{ route('purchases.store') }}" class="space-y-4" x-data="{ rows: @js(old('items', [['product_id'=>'','quantity'=>1,'unit_cost'=>0]])), get total() { return this.rows.reduce((sum,row) => sum + Number(row.quantity || 0) * Number(row.unit_cost || 0), 0); }, formatRupiah(value) { return 'Rp ' + new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(Number(value || 0)); }, setUnitCost(row, event) { const digits = event.target.value.replace(/\D/g, ''); row.unit_cost = digits ? Number(digits) : 0; event.target.value = digits ? this.formatRupiah(row.unit_cost) : ''; } }">
             @csrf
             <div class="grid gap-4 p-5 bg-white border rounded-lg border-border-200 sm:grid-cols-2">
                 <label class="text-sm font-semibold">Pemasok<select name="supplier_id" class="block w-full mt-1 rounded-md border-border-200"><option value="">Tanpa supplier</option>@foreach($suppliers as $supplier)<option value="{{ $supplier->id }}" @selected(old('supplier_id') == $supplier->id)>{{ $supplier->name }}</option>@endforeach</select></label>

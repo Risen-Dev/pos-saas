@@ -6,7 +6,6 @@
             <p class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-primary-600">SELAMAT DATANG KEMBALI</p>
             <h1 class="text-4xl font-semibold tracking-[-0.055em] text-ink-900">Masuk ke akun Anda.</h1>
             <p class="mt-3 mb-8 text-sm leading-6 text-ink-700">Lanjutkan pekerjaan Anda di GrowPOS.</p>
-            <x-auth-session-status class="mb-5" :status="session('status')" />
             @if (request('expired'))
                 <p role="alert" class="p-3 mb-5 text-sm border rounded-xl border-amber-200 bg-amber-50 text-amber-800">
                     Sesi Anda telah berakhir. Silakan masuk kembali.</p>

@@ -21,12 +21,12 @@
 
         <div x-data="{ isSubmitting: false }">
             <form action="{{ route('tenants.update', $tenant->id) }}" method="POST" enctype="multipart/form-data"
-                class="space-y-6" @submit="isSubmitting = true">
+                class="space-y-4" @submit="isSubmitting = true">
                 @csrf
                 @method('PUT')
 
                 <!-- Card Content utama (Radius-lg = 16px, Padding = 24px) -->
-                <div class="p-6 space-y-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div class="p-5 space-y-4 border rounded-lg shadow-sm bg-surface-0 border-border-200">
 
                     <!-- Logo Upload Field -->
                     <div x-data="{ imgPreview: '{{ $tenant->img_logo ? asset('storage/' . $tenant->img_logo) : null }}' }">

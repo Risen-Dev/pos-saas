@@ -167,6 +167,7 @@
         <x-landing.cta-section />
     </main>
     <x-landing.footer />
+    <x-toast-stack />
 </body>
 
 </html>

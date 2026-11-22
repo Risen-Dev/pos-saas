@@ -30,13 +30,6 @@
             </a>
         </x-page-header>
 
-        @if (session('success'))
-            <div role="status" class="flex items-start gap-3 p-4 mb-5 text-sm border rounded-lg bg-primary-50 border-primary-100 text-primary-700">
-                <x-icon class="mt-0.5 fa-solid fa-circle-check" />
-                <div><strong class="font-semibold">Berhasil.</strong> {{ session('success') }}</div>
-            </div>
-        @endif
-
         @if ($errors->any())
             <div role="alert" class="p-4 mb-5 border rounded-lg bg-red-50 border-red-100 text-semantic-danger">
                 <div class="flex items-center gap-2 mb-2 text-sm font-semibold"><x-icon class="fa-solid fa-circle-exclamation" /> Periksa kembali data berikut</div>

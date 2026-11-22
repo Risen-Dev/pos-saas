@@ -29,10 +29,11 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         if ($request->user()->role === 'kasir') {
-            return redirect()->route('pos.index');
+            return redirect()->route('pos.index')->with('success', 'Berhasil masuk ke GrowPOS.');
         }
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->intended(route('dashboard', absolute: false))
+            ->with('success', 'Berhasil masuk ke GrowPOS.');
     }
 
     /**
@@ -46,6 +47,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect('/')->with('success', 'Anda berhasil keluar dari akun.');
     }
 }

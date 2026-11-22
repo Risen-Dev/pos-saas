@@ -69,10 +69,12 @@ class GoogleController extends Controller
 
             // 5. Jika SUDAH VERIFIKASI tapi belum punya toko
             if (! $user->tenant_id) {
-                return redirect()->route('tenants.create');
+                return redirect()->route('tenants.create')
+                    ->with('success', 'Berhasil masuk dengan Google. Lanjutkan dengan menyiapkan bisnis Anda.');
             }
 
-            return redirect()->intended('/dashboard');
+            return redirect()->intended('/dashboard')
+                ->with('success', 'Berhasil masuk dengan Google ke GrowPOS.');
         } catch (\Exception $e) {
             Log::error('Google Auth Error: '.$e->getMessage());
 

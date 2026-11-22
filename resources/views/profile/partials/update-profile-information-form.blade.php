@@ -46,11 +46,6 @@
                         </button>
                     </p>
 
-                    @if (session('status') === 'verification-link-sent')
-                        <p class="mt-1 text-xs font-semibold font-body text-primary-600">
-                            {{ __('Tautan verifikasi baru telah dikirim ke alamat email Anda.') }}
-                        </p>
-                    @endif
                 </div>
             @endif
         </div>
@@ -61,12 +56,6 @@
                 Simpan Perubahan
             </button>
 
-            @if (session('status') === 'profile-updated')
-                <span x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 2000)"
-                    class="text-xs font-semibold font-body text-primary-600">
-                    Tersimpan.
-                </span>
-            @endif
         </div>
     </form>
 </section>

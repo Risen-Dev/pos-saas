@@ -3,23 +3,6 @@
 
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-modal-lg">
 
-        <!-- Flash Session Notification -->
-        @if (session('success'))
-            <div
-                class="flex items-center gap-3 p-4 mb-6 text-sm font-medium border-l-4 rounded-md shadow-sm bg-primary-50 border-primary-600 text-ink-900">
-                <x-icon class="text-base fa-solid fa-circle-check text-primary-600" />
-                <span>{{ session('success') }}</span>
-            </div>
-        @endif
-
-        @if (session('warning'))
-            <div
-                class="flex items-center gap-3 p-4 mb-6 text-sm font-medium border-l-4 rounded-md shadow-sm bg-amber-50 border-amber-500 text-ink-900">
-                <x-icon class="text-base fa-solid fa-triangle-exclamation text-amber-600" />
-                <span>{{ session('warning') }}</span>
-            </div>
-        @endif
-
         <!-- Header Halaman -->
         <x-page-header>
             <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
@@ -31,7 +14,7 @@
             </p>
         </x-page-header>
 
-        <form action="{{ route('settings.store') }}" method="POST" class="space-y-6">
+        <form action="{{ route('settings.store') }}" method="POST" class="space-y-4">
             @csrf
 
             <!-- Section 1: Konfigurasi Pajak (PPN/PB1) -->

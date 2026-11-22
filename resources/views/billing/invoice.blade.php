@@ -41,7 +41,7 @@
                 </div>
             </div>
 
-            <div class="p-6 space-y-8 md:p-8">
+            <div class="p-5 space-y-6 md:p-7">
                 <div class="grid grid-cols-2 gap-6 text-xs md:grid-cols-4">
                     <div>
                         <span class="block mb-1 font-medium text-ink-400">Diterbitkan Untuk:</span>
@@ -127,6 +127,7 @@
                     @else
                         <div role="status" class="w-full p-4 border rounded-xl bg-red-50 border-red-200 text-red-800">Tagihan {{ $invoice->status === 'expired' ? 'kedaluwarsa' : 'dibatalkan atau gagal' }}. Jika saldo sudah terpotong, periksa status sebelum membuat tagihan baru. <button id="btnCheckStatus" onclick="checkInvoiceStatus()" class="block mt-3 font-semibold underline">Periksa pembayaran</button></div>
                     @endif
+                    <p data-payment-feedback role="status" aria-live="polite" class="hidden w-full rounded-lg border border-amber-200 bg-amber-50 p-3 text-left text-sm text-amber-900"></p>
                 </div>
 
             </div>
@@ -142,6 +143,15 @@
             const snapToken = @json($invoice->snap_token);
             let pollInterval = null;
 
+            function notifyPayment(message, type = 'warning') {
+                const feedback = document.querySelector('[data-payment-feedback]');
+                if (feedback) {
+                    feedback.textContent = message;
+                    feedback.classList.remove('hidden');
+                }
+                window.growposToast(message, type, { duration: 10000 });
+            }
+
             function openSnap() {
                 snap.pay(snapToken, {
                     onSuccess: function() {
@@ -153,7 +163,7 @@
                         startPollingFallback();
                     },
                     onError: function() {
-                        alert('Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi.');
+                        notifyPayment('Terjadi kesalahan saat memproses pembayaran. Periksa status sebelum mencoba membayar lagi.', 'error');
                     },
                     onClose: function() {
                         startPollingFallback();
@@ -180,17 +190,18 @@
                     const data = await response.json();
 
                     if (!response.ok) {
-                        if (!isAuto) alert(data.message || 'Status belum dapat diperiksa. Jangan membayar ulang.');
+                        if (!isAuto) notifyPayment((data.message || 'Status belum dapat diperiksa.') + ' Periksa status sebelum membayar ulang.');
                         return;
                     }
                     if (data.status === 'paid') {
                         if (pollInterval) clearInterval(pollInterval);
+                        window.growposToast('Pembayaran berhasil diverifikasi.', 'success', { persistOnReload: true, defer: true });
                         window.location.href = "{{ route('billing.index') }}?status=success";
                     } else if (!isAuto) {
-                        alert('Pembayaran belum terdeteksi. Silakan selesaikan pembayaran terlebih dahulu.');
+                        notifyPayment('Pembayaran belum terdeteksi. Selesaikan pembayaran atau periksa status sebelum mencoba lagi.');
                     }
                 } catch (e) {
-                    if (!isAuto) alert('Koneksi terputus. Coba periksa lagi sebelum membayar ulang.');
+                    if (!isAuto) notifyPayment('Koneksi terputus. Periksa status sebelum membayar ulang.');
                 } finally {
                     if (!isAuto && btn) {
                         btn.disabled = false;

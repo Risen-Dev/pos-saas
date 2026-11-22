@@ -49,12 +49,6 @@
                 Perbarui Sandi
             </button>
 
-            @if (session('status') === 'password-updated')
-                <span x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 2000)"
-                    class="text-xs font-semibold font-body text-primary-600">
-                    Sandi Diperbarui.
-                </span>
-            @endif
         </div>
     </form>
 </section>

@@ -2,7 +2,7 @@
     @section('title', 'Pengaturan usaha')
 
     <div class="max-w-4xl px-4 py-6 mx-auto sm:px-6">
-        <x-page-header>
+        <x-page-header stacked>
             <div>
                 <h1 class="text-2xl font-bold text-ink-900">Pengaturan usaha</h1>
                 <p class="mt-2 text-sm text-ink-700">Atur bisnis aktif, akses tim, dan konfigurasi penjualan.</p>
@@ -14,7 +14,7 @@
                 Pengaturan usaha dikelola oleh admin bisnis. Hubungi admin jika Anda memerlukan perubahan.
             </div>
         @else
-            <div class="mt-6 space-y-6" data-motion-stagger>
+            <div class="mt-4 space-y-4" data-motion-stagger>
                 <section aria-labelledby="business-access-heading" class="p-5 bg-white border rounded-lg border-border-200">
                     <h2 id="business-access-heading" class="text-base font-semibold text-ink-900">Bisnis &amp; akses</h2>
                     <ul class="mt-3 divide-y divide-border-200">

@@ -4,9 +4,11 @@ import connectionStatus from "./connection-status.js";
 import { initRupiahInputs } from "./currency-input.js";
 import { onDomReady } from "./dom-ready.js";
 import { initPageMotion } from "./motion.js";
+import toastStack from "./notifications.js";
 
 window.Alpine = Alpine;
 Alpine.data("connectionStatus", connectionStatus);
+Alpine.data("toastStack", toastStack);
 initPageMotion(document);
 
 async function startAlpine() {

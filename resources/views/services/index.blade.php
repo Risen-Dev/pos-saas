@@ -15,9 +15,6 @@
             <a href="{{ route('pos.index') }}" class="inline-flex items-center justify-center h-10 gap-2 px-4 text-xs font-semibold text-white rounded-md shadow-sm bg-primary-600 hover:bg-primary-700"><x-icon class="fa-solid fa-plus" /> Transaksi Baru</a>
         </x-page-header>
 
-        @if(session('success'))<div role="status" class="flex items-center gap-2 p-4 mb-5 text-sm border rounded-lg bg-primary-50 border-primary-100 text-primary-700"><x-icon class="fa-solid fa-circle-check" />{{ session('success') }}</div>@endif
-        @if($errors->any())<div role="alert" class="p-4 mb-5 text-xs border rounded-lg bg-red-50 border-red-100 text-semantic-danger">{{ $errors->first() }}</div>@endif
-
         <div class="flex gap-2 pb-2 mb-6 overflow-x-auto">
             @foreach($labels as $key => $label)
                 <a href="{{ route('services.index', ['status' => $key]) }}" class="inline-flex items-center h-9 gap-2 px-3 text-xs font-semibold transition-colors border rounded-md whitespace-nowrap {{ $status === $key ? 'bg-primary-600 border-primary-600 text-white shadow-sm' : 'bg-surface-0 border-border-200 text-ink-700 hover:bg-surface-100' }}"><x-icon class="fa-solid {{ $icons[$key] }}" />{{ $label }}</a>

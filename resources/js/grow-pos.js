@@ -41,7 +41,6 @@ export default () => ({
     busy: false,
     syncing: false,
     online: navigator.onLine,
-    notice: "",
     error: "",
     receipt: null,
     payment: null,
@@ -50,6 +49,9 @@ export default () => ({
     shiftSummary: null,
     key: "",
     storageReady: true,
+    setNotice(message, type = "success") {
+        window.growposToast(message, type);
+    },
     cartTier(line) {
         if (line.unit_id || line.variant_id) {
             return null;
@@ -544,8 +546,10 @@ export default () => ({
         });
         if (this.persist()) {
             this.clearCart();
-            this.notice =
-                "Pesanan tersimpan di perangkat. Stok belum dipotong.";
+            this.setNotice(
+                "Pesanan tersimpan di perangkat. Stok belum dipotong.",
+                "warning",
+            );
         }
     },
     resume(id) {
@@ -633,9 +637,11 @@ export default () => ({
             this.customer = String(person.id);
             this.customerSearch = person.name;
             this.modal = "";
-            this.notice = person.is_member
-                ? "Member disimpan. Tautan kartu akan tersedia setelah transaksi berhasil."
-                : "Pelanggan disimpan dan dipilih untuk transaksi.";
+            this.setNotice(
+                person.is_member
+                    ? "Member disimpan. Tautan kartu akan tersedia setelah transaksi berhasil."
+                    : "Pelanggan disimpan dan dipilih untuk transaksi.",
+            );
         } catch (error) {
             this.customerCreateError = error.message;
         } finally {
@@ -757,8 +763,10 @@ export default () => ({
         if (!navigator.onLine) {
             this.clearCart();
             this.modal = "queue";
-            this.notice =
-                "Transaksi tunai tersimpan di perangkat, belum masuk laporan server.";
+            this.setNotice(
+                "Transaksi tunai tersimpan di perangkat, belum masuk laporan server.",
+                "warning",
+            );
             this.busy = false;
             return;
         }
@@ -821,7 +829,7 @@ export default () => ({
                 }
             }
             if (!this.queue.length)
-                this.notice = "Semua transaksi sudah tersinkron ke server.";
+                this.setNotice("Semua transaksi sudah tersinkron ke server.");
         } finally {
             this.syncing = false;
         }
@@ -855,7 +863,7 @@ export default () => ({
         this.useStampReward = false;
         if (result.order_status === "cancelled") {
             this.modal = "";
-            this.notice = "Pembayaran sudah dibatalkan.";
+            this.setNotice("Pembayaran sudah dibatalkan.", "info");
             return;
         }
         if (
@@ -879,7 +887,7 @@ export default () => ({
         if (!this.receipt?.loyalty_card_url) return;
         try {
             await navigator.clipboard.writeText(this.receipt.loyalty_card_url);
-            this.notice = "Tautan kartu member tersalin.";
+            this.setNotice("Tautan kartu member tersalin.");
         } catch {
             window.prompt(
                 "Salin tautan kartu member",
@@ -931,11 +939,18 @@ export default () => ({
                 this.receipt =
                     result.payment_status === "paid" ? result : this.payment;
                 this.modal = "receipt";
-                this.notice = "Pembayaran QRIS terkonfirmasi.";
+                this.setNotice("Pembayaran QRIS terkonfirmasi.");
             } else if (result.status === "cancelled") {
                 this.modal = "";
-                this.notice = "Pembayaran batal. Stok telah dipulihkan.";
-            } else this.notice = "Pembayaran masih menunggu konfirmasi.";
+                this.setNotice(
+                    "Pembayaran batal. Stok telah dipulihkan.",
+                    "info",
+                );
+            } else
+                this.setNotice(
+                    "Pembayaran masih menunggu konfirmasi.",
+                    "warning",
+                );
         } catch (e) {
             this.error = e.message;
         } finally {
@@ -951,7 +966,7 @@ export default () => ({
             });
             this.shift = (await this.request("/shifts/current")).shift;
             this.modal = "";
-            this.notice = "Shift dibuka. Selamat berjualan!";
+            this.setNotice("Shift dibuka. Selamat berjualan!");
         } catch (e) {
             this.error = e.message;
         } finally {
@@ -983,7 +998,7 @@ export default () => ({
             });
             this.shift = null;
             this.modal = "";
-            this.notice = "Shift ditutup. Terima kasih untuk hari ini.";
+            this.setNotice("Shift ditutup. Terima kasih untuk hari ini.");
         } catch (e) {
             this.error = e.message;
         } finally {

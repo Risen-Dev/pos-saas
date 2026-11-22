@@ -1,19 +1,13 @@
 <x-app-layout>
     @section('title', 'Detail Pelanggan')
-    <div class="max-w-6xl p-4 mx-auto space-y-6 sm:p-6" x-data="{ copied: false, async copyCard(url) { try { await navigator.clipboard.writeText(url); this.copied = true; setTimeout(() => this.copied = false, 1800); } catch { window.prompt('Salin tautan kartu', url); } } }">
-        <x-page-header>
+    <div class="max-w-6xl p-4 mx-auto space-y-4 sm:p-6" x-data="{ copied: false, async copyCard(url) { try { await navigator.clipboard.writeText(url); this.copied = true; setTimeout(() => this.copied = false, 1800); } catch { window.prompt('Salin tautan kartu', url); } } }">
+        <x-page-header stacked>
             <div>
                 <a href="{{ route('customers.index') }}" class="inline-flex items-center min-h-11 font-semibold underline text-primary-700">Kembali ke pelanggan</a>
                 <h1 class="mt-2 text-2xl font-bold">{{ $customer->name }}</h1>
                 <p class="mt-1 text-sm text-ink-700">{{ $customer->phone ?: 'Nomor kontak belum diisi' }}</p>
             </div>
         </x-page-header>
-        @if (session('success'))
-            <div role="status" class="p-4 text-sm border rounded-lg bg-primary-50 border-primary-200 text-primary-900">{{ session('success') }}</div>
-        @endif
-        @if ($errors->any())
-            <div role="alert" class="p-4 text-sm border rounded-lg bg-red-50 border-red-200 text-red-900">{{ $errors->first() }}</div>
-        @endif
         <dl class="grid gap-4 sm:grid-cols-3">
             @can('feature-loyalty')
             <div class="p-5 bg-white border rounded-lg border-border-200"><dt>Status</dt><dd class="mt-2 font-bold">{{ $customer->is_member ? 'Member' : 'Pelanggan umum' }}</dd></div>

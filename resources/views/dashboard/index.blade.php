@@ -1,10 +1,10 @@
 <x-app-layout>
     @section('title', 'Ringkasan Usaha')
 
-    <div class="min-h-screen px-4 py-8 mx-auto space-y-8 max-w-7xl sm:px-6 lg:px-8 bg-surface-100">
+    <div class="min-h-screen px-4 py-8 mx-auto space-y-6 max-w-7xl sm:px-6 lg:px-8 bg-surface-100">
 
         <!-- Header & Quick CTA -->
-        <x-page-header split>
+        <x-page-header split stacked>
             <div>
                 <div class="flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-ink-400">
                     <span>{{ auth()->user()->tenant->name }}</span>

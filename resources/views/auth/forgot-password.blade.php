@@ -6,7 +6,6 @@
             <p class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-primary-600">PEMULIHAN AKUN</p>
             <h1 class="text-4xl font-semibold tracking-[-0.055em]">Lupa kata sandi?</h1>
             <p class="mb-8 mt-3 text-sm leading-7 text-ink-700">Masukkan email akun Anda. Kami akan mengirim tautan untuk membuat kata sandi baru.</p>
-            @if(session('status'))<div role="status" class="mb-6 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">{{ session('status') }}</div>@endif
             <form method="POST" action="{{ route('password.email') }}" class="space-y-6" @submit="submitting=true">
                 @csrf
                 <x-auth.field name="email" label="Alamat email" type="email" :value="old('email')" autocomplete="email" placeholder="nama@bisnis.com" :autofocus="true" />

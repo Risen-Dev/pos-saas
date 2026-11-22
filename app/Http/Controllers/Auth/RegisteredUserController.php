@@ -47,6 +47,7 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         // return redirect(route('dashboard', absolute: false));
-        return redirect(route('tenants.create', absolute: false));
+        return redirect(route('tenants.create', absolute: false))
+            ->with('success', 'Akun berhasil dibuat. Lanjutkan dengan menyiapkan bisnis Anda.');
     }
 }

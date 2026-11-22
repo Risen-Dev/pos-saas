@@ -364,15 +364,15 @@
 
                 const res = await response.json();
                 if (res.success) {
-                    alert('Informasi rekening bank berhasil disimpan!');
+                    window.growposToast('Informasi rekening bank berhasil disimpan.', 'success', { persistOnReload: true, defer: true });
                     location.reload();
                 } else {
-                    alert('Gagal: ' + res.message);
+                    window.growposToast('Gagal: ' + res.message, 'error');
                     btn.disabled = false;
                     btn.innerText = "Simpan Rekening";
                 }
             } catch (error) {
-                alert('Terjadi kesalahan sistem internal.');
+                window.growposToast('Terjadi kesalahan sistem internal.', 'error');
                 btn.disabled = false;
                 btn.innerText = "Simpan Rekening";
             }
@@ -386,7 +386,7 @@
                 const rawAmount = document.getElementById('inputAmount').value.replace(/\D/g, "") || 0;
                 const amount = parseInt(rawAmount);
 
-                if (amount <= 0) return alert('Jumlah penarikan harus lebih dari Rp 0');
+                if (amount <= 0) return window.growposToast('Jumlah penarikan harus lebih dari Rp 0.', 'warning');
 
                 btn.disabled = true;
                 btn.innerText = "MEMPROSES...";
@@ -409,15 +409,15 @@
                     if (res.success) {
                         withdrawalKey = crypto.randomUUID();
                         sessionStorage.setItem(withdrawalStorageKey, withdrawalKey);
-                        alert('Pengajuan penarikan dana berhasil dikirim!');
+                        window.growposToast('Pengajuan penarikan dana berhasil dikirim.', 'success', { persistOnReload: true, defer: true });
                         location.reload();
                     } else {
-                        alert('Gagal: ' + res.message);
+                        window.growposToast('Gagal: ' + res.message, 'error');
                         btn.disabled = false;
                         btn.innerText = "Kirim Pengajuan";
                     }
                 } catch (error) {
-                    alert('Terjadi kesalahan koneksi sistem.');
+                    window.growposToast('Terjadi kesalahan koneksi sistem.', 'error');
                     btn.disabled = false;
                     btn.innerText = "Kirim Pengajuan";
                 }

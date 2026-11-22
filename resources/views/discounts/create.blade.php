@@ -20,7 +20,7 @@
 
         <!-- Form Card Container -->
         <div class="p-6 border rounded-lg shadow-sm bg-surface-0 border-border-200">
-            <form action="{{ route('discounts.store') }}" method="POST" class="space-y-6" x-data="{ discountType: @js(old('type', 'percentage')) }">
+            <form action="{{ route('discounts.store') }}" method="POST" class="space-y-4" x-data="{ discountType: @js(old('type', 'percentage')) }">
                 @csrf
 
                 <!-- Row 1: Nama, Tipe & Nilai -->

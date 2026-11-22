@@ -10,23 +10,6 @@
             $isUserFull = $employeeCount >= $maxUsers;
         @endphp
 
-        <!-- Flash Notification -->
-        @if (session('success'))
-            <div
-                class="flex items-center gap-3 p-4 mb-6 text-sm font-medium border-l-4 rounded-md shadow-sm bg-primary-50 border-primary-600 text-ink-900">
-                <x-icon class="text-base fa-solid fa-circle-check text-primary-600" />
-                <span>{{ session('success') }}</span>
-            </div>
-        @endif
-
-        @if (session('error'))
-            <div
-                class="flex items-center gap-3 p-4 mb-6 text-sm font-medium border-l-4 rounded-md shadow-sm bg-red-50 border-semantic-danger text-ink-900">
-                <x-icon class="text-base fa-solid fa-circle-exclamation text-semantic-danger" />
-                <span>{{ session('error') }}</span>
-            </div>
-        @endif
-
         <!-- Banner Kuota Pegawai -->
         <div
             class="flex flex-col justify-between gap-3 p-4 mb-6 border rounded-lg shadow-sm sm:flex-row sm:items-center bg-surface-0 border-border-200">
